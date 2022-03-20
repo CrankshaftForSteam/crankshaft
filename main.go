@@ -28,6 +28,7 @@ func main() {
 
 func run() error {
 	debugPort := flag.String("debug-port", "8080", "CEF debug port")
+	httpPort := flag.String("ws-port", "8085", "Port to run websocket server on")
 	flag.Parse()
 
 	allocatorCtx, cancel := chromedp.NewRemoteAllocator(context.Background(), "http://localhost:"+*debugPort)
@@ -84,9 +85,10 @@ func run() error {
 		return fmt.Errorf("Failed to inject eval script: %w", err)
 	}
 
-	http.HandleFunc("/", ws)
-	fmt.Println("Listening on :8085")
-	log.Fatal(http.ListenAndServe(":8085", nil))
+	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
+	http.HandleFunc("/ws", ws)
+	fmt.Println("Listening on :" + *httpPort)
+	log.Fatal(http.ListenAndServe(":"+*httpPort, nil))
 
 	return nil
 }
@@ -98,7 +100,7 @@ var upgrader = websocket.Upgrader{
 }
 
 type SocketMessage struct {
-	Id string `json:"id"`
+	Id   string `json:"id"`
 	Type string `json:"type"`
 	Url  string `json:"url"`
 }

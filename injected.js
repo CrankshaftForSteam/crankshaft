@@ -29,7 +29,7 @@
 
 		socketConnect() {
 			return new Promise((resolve) => {
-				this.socket = new WebSocket('ws://localhost:8085');
+				this.socket = new WebSocket('ws://localhost:8085/ws');
 				this.socket.addEventListener('open', (event) => {
 					this.socketSend({ type: 'connected' })
 					resolve();
@@ -205,7 +205,7 @@
 					data-smm-protondb
 				>
 					<img
-						src="http://localhost:8086/protondb-logo.svg"
+						src="http://localhost:8085/assets/protondb-logo.svg"
 						style="
 							width: 20px;
 							margin-right: 4px;
