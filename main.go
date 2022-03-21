@@ -30,13 +30,27 @@ func run() error {
 		return fmt.Errorf("Error getting library context: %w", err)
 	}
 
-	evalScript, err := buildEvalScript(*serverPort, *libraryMode)
+	menuCtx, err := getDeckMenuCtx(ctx)
 	if err != nil {
-		return fmt.Errorf("Failed to build eval script: %w", err)
+		return fmt.Errorf("Error getting menu context: %w", err)
 	}
 
-	if err = runScriptInCtx(libraryCtx, evalScript); err != nil {
-		return fmt.Errorf("Error injecting script: %w", err)
+	bundleScripts()
+
+	libraryEvalScript, err := buildEvalScript(*serverPort, *libraryMode, ".build/library.js")
+	if err != nil {
+		return fmt.Errorf("Failed to build library eval script: %w", err)
+	}
+	if err = runScriptInCtx(libraryCtx, libraryEvalScript); err != nil {
+		return fmt.Errorf("Error injecting library script: %w", err)
+	}
+
+	menuEvalScript, err := buildEvalScript(*serverPort, *libraryMode, ".build/menu.js")
+	if err != nil {
+		return fmt.Errorf("Failed to build menu eval script: %w", err)
+	}
+	if err = runScriptInCtx(menuCtx, menuEvalScript); err != nil {
+		return fmt.Errorf("Error injecting menu script: %w", err)
 	}
 
 	rpcServer := handleRpc()

@@ -29,7 +29,7 @@ const (
 
 func getLibraryCtx(ctx context.Context) (context.Context, *LibraryMode, error) {
 	targetDesktopLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/index.html`)
-	targetDeckLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/routes\/library`)
+	targetDeckLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/routes\/`)
 
 	targets, err := chromedp.Targets(ctx)
 	if err != nil {
@@ -39,7 +39,8 @@ func getLibraryCtx(ctx context.Context) (context.Context, *LibraryMode, error) {
 	var mode LibraryMode
 	var libraryTarget *target.Info
 	for _, target := range targets {
-		fmt.Println(target)
+		fmt.Println(target.Title, "|", target.URL)
+
 		if match := targetDesktopLibraryRe.MatchString(target.URL); match {
 			libraryTarget = target
 			mode = Desktop
@@ -57,6 +58,26 @@ func getLibraryCtx(ctx context.Context) (context.Context, *LibraryMode, error) {
 	// Don't cancel or it'll close the Steam window
 
 	return targetCtx, &mode, nil
+}
+
+func getDeckMenuCtx(ctx context.Context) (context.Context, error) {
+	targets, err := chromedp.Targets(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get targets: %w", err)
+	}
+
+	var menuTarget *target.Info
+	for _, target := range targets {
+		if target.Title == "MainMenu" {
+			menuTarget = target
+			break
+		}
+	}
+	fmt.Println("found deck menu target", menuTarget.URL)
+
+	targetCtx, _ := chromedp.NewContext(ctx, chromedp.WithTargetID(menuTarget.TargetID))
+
+	return targetCtx, nil
 }
 
 func runScriptInCtx(ctx context.Context, script string) error {

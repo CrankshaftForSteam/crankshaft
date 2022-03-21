@@ -9,9 +9,8 @@ import (
 	"github.com/evanw/esbuild/pkg/cli"
 )
 
-// buildEvalScript builds the script that will be evaluated in the Steam target context.
-func buildEvalScript(serverPort string, libraryMode LibraryMode) (string, error) {
-	fmt.Println("Building injected code...")
+func bundleScripts() {
+	fmt.Println("Bundling scripts to inject...")
 
 	// TODO: get sourcemaps working
 	// I tried inline sourcemaps, and aside from being massive, they were broken
@@ -21,15 +20,19 @@ func buildEvalScript(serverPort string, libraryMode LibraryMode) (string, error)
 	// (not a huge deal since the bundle is small and isn't minified or anything)
 
 	cli.Run([]string{
-		"injected/src/injected.ts",
+		"injected/src/entrypoints/library.ts",
+		"injected/src/entrypoints/menu.ts",
 		"--bundle",
 		"--jsx-factory=h",
 		"--jsx-fragment=DocumentFragment",
 		"--inject:./injected/dom-chef-shim.js",
-		"--outfile=.build/injected.js",
+		"--outdir=.build/",
 	})
+}
 
-	injectedScriptBytes, err := ioutil.ReadFile(".build/injected.js")
+// buildEvalScript builds a script to be evaluated in the Steam target context.
+func buildEvalScript(serverPort string, libraryMode LibraryMode, script string) (string, error) {
+	injectedScriptBytes, err := ioutil.ReadFile(script)
 	if err != nil {
 		return "", fmt.Errorf("Failed to read injected script: %w", err)
 	}
