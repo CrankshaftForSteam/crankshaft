@@ -30,8 +30,8 @@ export const loadProtonDBPlugin = (smm: SMM) => {
         protonDbCache[appId] = data;
       } catch (err) {
         if (err instanceof NetworkGetError) {
-          // TODO: show toast?
-          info('Error fetching ProtonDB rating:', err.status);
+          smm.Toast.addToast('Error fetching ProtonDB rating');
+          info(`Error fetching ProtonDB rating for app ${appId}:`, err.status);
           return;
         }
       }
@@ -50,7 +50,7 @@ export const loadProtonDBPlugin = (smm: SMM) => {
           padding: '4px 8px',
           backgroundColor: TierColours[tier],
           color: 'rgba(0, 0, 0, 50%)',
-          fontSize: 20,
+          fontSize: 16,
           textDecoration: 'none',
           borderRadius: 4,
         }}
