@@ -12,6 +12,14 @@ import (
 // buildEvalScript builds the script that will be evaluated in the Steam target context.
 func buildEvalScript(serverPort string) (string, error) {
 	fmt.Println("Building injected code...")
+
+	// TODO: get sourcemaps working
+	// I tried inline sourcemaps, and aside from being massive, they were broken
+	// and linked everything to the same line. Tried external maps served from
+	// the static server, it seems like Chrome was refusing to load them and
+	// throwing an error.
+	// (not a huge deal since the bundle is small and isn't minified or anything)
+
 	cli.Run([]string{
 		"injected/src/injected.ts",
 		"--bundle",
