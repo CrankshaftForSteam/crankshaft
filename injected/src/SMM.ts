@@ -17,7 +17,7 @@ export class SMM extends EventTarget {
 
   socketConnect() {
     return new Promise<void>((resolve) => {
-      this.socket = new WebSocket('ws://localhost:8085/ws');
+      this.socket = new WebSocket(`ws://localhost:${window.smmServerPort}/ws`);
       this.socket.addEventListener('open', (event) => {
         this.socketSend({ type: 'connected' });
         resolve();

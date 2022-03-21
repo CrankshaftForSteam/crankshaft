@@ -4,5 +4,6 @@ declare global {
   interface Window {
     smm?: SMM;
     smmTabObserver?: MutationObserver;
+    smmServerPort: string;
   }
 }

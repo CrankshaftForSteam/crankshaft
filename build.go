@@ -9,7 +9,7 @@ import (
 )
 
 // buildEvalScript builds the script that will be evaluated in the Steam target context.
-func buildEvalScript() (string, error) {
+func buildEvalScript(serverPort string) (string, error) {
 	injectedScriptBytes, err := ioutil.ReadFile(".build/injected.js")
 	if err != nil {
 		return "", fmt.Errorf("Failed to read injected script: %w", err)
@@ -21,9 +21,11 @@ func buildEvalScript() (string, error) {
 	if err := evalTmpl.Execute(&evalScript, struct {
 		Version        string
 		InjectedScript string
+		ServerPort     string
 	}{
 		Version:        VERSION,
 		InjectedScript: injectedScript,
+		ServerPort:     serverPort,
 	}); err != nil {
 		return "", fmt.Errorf("Failed to execute eval script template: %w", err)
 	}

@@ -19,7 +19,7 @@ func main() {
 
 func run() error {
 	debugPort := flag.String("debug-port", "8080", "CEF debug port")
-	httpPort := flag.String("ws-port", "8085", "Port to run websocket server on")
+	serverPort := flag.String("server-port", "8085", "Port to run HTTP/websocket server on")
 	flag.Parse()
 
 	fmt.Println("Building injected code...")
@@ -32,7 +32,7 @@ func run() error {
 	ctx, cancel := getSteamCtx(*debugPort)
 	defer cancel()
 
-	evalScript, err := buildEvalScript()
+	evalScript, err := buildEvalScript(*serverPort)
 	if err != nil {
 		return fmt.Errorf("Failed to build eval script: %w", err)
 	}
@@ -48,8 +48,8 @@ func run() error {
 
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 	http.HandleFunc("/ws", handleWs)
-	fmt.Println("Listening on :" + *httpPort)
-	log.Fatal(http.ListenAndServe(":"+*httpPort, nil))
+	fmt.Println("Listening on :" + *serverPort)
+	log.Fatal(http.ListenAndServe(":"+*serverPort, nil))
 
 	return nil
 }
