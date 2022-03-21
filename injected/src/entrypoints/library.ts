@@ -6,7 +6,7 @@ import { info } from '../util';
 
 info('Successfully injected library script');
 
-const smm = new SMM();
+const smm = new SMM('library');
 if (window.smm) {
   delete window.smm;
 }

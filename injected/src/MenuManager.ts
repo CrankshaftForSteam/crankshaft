@@ -16,8 +16,11 @@ export class MenuManager {
 
   private icons!: Record<string, HTMLDivElement>;
 
-  constructor() {
+  constructor(entry: 'library' | 'menu') {
     this.menuItems = [];
+    if (!(window.smmLibraryMode === 'deck' && entry === 'menu')) {
+      return;
+    }
     this.inject();
   }
 

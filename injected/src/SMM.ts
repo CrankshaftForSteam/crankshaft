@@ -1,3 +1,4 @@
+import { MenuManager } from './MenuManager';
 import { Network } from './services/Network';
 import { Toast } from './services/Toast';
 import { info } from './util';
@@ -9,8 +10,9 @@ export class SMM extends EventTarget {
 
   readonly Network: Network;
   readonly Toast: Toast;
+  readonly MenuManager: MenuManager;
 
-  constructor() {
+  constructor(entry: 'library' | 'menu') {
     super();
 
     this._currentTab = undefined;
@@ -19,6 +21,7 @@ export class SMM extends EventTarget {
 
     this.Network = new Network(this);
     this.Toast = new Toast(this);
+    this.MenuManager = new MenuManager(entry);
   }
 
   get currentTab() {

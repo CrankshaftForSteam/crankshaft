@@ -1,4 +1,4 @@
-import { MenuManager } from '../MenuManager';
+import { SMM } from '../SMM';
 import { info } from '../util';
 
 const SELECTORS = {
@@ -16,9 +16,11 @@ const main = () => {
     return;
   }
 
-  const menuManager = new MenuManager();
-  // @ts-ignore
-  window.menuManager = menuManager;
+  const smm = new SMM('menu');
+  if (window.smm) {
+    delete window.smm;
+  }
+  window.smm = smm;
 };
 
 main();
