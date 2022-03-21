@@ -16,4 +16,4 @@ format-go:
 
 format-js:
 	cd injected && \
-	yarn prettier src/**/* --write
+	yarn prettier src --write
