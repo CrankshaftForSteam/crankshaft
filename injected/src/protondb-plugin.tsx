@@ -52,6 +52,7 @@ export const loadProtonDBPlugin = (smm: SMM) => {
           color: 'rgba(0, 0, 0, 50%)',
           fontSize: 20,
           textDecoration: 'none',
+          borderRadius: 4,
         }}
         data-smm-protondb={true}
       >
