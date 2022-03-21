@@ -2,7 +2,7 @@ import { Network } from './services/Network';
 import { info } from './util';
 
 export class SMM extends EventTarget {
-  private _currentTab: 'home' | 'collections' | 'appDetails';
+  private _currentTab?: 'home' | 'collections' | 'appDetails';
   private _currentAppId?: string;
 
   readonly Network: Network;
@@ -10,7 +10,7 @@ export class SMM extends EventTarget {
   constructor() {
     super();
 
-    this._currentTab = 'home';
+    this._currentTab = undefined;
     this._currentAppId = undefined;
 
     this.Network = new Network(this);
@@ -22,6 +22,17 @@ export class SMM extends EventTarget {
 
   get currentAppId() {
     return this._currentAppId;
+  }
+
+  switchToUnknownPage() {
+    if (typeof this._currentTab === 'undefined') {
+      return;
+    }
+
+    info('Switched to unknown page');
+    this._currentTab = undefined;
+    this._currentAppId = undefined;
+    this.dispatchEvent(new CustomEvent('switchToUnknownPage'));
   }
 
   switchToHome() {

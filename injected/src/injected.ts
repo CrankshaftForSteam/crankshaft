@@ -1,4 +1,5 @@
 import { loadProtonDBPlugin } from './protondb-plugin';
+import { getSelectorByMode } from './selectors';
 import { SMM } from './SMM';
 import { createTabObserver } from './tab-observer';
 import { info } from './util';
@@ -14,7 +15,7 @@ import { info } from './util';
     window.smm = smm;
 
     const mainLibraryEl = document.querySelector<HTMLDivElement>(
-      '[class^=library_AppDetailsMain]'
+      getSelectorByMode('mainLibrary')
     )!;
 
     createTabObserver(smm, mainLibraryEl);

@@ -25,17 +25,17 @@ func run() error {
 	ctx, cancel := getSteamCtx(*debugPort)
 	defer cancel()
 
-	evalScript, err := buildEvalScript(*serverPort)
-	if err != nil {
-		return fmt.Errorf("Failed to build eval script: %w", err)
-	}
-
-	targetCtx, err := getLibraryCtx(ctx)
+	libraryCtx, libraryMode, err := getLibraryCtx(ctx)
 	if err != nil {
 		return fmt.Errorf("Error getting library context: %w", err)
 	}
 
-	if err = runScriptInCtx(targetCtx, evalScript); err != nil {
+	evalScript, err := buildEvalScript(*serverPort, *libraryMode)
+	if err != nil {
+		return fmt.Errorf("Failed to build eval script: %w", err)
+	}
+
+	if err = runScriptInCtx(libraryCtx, evalScript); err != nil {
 		return fmt.Errorf("Error injecting script: %w", err)
 	}
 

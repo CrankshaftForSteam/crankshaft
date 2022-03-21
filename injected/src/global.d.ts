@@ -9,5 +9,6 @@ declare global {
     smm?: SMM;
     smmTabObserver?: MutationObserver;
     smmServerPort: string;
+    smmLibraryMode: 'desktop' | 'deck';
   }
 }

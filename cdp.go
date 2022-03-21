@@ -20,27 +20,43 @@ func getSteamCtx(debugPort string) (context.Context, func()) {
 	}
 }
 
-func getLibraryCtx(ctx context.Context) (context.Context, error) {
-	targetLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/index.html`)
+type LibraryMode string
+
+const (
+	Desktop LibraryMode = "desktop"
+	Deck                = "deck"
+)
+
+func getLibraryCtx(ctx context.Context) (context.Context, *LibraryMode, error) {
+	targetDesktopLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/index.html`)
+	targetDeckLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/routes\/library`)
 
 	targets, err := chromedp.Targets(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get targets: %w", err)
+		return nil, nil, fmt.Errorf("Failed to get targets: %w", err)
 	}
 
+	var mode LibraryMode
 	var libraryTarget *target.Info
 	for _, target := range targets {
-		if match := targetLibraryRe.MatchString(target.URL); match {
+		fmt.Println(target)
+		if match := targetDesktopLibraryRe.MatchString(target.URL); match {
 			libraryTarget = target
+			mode = Desktop
+			break
+		}
+		if match := targetDeckLibraryRe.MatchString(target.URL); match {
+			libraryTarget = target
+			mode = Deck
 			break
 		}
 	}
-	fmt.Println("library target", libraryTarget.URL)
+	fmt.Println("found library target mode", mode, ":", libraryTarget.URL)
 
 	targetCtx, _ := chromedp.NewContext(ctx, chromedp.WithTargetID(libraryTarget.TargetID))
 	// Don't cancel or it'll close the Steam window
 
-	return targetCtx, nil
+	return targetCtx, &mode, nil
 }
 
 func runScriptInCtx(ctx context.Context, script string) error {

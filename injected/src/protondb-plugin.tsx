@@ -1,4 +1,4 @@
-import { SELECTORS } from './selectors';
+import { SHARED_SELECTORS } from './selectors';
 import { NetworkGetError } from './services/Network';
 import { SMM } from './SMM';
 import { info } from './util';
@@ -66,6 +66,8 @@ export const loadProtonDBPlugin = (smm: SMM) => {
       </a>
     );
 
-    document.querySelector(SELECTORS.appDetailsHeader)!.appendChild(indicator);
+    document
+      .querySelector(SHARED_SELECTORS.appDetailsHeader)!
+      .appendChild(indicator);
   });
 };

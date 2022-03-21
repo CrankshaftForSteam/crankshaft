@@ -10,7 +10,7 @@ import (
 )
 
 // buildEvalScript builds the script that will be evaluated in the Steam target context.
-func buildEvalScript(serverPort string) (string, error) {
+func buildEvalScript(serverPort string, libraryMode LibraryMode) (string, error) {
 	fmt.Println("Building injected code...")
 
 	// TODO: get sourcemaps working
@@ -42,15 +42,15 @@ func buildEvalScript(serverPort string) (string, error) {
 		Version        string
 		InjectedScript string
 		ServerPort     string
+		LibraryMode    LibraryMode
 	}{
 		Version:        VERSION,
 		InjectedScript: injectedScript,
 		ServerPort:     serverPort,
+		LibraryMode:    libraryMode,
 	}); err != nil {
 		return "", fmt.Errorf("Failed to execute eval script template: %w", err)
 	}
-
-	fmt.Println("eval script:", evalScript.String())
 
 	_ = ioutil.WriteFile(".build/evalScript.js", []byte(evalScript.String()), 0644)
 

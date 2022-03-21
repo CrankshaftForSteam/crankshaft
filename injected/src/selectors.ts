@@ -1,7 +1,34 @@
-export const SELECTORS = {
-  home: '[class*=libraryhome_Container]',
-  collections: '[class*=allcollections_Container]',
+export const SHARED_SELECTORS = {
   appDetails: '[class*=appdetails_Container]',
-  appDetailsStoreLink: 'a[class^=appdetailsprimarylinkssection]',
   appDetailsHeader: '[class^="sharedappdetailsheader_TopCapsule"]',
+};
+
+export const DESKTOP_SELECTORS = {
+  collections: '[class*=allcollections_Container]',
+  appDetailsStoreLink: 'a[class^=appdetailsprimarylinkssection]',
+};
+
+export const DECK_SELECTORS = {
+  appDetailsHeaderImg: '[class^="sharedappdetailsheader_ImgSrc"]',
+};
+
+const createModeSelectors = <
+  T extends Record<string, Record<typeof window['smmLibraryMode'], string>>
+>(
+  obj: T
+): { [key in keyof T]: T[key] } => obj;
+
+const MODE_SELECTORS = createModeSelectors({
+  mainLibrary: {
+    desktop: '[class^=library_AppDetailsMain]',
+    deck: '[class^="basiclibrary_TopLevelTransitionSwitch"]',
+  },
+  home: {
+    desktop: '[class*=libraryhome_Container]',
+    deck: '[class^=gamepadhome]',
+  },
+});
+
+export const getSelectorByMode = (name: keyof typeof MODE_SELECTORS) => {
+  return MODE_SELECTORS[name][window.smmLibraryMode];
 };
