@@ -15,4 +15,5 @@ format-go:
 	goimports -w .
 
 format-js:
-	prettier injected/src/**/* --write
+	cd injected && \
+	yarn prettier src/**/* --write

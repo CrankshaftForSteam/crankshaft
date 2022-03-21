@@ -1,8 +1,7 @@
 import { loadProtonDBPlugin } from './protondb-plugin';
-import { SELECTORS } from './selectors';
 import { SMM } from './SMM';
 import { createTabObserver } from './tab-observer';
-import { createEl, info, uuidv4 } from './util';
+import { info } from './util';
 
 {
   const start = () => {

@@ -1,6 +1,5 @@
 import { SELECTORS } from './selectors';
 import { SMM } from './SMM';
-import { createEl } from './util';
 
 export const loadProtonDBPlugin = (smm: SMM) => {
   enum TierColours {
