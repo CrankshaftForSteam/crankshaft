@@ -1,7 +1,7 @@
 import { SHARED_SELECTORS } from './selectors';
 import { NetworkGetError } from './services/Network';
 import { SMM } from './SMM';
-import { info } from './util';
+import { deleteAll, info } from './util';
 
 export const loadProtonDBPlugin = (smm: SMM) => {
   enum TierColours {
@@ -16,9 +16,7 @@ export const loadProtonDBPlugin = (smm: SMM) => {
   const protonDbCache: Record<string, any> = {};
 
   smm.addEventListener('switchToAppDetails', async (event: any) => {
-    document
-      .querySelectorAll('[data-smm-protondb]')
-      .forEach((node) => node.remove());
+    deleteAll('[data-smm-protondb]');
 
     const { appId, appName } = event.detail;
     let data = protonDbCache[appId];

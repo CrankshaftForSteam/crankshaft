@@ -1,3 +1,4 @@
+import { deleteAll } from '../util';
 import { Service } from './Service';
 
 const TOAST_TIMEOUT = 3000;
@@ -9,9 +10,7 @@ export class Toast extends Service {
     super(...args);
 
     // Create toasts container
-    document
-      .querySelectorAll('[data-smm-toasts]')
-      .forEach((node) => node.remove());
+    deleteAll('[data-smm-toasts]');
 
     this.toastsContainer = (
       <ul
