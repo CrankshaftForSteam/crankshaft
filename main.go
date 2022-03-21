@@ -15,6 +15,7 @@ import (
 
 	"github.com/chromedp/cdproto/target"
 	"github.com/chromedp/chromedp"
+	"github.com/evanw/esbuild/pkg/cli"
 	"github.com/gorilla/websocket"
 )
 
@@ -30,6 +31,13 @@ func run() error {
 	debugPort := flag.String("debug-port", "8080", "CEF debug port")
 	httpPort := flag.String("ws-port", "8085", "Port to run websocket server on")
 	flag.Parse()
+
+	fmt.Println("Building injected code...")
+	cli.Run([]string{
+		"injected/src/injected.ts",
+		"--bundle",
+		"--outfile=.build/injected.js",
+	})
 
 	allocatorCtx, cancel := chromedp.NewRemoteAllocator(context.Background(), "http://localhost:"+*debugPort)
 	defer cancel()
@@ -57,13 +65,13 @@ func run() error {
 	// Don't cancel or it'll close the Steam window
 	// defer cancel()
 
-	injectedScriptBytes, err := ioutil.ReadFile("injected.js")
+	injectedScriptBytes, err := ioutil.ReadFile(".build/injected.js")
 	if err != nil {
 		return fmt.Errorf("Failed to read injected script: %w", err)
 	}
 	injectedScript := strings.ReplaceAll(string(injectedScriptBytes), "`", "\\`")
 
-	evalTmpl := template.Must(template.ParseFiles("eval.template.js"))
+	evalTmpl := template.Must(template.ParseFiles("injected/eval.template.js"))
 	var evalScript bytes.Buffer
 	if err := evalTmpl.Execute(&evalScript, struct {
 		Version        string
@@ -77,7 +85,7 @@ func run() error {
 
 	fmt.Println("eval script:", evalScript.String())
 
-	_ = ioutil.WriteFile("evalScript.js", []byte(evalScript.String()), 0644)
+	_ = ioutil.WriteFile(".build/evalScript.js", []byte(evalScript.String()), 0644)
 	err = chromedp.Run(targetCtx,
 		chromedp.Evaluate(evalScript.String(), nil),
 	)

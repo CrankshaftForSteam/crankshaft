@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/chromedp/cdproto v0.0.0-20220217222649-d8c14a5c6edf
 	github.com/chromedp/chromedp v0.7.8
+	github.com/evanw/esbuild v0.14.27
 	github.com/gorilla/websocket v1.5.0
 )
 
