@@ -33,7 +33,15 @@ export const createTabObserver = (smm: SMM, mainLibraryEl: HTMLElement) => {
           return;
         }
         const appId = new URL(storeUrl).pathname.split('/')[2];
-        smm.switchToAppDetails(appId);
+
+        const appName = document.querySelector(
+          SHARED_SELECTORS.appDetailsName
+        )?.textContent;
+        if (!appName) {
+          return;
+        }
+
+        smm.switchToAppDetails(appId, appName);
         return;
       }
     }
@@ -50,7 +58,15 @@ export const createTabObserver = (smm: SMM, mainLibraryEl: HTMLElement) => {
         if (!appId) {
           return;
         }
-        smm.switchToAppDetails(appId);
+
+        const appName = document.querySelector(
+          SHARED_SELECTORS.appDetailsName
+        )?.textContent;
+        if (!appName) {
+          return;
+        }
+
+        smm.switchToAppDetails(appId, appName);
         return;
       }
     }

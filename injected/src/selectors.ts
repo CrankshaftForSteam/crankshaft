@@ -1,6 +1,7 @@
 export const SHARED_SELECTORS = {
   appDetails: '[class*=appdetails_Container]',
   appDetailsHeader: '[class^="sharedappdetailsheader_TopCapsule"]',
+  appDetailsName: 'span[class^=appdetailsplaysection_PlayBarGameName]',
 };
 
 export const DESKTOP_SELECTORS = {

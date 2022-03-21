@@ -20,7 +20,7 @@ export const loadProtonDBPlugin = (smm: SMM) => {
       .querySelectorAll('[data-smm-protondb]')
       .forEach((node) => node.remove());
 
-    const { appId } = event.detail;
+    const { appId, appName } = event.detail;
     let data = protonDbCache[appId];
     if (!data) {
       try {
@@ -30,7 +30,7 @@ export const loadProtonDBPlugin = (smm: SMM) => {
         protonDbCache[appId] = data;
       } catch (err) {
         if (err instanceof NetworkGetError) {
-          smm.Toast.addToast('Error fetching ProtonDB rating');
+          smm.Toast.addToast(`Error fetching ProtonDB rating for ${appName}`);
           info(`Error fetching ProtonDB rating for app ${appId}:`, err.status);
           return;
         }
@@ -50,7 +50,7 @@ export const loadProtonDBPlugin = (smm: SMM) => {
           padding: '4px 8px',
           backgroundColor: TierColours[tier],
           color: 'rgba(0, 0, 0, 50%)',
-          fontSize: 16,
+          fontSize: 20,
           textDecoration: 'none',
           borderRadius: 4,
         }}

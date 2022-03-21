@@ -24,6 +24,7 @@ export class Toast extends Service {
           marginLeft: 'auto',
           marginRight: 'auto',
           width: 400,
+          zIndex: 999,
 
           display: 'flex',
           flexDirection: 'column',
@@ -45,10 +46,11 @@ export class Toast extends Service {
 
           backgroundColor: 'rgb(209, 28, 28)',
           borderRadius: 4,
-          padding: '4px 12px 8px',
+          padding: '0px 12px 6px',
 
           color: 'white',
           textAlign: 'center',
+          fontSize: 12,
 
           cursor: 'pointer',
 

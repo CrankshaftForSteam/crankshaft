@@ -5,6 +5,7 @@ import { info } from './util';
 export class SMM extends EventTarget {
   private _currentTab?: 'home' | 'collections' | 'appDetails';
   private _currentAppId?: string;
+  private _currentAppName?: string;
 
   readonly Network: Network;
   readonly Toast: Toast;
@@ -14,6 +15,7 @@ export class SMM extends EventTarget {
 
     this._currentTab = undefined;
     this._currentAppId = undefined;
+    this._currentAppName = undefined;
 
     this.Network = new Network(this);
     this.Toast = new Toast(this);
@@ -60,7 +62,7 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new CustomEvent('switchToCollections'));
   }
 
-  switchToAppDetails(appId: string) {
+  switchToAppDetails(appId: string, appName: string) {
     if (this._currentTab === 'appDetails' && this._currentAppId === appId) {
       return;
     }
@@ -68,8 +70,9 @@ export class SMM extends EventTarget {
     info('Switched to app details for app', appId);
     this._currentTab = 'appDetails';
     this._currentAppId = appId;
+    this._currentAppName = appName;
     this.dispatchEvent(
-      new CustomEvent('switchToAppDetails', { detail: { appId } })
+      new CustomEvent('switchToAppDetails', { detail: { appId, appName } })
     );
   }
 }
