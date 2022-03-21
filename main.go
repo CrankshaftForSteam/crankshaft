@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/evanw/esbuild/pkg/cli"
 	"github.com/gorilla/handlers"
 )
 
@@ -22,16 +21,6 @@ func run() error {
 	debugPort := flag.String("debug-port", "8080", "CEF debug port")
 	serverPort := flag.String("server-port", "8085", "Port to run HTTP/websocket server on")
 	flag.Parse()
-
-	fmt.Println("Building injected code...")
-	cli.Run([]string{
-		"injected/src/injected.ts",
-		"--bundle",
-		"--jsx-factory=h",
-		"--jsx-fragment=DocumentFragment",
-		"--inject:./injected/dom-chef-shim.js",
-		"--outfile=.build/injected.js",
-	})
 
 	ctx, cancel := getSteamCtx(*debugPort)
 	defer cancel()
