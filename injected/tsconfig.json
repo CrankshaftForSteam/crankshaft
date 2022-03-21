@@ -6,6 +6,7 @@
 		"lib": ["ES2020", "DOM"],
 		"isolatedModules": true,
 		"esModuleInterop": true,
+		"moduleResolution": "node",
 		"jsx": "preserve",
 		"jsxFactory": "h",
 		"jsxFragmentFactory": "DocumentFragment"

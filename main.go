@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/evanw/esbuild/pkg/cli"
+	"github.com/gorilla/handlers"
 )
 
 const VERSION = "0.1.0"
@@ -49,8 +50,15 @@ func run() error {
 		return fmt.Errorf("Error injecting script: %w", err)
 	}
 
+	rpcServer := handleRpc()
+
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
-	http.HandleFunc("/ws", handleWs)
+	http.Handle("/rpc", handlers.CORS(
+		handlers.AllowedHeaders([]string{"Content-Type"}),
+		handlers.AllowedMethods([]string{"POST"}),
+		handlers.AllowedOrigins([]string{"https://steamloopback.host"}),
+	)(rpcServer))
+
 	fmt.Println("Listening on :" + *serverPort)
 	log.Fatal(http.ListenAndServe(":"+*serverPort, nil))
 

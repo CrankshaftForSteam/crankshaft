@@ -1,5 +1,7 @@
 import { SELECTORS } from './selectors';
+import { FetchError } from './services/Network';
 import { SMM } from './SMM';
+import { info } from './util';
 
 export const loadProtonDBPlugin = (smm: SMM) => {
   enum TierColours {
@@ -14,19 +16,27 @@ export const loadProtonDBPlugin = (smm: SMM) => {
   const protonDbCache: Record<string, any> = {};
 
   smm.addEventListener('switchToAppDetails', async (event: any) => {
-    const { appId } = event.detail;
-    let data = protonDbCache[appId];
-    if (!data) {
-      data = await smm.fetch(
-        'https://www.protondb.com/api/v1/reports/summaries/' + appId + '.json'
-      );
-      protonDbCache[appId] = data;
-    }
-    const { tier } = data as { tier: keyof typeof TierColours };
-
     document
       .querySelectorAll('[data-smm-protondb]')
       .forEach((node) => node.remove());
+
+    const { appId } = event.detail;
+    let data = protonDbCache[appId];
+    if (!data) {
+      try {
+        data = await smm.Network.fetch(
+          'https://www.protondb.com/api/v1/reports/summaries/' + appId + '.json'
+        );
+        protonDbCache[appId] = data;
+      } catch (err) {
+        if (err instanceof FetchError) {
+          // TODO: show toast?
+          info('Error fetching ProtonDB rating:', err.status);
+          return;
+        }
+      }
+    }
+    const { tier } = data as { tier: keyof typeof TierColours };
 
     const indicator = (
       <a

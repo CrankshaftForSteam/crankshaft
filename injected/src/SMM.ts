@@ -1,96 +1,59 @@
-import { info, uuidv4 } from './util';
+import { Network } from './services/Network';
+import { info } from './util';
 
 export class SMM extends EventTarget {
-  currentTab: 'home' | 'collections' | 'appDetails';
-  currentAppId?: string;
+  private _currentTab: 'home' | 'collections' | 'appDetails';
+  private _currentAppId?: string;
 
-  socket?: WebSocket;
+  readonly Network: Network;
 
   constructor() {
     super();
 
-    this.currentTab = 'home';
-    this.currentAppId = undefined;
+    this._currentTab = 'home';
+    this._currentAppId = undefined;
 
-    this.socket = undefined;
+    this.Network = new Network(this);
   }
 
-  socketConnect() {
-    return new Promise<void>((resolve) => {
-      this.socket = new WebSocket(`ws://localhost:${window.smmServerPort}/ws`);
-      this.socket.addEventListener('open', (event) => {
-        this.socketSend({ type: 'connected' });
-        resolve();
-      });
-    });
+  get currentTab() {
+    return this._currentTab;
   }
 
-  async socketSend(data: Object) {
-    if (!this.socket) {
-      await this.socketConnect();
-    }
-    this.socket?.send(JSON.stringify(data));
-  }
-
-  // wtf
-  async socketSendGet(data: Object) {
-    if (!this.socket) {
-      await this.socketConnect();
-    }
-
-    return new Promise((resolve) => {
-      const id = uuidv4();
-
-      const handler = (event: any) => {
-        const data = JSON.parse(event.data);
-        if (data.id !== id) {
-          return;
-        }
-        resolve(data);
-        this.removeEventListener('message', handler);
-      };
-
-      this.socket?.addEventListener('message', handler);
-
-      this.socketSend({ ...data, id });
-    });
-  }
-
-  async fetch(url: string) {
-    console.info('fetch', url);
-    return this.socketSendGet({ type: 'fetch', url });
+  get currentAppId() {
+    return this._currentAppId;
   }
 
   switchToHome() {
-    if (this.currentTab === 'home') {
+    if (this._currentTab === 'home') {
       return;
     }
 
     info('Switched to home');
-    this.currentTab = 'home';
-    this.currentAppId = undefined;
+    this._currentTab = 'home';
+    this._currentAppId = undefined;
     this.dispatchEvent(new CustomEvent('switchToHome'));
   }
 
   switchToCollections() {
-    if (this.currentTab === 'collections') {
+    if (this._currentTab === 'collections') {
       return;
     }
 
     info('Switched to collections');
-    this.currentTab = 'collections';
-    this.currentAppId = undefined;
+    this._currentTab = 'collections';
+    this._currentAppId = undefined;
     this.dispatchEvent(new CustomEvent('switchToCollections'));
   }
 
   switchToAppDetails(appId: string) {
-    if (this.currentTab === 'appDetails' && this.currentAppId === appId) {
+    if (this._currentTab === 'appDetails' && this._currentAppId === appId) {
       return;
     }
 
     info('Switched to app details for app', appId);
-    this.currentTab = 'appDetails';
-    this.currentAppId = appId;
+    this._currentTab = 'appDetails';
+    this._currentAppId = appId;
     this.dispatchEvent(
       new CustomEvent('switchToAppDetails', { detail: { appId } })
     );
