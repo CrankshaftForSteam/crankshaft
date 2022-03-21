@@ -1,3 +1,20 @@
 #!/usr/bin/env bash
 
-make format
+error=0
+
+num_fixed_go_files=$(goimports -l . | wc -l)
+if [ "$num_fixed_go_files" -gt 0 ]; then
+	make format-go
+	echo "goimports fixed formatting in $num_fixed_go_files files"
+	error=1
+fi
+
+cd injected
+if ! yarn prettier -c src; then
+	cd ../
+	make format-js
+	echo "prettier fixed files"
+	error=1
+fi
+
+exit "$error"
