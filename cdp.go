@@ -9,7 +9,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-func getSteamCtx(debugPort string) (context.Context, func ()) {
+func getSteamCtx(debugPort string) (context.Context, func()) {
 	allocatorCtx, cancel1 := chromedp.NewRemoteAllocator(context.Background(), "http://localhost:"+debugPort)
 
 	ctx, cancel2 := chromedp.NewContext(allocatorCtx)
