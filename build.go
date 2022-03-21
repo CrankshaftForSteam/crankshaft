@@ -14,7 +14,12 @@ func buildEvalScript(serverPort string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Failed to read injected script: %w", err)
 	}
+
+	// Escape special characters for nested template strings
 	injectedScript := strings.ReplaceAll(string(injectedScriptBytes), "`", "\\`")
+	injectedScript = strings.ReplaceAll(injectedScript, "$", "\\$")
+	injectedScript = strings.ReplaceAll(injectedScript, "{", "\\{")
+	injectedScript = strings.ReplaceAll(injectedScript, "}", "\\}")
 
 	evalTmpl := template.Must(template.ParseFiles("injected/eval.template.js"))
 	var evalScript bytes.Buffer

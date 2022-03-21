@@ -1,7 +1,10 @@
-.PHONY: configure-git-hooks run format format-go format-js
+.PHONY: configure-git-hooks clean run format format-go format-js
 
 configure-git-hooks:
 	git config core.hooksPath .githooks
+
+clean:
+	rm -rf .build
 
 run:
 	go run .

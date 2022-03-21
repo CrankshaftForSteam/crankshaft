@@ -29,43 +29,32 @@ export const loadProtonDBPlugin = (smm: SMM) => {
       .querySelectorAll('[data-smm-protondb]')
       .forEach((node) => node.remove());
 
-    const indicator = createEl<HTMLLinkElement>(
-      `
-			<a
-				href="https://www.protondb.com/app/` +
-        appId +
-        `"
-				style="
-					position: absolute;
-					top: 24px;
-					left: 24px;
-
-					display: flex;
-					align-items: center;
-
-					padding: 4px 8px;
-					background-color: ` +
-        TierColours[tier] +
-        `;
-					color: rgba(0, 0, 0, 50%);
-					font-size: 20px;
-					text-decoration: none;
-				"
-				data-smm-protondb
-			>
-				<img
-					src="http://localhost:8085/assets/protondb-logo.svg"
-					style="
-						width: 20px;
-						margin-right: 4px;
-					"
-				>
-				<span>` +
-        tier.charAt(0).toUpperCase() +
-        tier.slice(1) +
-        `</span>
-			</a>
-		`
+    const indicator = (
+      <a
+        href={`https://www.protondb.com/app/${appId}`}
+        style={{
+          position: 'absolute',
+          top: 24,
+          left: 24,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '4px 8px',
+          backgroundColor: TierColours[tier],
+          color: 'rgba(0, 0, 0, 50%)',
+          fontSize: 20,
+          textDecoration: 'none',
+        }}
+        data-smm-protondb={true}
+      >
+        <img
+          src="http://localhost:8085/assets/protondb-logo.svg"
+          style={{
+            width: 20,
+            marginRight: 4,
+          }}
+        />
+        <span>{tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
+      </a>
     );
 
     document.querySelector(SELECTORS.appDetailsHeader)!.appendChild(indicator);

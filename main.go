@@ -26,6 +26,9 @@ func run() error {
 	cli.Run([]string{
 		"injected/src/injected.ts",
 		"--bundle",
+		"--jsx-factory=h",
+		"--jsx-fragment=DocumentFragment",
+		"--inject:./injected/dom-chef-shim.js",
 		"--outfile=.build/injected.js",
 	})
 
