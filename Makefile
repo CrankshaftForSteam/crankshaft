@@ -6,7 +6,7 @@ configure-git-hooks:
 clean:
 	rm -rf .build
 
-run:
+run: clean
 	go run .
 
 format: format-go format-js

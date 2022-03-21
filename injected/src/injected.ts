@@ -8,6 +8,9 @@ import { info } from './util';
     info('Successfully injected script');
 
     const smm = new SMM();
+    if (window.smm) {
+      delete window.smm;
+    }
     window.smm = smm;
 
     const mainLibraryEl = document.querySelector<HTMLDivElement>(
