@@ -1,4 +1,7 @@
-.PHONY: format format-go format-js
+.PHONY: configure-git-hooks format format-go format-js
+
+configure-git-hooks:
+	git config core.hooksPath .githooks
 
 format: format-go format-js
 
