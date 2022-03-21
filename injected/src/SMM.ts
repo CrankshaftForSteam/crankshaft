@@ -1,4 +1,5 @@
 import { Network } from './services/Network';
+import { Toast } from './services/Toast';
 import { info } from './util';
 
 export class SMM extends EventTarget {
@@ -6,6 +7,7 @@ export class SMM extends EventTarget {
   private _currentAppId?: string;
 
   readonly Network: Network;
+  readonly Toast: Toast;
 
   constructor() {
     super();
@@ -14,6 +16,7 @@ export class SMM extends EventTarget {
     this._currentAppId = undefined;
 
     this.Network = new Network(this);
+    this.Toast = new Toast(this);
   }
 
   get currentTab() {
