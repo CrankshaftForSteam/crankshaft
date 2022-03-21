@@ -1,5 +1,5 @@
 import { SELECTORS } from './selectors';
-import { FetchError } from './services/Network';
+import { NetworkGetError } from './services/Network';
 import { SMM } from './SMM';
 import { info } from './util';
 
@@ -24,12 +24,12 @@ export const loadProtonDBPlugin = (smm: SMM) => {
     let data = protonDbCache[appId];
     if (!data) {
       try {
-        data = await smm.Network.fetch(
-          'https://www.protondb.com/api/v1/reports/summaries/' + appId + '.json'
+        data = await smm.Network.get(
+          `https://www.protondb.com/api/v1/reports/summaries/${appId}.json`
         );
         protonDbCache[appId] = data;
       } catch (err) {
-        if (err instanceof FetchError) {
+        if (err instanceof NetworkGetError) {
           // TODO: show toast?
           info('Error fetching ProtonDB rating:', err.status);
           return;
@@ -56,7 +56,7 @@ export const loadProtonDBPlugin = (smm: SMM) => {
         data-smm-protondb={true}
       >
         <img
-          src="http://localhost:8085/assets/protondb-logo.svg"
+          src={`http://localhost:${window.smmServerPort}/assets/protondb-logo.svg`}
           style={{
             width: 20,
             marginRight: 4,

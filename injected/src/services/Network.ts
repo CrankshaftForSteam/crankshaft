@@ -2,23 +2,23 @@ import { rpcRequest } from '../rpc';
 import { info } from '../util';
 import { Service } from './Service';
 
-export class FetchError extends Error {
+export class NetworkGetError extends Error {
   readonly status: number;
   constructor(status: number) {
-    super(`Fetch returned error status code: ${status}`);
+    super(`Get returned error status code: ${status}`);
     this.status = status;
   }
 }
 
 export class Network extends Service {
-  async fetch<T>(url: string) {
-    info('fetch', url);
+  async get<T>(url: string) {
+    info('get', url);
     const { data, status } = await rpcRequest<
       { url: string },
       { data: string; status: number }
-    >('NetworkService.Fetch', { url });
+    >('NetworkService.Get', { url });
     if (status !== 200) {
-      throw new FetchError(status);
+      throw new NetworkGetError(status);
     }
 
     return JSON.parse(data) as T;

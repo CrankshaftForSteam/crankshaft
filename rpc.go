@@ -9,18 +9,18 @@ import (
 	rpcJson "github.com/gorilla/rpc/v2/json"
 )
 
-type FetchArgs struct {
+type GetArgs struct {
 	Url string `json:"url"`
 }
 
-type FetchReply struct {
+type GetReply struct {
 	Status int    `json:"status"`
 	Data   string `json:"data"`
 }
 
 type NetworkService struct{}
 
-func (service *NetworkService) Fetch(r *http.Request, req *FetchArgs, res *FetchReply) error {
+func (service *NetworkService) Get(r *http.Request, req *GetArgs, res *GetReply) error {
 	getRes, err := http.Get(req.Url)
 	if err != nil {
 		fmt.Println("Error fetching", req.Url)
