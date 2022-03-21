@@ -4,6 +4,7 @@ import { createEl } from './util';
 
 export const loadProtonDBPlugin = (smm: SMM) => {
   enum TierColours {
+    pending = '#6a6a6a',
     borked = '#ff0000',
     bronze = '#cd7f32',
     silver = '#a6a6a6',
