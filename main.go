@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"git.sr.ht/~avery/steam-mod-manager/rpc"
 	"github.com/gorilla/handlers"
 )
 
@@ -53,7 +54,7 @@ func run() error {
 		return fmt.Errorf("Error injecting menu script: %w", err)
 	}
 
-	rpcServer := handleRpc()
+	rpcServer := rpc.HandleRpc()
 
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 	http.Handle("/rpc", handlers.CORS(

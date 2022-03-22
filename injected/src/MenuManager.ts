@@ -5,6 +5,7 @@ interface MenuItem {
   id: string;
   label: string;
   icon?: string;
+  fontSize?: number;
   node: HTMLDivElement;
 }
 
@@ -93,6 +94,10 @@ export class MenuManager {
       DECK_SELECTORS.menuItemLabel
     )!;
     label.innerHTML = item.label;
+
+    if (item.fontSize) {
+      label.style.fontSize = `${item.fontSize}px`;
+    }
 
     if (item.icon) {
       newMenuItem.querySelector(DECK_SELECTORS.menuItemIcon)?.remove();
