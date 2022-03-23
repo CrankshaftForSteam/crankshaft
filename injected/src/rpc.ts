@@ -4,7 +4,11 @@ export const rpcRequest = async <Params, Response>(
   method: string,
   params: Params
 ) => {
+  const controller = new AbortController();
+  const cancel = () => controller.abort();
+
   const res = await fetch(`http://localhost:${window.smmServerPort}/rpc`, {
+    signal: controller.signal,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -20,5 +24,8 @@ export const rpcRequest = async <Params, Response>(
     throw new Error();
   }
 
-  return (await res.json()).result as Response;
+  return {
+    res: (await res.json()).result as Response,
+    cancel,
+  };
 };

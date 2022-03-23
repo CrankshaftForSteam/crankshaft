@@ -5,7 +5,9 @@ import { Service } from './Service';
 export class FS extends Service {
   async listDir(path: string) {
     info('listDir', path);
-    const { contents } = await rpcRequest<
+    const {
+      res: { contents },
+    } = await rpcRequest<
       { path: string },
       {
         contents: {
@@ -19,7 +21,9 @@ export class FS extends Service {
 
   async readFile(path: string) {
     info('readFile', path);
-    const { data } = await rpcRequest<
+    const {
+      res: { data },
+    } = await rpcRequest<
       { path: string },
       {
         data: string;

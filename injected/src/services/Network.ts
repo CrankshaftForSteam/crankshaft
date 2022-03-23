@@ -14,10 +14,12 @@ export class Network extends Service {
   async get<T>(url: string) {
     info('get', url);
 
-    const { data, status } = await rpcRequest<
-      { url: string },
-      { data: string; status: number }
-    >('NetworkService.Get', { url });
+    const {
+      res: { data, status },
+    } = await rpcRequest<{ url: string }, { data: string; status: number }>(
+      'NetworkService.Get',
+      { url }
+    );
 
     if (status !== 200) {
       throw new NetworkGetError(status);
@@ -29,9 +31,14 @@ export class Network extends Service {
   async download(url: string, path: string) {
     info('download', url, path);
 
-    return rpcRequest<{ url: string; path: string }, void>(
+    const { res } = await rpcRequest<{ url: string; path: string }, void>(
       'NetworkService.Download',
-      { url, path }
+      {
+        url,
+        path,
+      }
     );
+
+    return res;
   }
 }
