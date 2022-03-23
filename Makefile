@@ -1,4 +1,4 @@
-.PHONY: configure-git-hooks clean run test serve-docs format format-go format-js
+.PHONY: configure-git-hooks clean run test serve-docs check-types format format-go format-js
 
 configure-git-hooks:
 	git config core.hooksPath .githooks
@@ -14,6 +14,10 @@ test:
 
 serve-docs:
 	godoc -http=:8878
+
+check-types:
+	cd injected && \
+	yarn tsc
 
 format: format-go format-js
 

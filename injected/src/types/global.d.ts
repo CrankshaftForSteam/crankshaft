@@ -1,4 +1,4 @@
-import { SMM } from './SMM';
+import { SMM } from '../SMM';
 
 declare global {
   namespace JSX {

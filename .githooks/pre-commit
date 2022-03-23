@@ -8,6 +8,12 @@ if ! make test; then
 	exit 1
 fi
 
+# Type check scripts
+if ! make check-types; then
+	echo "Type checking failed"
+	exit 1
+fi
+
 # Format Go files
 num_fixed_go_files=$(goimports -l . | wc -l)
 if [ "$num_fixed_go_files" -gt 0 ]; then
