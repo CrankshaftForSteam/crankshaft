@@ -10,5 +10,7 @@ declare global {
     smmTabObserver?: MutationObserver;
     smmServerPort: string;
     smmLibraryMode: 'desktop' | 'deck';
+
+    OpenQuickAccessMenu: () => void;
   }
 }

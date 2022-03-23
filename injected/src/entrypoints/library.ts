@@ -19,3 +19,9 @@ const mainLibraryEl = document.querySelector<HTMLDivElement>(
 createTabObserver(smm, mainLibraryEl);
 
 loadProtonDBPlugin(smm);
+
+document.addEventListener('keydown', (event) => {
+  if (event.shiftKey && event.key === 'Tab') {
+    window.OpenQuickAccessMenu();
+  }
+});

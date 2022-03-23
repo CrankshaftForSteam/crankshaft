@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"git.sr.ht/~avery/steam-mod-manager/patcher"
 	"git.sr.ht/~avery/steam-mod-manager/rpc"
 	"github.com/gorilla/handlers"
 )
@@ -37,6 +38,11 @@ func run() error {
 	}
 
 	bundleScripts()
+
+	// TODO: have a system to load these dynamically
+	// TODO: Right now you have to manually refresh Steam to get it to use the,
+	// need to chromedp.Reload after patching
+	patcher.PatchSteamUiFile("libraryroot~sp.js", "./patches/open-quick-access.patch")
 
 	libraryEvalScript, err := buildEvalScript(*serverPort, *libraryMode, ".build/library.js")
 	if err != nil {
