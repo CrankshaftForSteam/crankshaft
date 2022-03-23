@@ -1,4 +1,4 @@
-.PHONY: configure-git-hooks clean run format format-go format-js
+.PHONY: configure-git-hooks clean run test serve-docs format format-go format-js
 
 configure-git-hooks:
 	git config core.hooksPath .githooks
@@ -8,6 +8,12 @@ clean:
 
 run: clean
 	go run .
+
+test:
+	go test ./...
+
+serve-docs:
+	godoc -http=:8878
 
 format: format-go format-js
 

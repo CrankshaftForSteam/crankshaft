@@ -1,44 +1,14 @@
-package rpc
+package network
 
 import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
+
+	"git.sr.ht/~avery/steam-mod-manager/pathutil"
 )
-
-type NetworkService struct{}
-
-type GetArgs struct {
-	Url string `json:"url"`
-}
-
-type GetReply struct {
-	Status int    `json:"status"`
-	Data   string `json:"data"`
-}
-
-func (service *NetworkService) Get(r *http.Request, req *GetArgs, res *GetReply) error {
-	getRes, err := http.Get(req.Url)
-	if err != nil {
-		fmt.Println("Error fetching", req.Url)
-		return err
-	}
-	defer getRes.Body.Close()
-
-	data, err := ioutil.ReadAll(getRes.Body)
-	if err != nil {
-		fmt.Println("Error reading response body", err)
-		return err
-	}
-
-	res.Data = string(data)
-	res.Status = getRes.StatusCode
-
-	return nil
-}
 
 type DownloadArgs struct {
 	Url  string `json:"url"`
@@ -48,7 +18,7 @@ type DownloadArgs struct {
 type DownloadReply struct{}
 
 func (service *NetworkService) Download(r *http.Request, req *DownloadArgs, res *DownloadReply) error {
-	path := substituteHomeDir(req.Path)
+	path := pathutil.SubstituteHomeDir(req.Path)
 
 	out, err := os.Create(path)
 	fmt.Println("Created file", path)

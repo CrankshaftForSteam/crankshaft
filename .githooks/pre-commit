@@ -2,6 +2,13 @@
 
 error=0
 
+# Run Go tests
+if ! make test; then
+	echo "Go tests failed"
+	exit 1
+fi
+
+# Format Go files
 num_fixed_go_files=$(goimports -l . | wc -l)
 if [ "$num_fixed_go_files" -gt 0 ]; then
 	make format-go
@@ -9,6 +16,7 @@ if [ "$num_fixed_go_files" -gt 0 ]; then
 	error=1
 fi
 
+# Format JS/TS files
 cd injected
 if ! yarn prettier -c src; then
 	cd ../

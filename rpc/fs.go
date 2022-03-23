@@ -5,21 +5,9 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"os/user"
-	"path/filepath"
-	"strings"
-)
 
-// substituteHomeDir takes a path that might be prefixed with `~`, and returns
-// the path with the `~` replaced by the user's home directory.
-func substituteHomeDir(path string) string {
-	usr, _ := user.Current()
-	homeDir := usr.HomeDir
-	if strings.HasPrefix(path, "~") {
-		return filepath.Join(homeDir, path[2:])
-	}
-	return path
-}
+	"git.sr.ht/~avery/steam-mod-manager/pathutil"
+)
 
 type FSService struct{}
 
@@ -37,7 +25,7 @@ type ListDirReply struct {
 }
 
 func (service *FSService) ListDir(r *http.Request, req *ListDirArgs, res *ListDirReply) error {
-	path := substituteHomeDir(req.Path)
+	path := pathutil.SubstituteHomeDir(req.Path)
 
 	c, err := os.ReadDir(path)
 	if err != nil {
@@ -64,7 +52,7 @@ type ReadFileReply struct {
 }
 
 func (service *FSService) ReadFile(r *http.Request, req *ReadFileArgs, res *ReadFileReply) error {
-	path := substituteHomeDir(req.Path)
+	path := pathutil.SubstituteHomeDir(req.Path)
 
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -85,8 +73,8 @@ type UntarArgs struct {
 type UntarReply struct{}
 
 func (service *FSService) Untar(r *http.Request, req *UntarArgs, res *UntarReply) error {
-	tarPath := substituteHomeDir(req.TarPath)
-	destPath := substituteHomeDir(req.DestPath)
+	tarPath := pathutil.SubstituteHomeDir(req.TarPath)
+	destPath := pathutil.SubstituteHomeDir(req.DestPath)
 
 	// TODO: handle errors when im not tired
 	cmd := exec.Command("tar", "-xf", tarPath, "-C", destPath)
