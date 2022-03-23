@@ -21,7 +21,7 @@ export const createTabObserver = (smm: SMM, mainLibraryEl: HTMLElement) => {
     }
 
     // Desktop library
-    if (window.smmLibraryMode === 'desktop') {
+    if (window.smmUIMode === 'desktop') {
       if (document.querySelector(DESKTOP_SELECTORS.collections)) {
         smm.switchToCollections();
         return;
@@ -47,7 +47,7 @@ export const createTabObserver = (smm: SMM, mainLibraryEl: HTMLElement) => {
     }
 
     // Deck library
-    if (window.smmLibraryMode === 'deck') {
+    if (window.smmUIMode === 'deck') {
       if (document.querySelector(SHARED_SELECTORS.appDetails)) {
         const src = document.querySelector<HTMLImageElement>(
           DECK_SELECTORS.appDetailsHeaderImg

@@ -20,7 +20,7 @@ export const DECK_SELECTORS = {
 };
 
 const createModeSelectors = <
-  T extends Record<string, Record<typeof window['smmLibraryMode'], string>>
+  T extends Record<string, Record<typeof window['smmUIMode'], string>>
 >(
   obj: T
 ): { [key in keyof T]: T[key] } => obj;
@@ -37,5 +37,5 @@ const MODE_SELECTORS = createModeSelectors({
 });
 
 export const getSelectorByMode = (name: keyof typeof MODE_SELECTORS) => {
-  return MODE_SELECTORS[name][window.smmLibraryMode];
+  return MODE_SELECTORS[name][window.smmUIMode];
 };

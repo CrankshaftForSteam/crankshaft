@@ -32,7 +32,7 @@ func bundleScripts() {
 }
 
 // buildEvalScript builds a script to be evaluated in the Steam target context.
-func buildEvalScript(serverPort string, libraryMode LibraryMode, script string) (string, error) {
+func buildEvalScript(serverPort string, uiMode UIMode, script string) (string, error) {
 	injectedScriptBytes, err := ioutil.ReadFile(script)
 	if err != nil {
 		return "", fmt.Errorf("Failed to read injected script: %w", err)
@@ -46,12 +46,12 @@ func buildEvalScript(serverPort string, libraryMode LibraryMode, script string) 
 		Version        string
 		InjectedScript string
 		ServerPort     string
-		LibraryMode    LibraryMode
+		UIMode         UIMode
 	}{
 		Version:        VERSION,
 		InjectedScript: injectedScript,
 		ServerPort:     serverPort,
-		LibraryMode:    libraryMode,
+		UIMode:         uiMode,
 	}); err != nil {
 		return "", fmt.Errorf("Failed to execute eval script template: %w", err)
 	}

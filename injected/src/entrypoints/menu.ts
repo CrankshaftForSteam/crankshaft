@@ -5,7 +5,7 @@ import { info } from '../util';
 const main = () => {
   info('Successfully injected menu script');
 
-  if (window.smmLibraryMode === 'desktop') {
+  if (window.smmUIMode === 'desktop') {
     return;
   }
 

@@ -20,14 +20,14 @@ func getSteamCtx(debugPort string) (context.Context, func()) {
 	}
 }
 
-type LibraryMode string
+type UIMode string
 
 const (
-	Desktop LibraryMode = "desktop"
-	Deck                = "deck"
+	Desktop UIMode = "desktop"
+	Deck           = "deck"
 )
 
-func getLibraryCtx(ctx context.Context) (context.Context, *LibraryMode, error) {
+func getLibraryCtx(ctx context.Context) (context.Context, *UIMode, error) {
 	targetDesktopLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/index.html`)
 	targetDeckLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/routes\/`)
 
@@ -36,7 +36,7 @@ func getLibraryCtx(ctx context.Context) (context.Context, *LibraryMode, error) {
 		return nil, nil, fmt.Errorf("Failed to get targets: %w", err)
 	}
 
-	var mode LibraryMode
+	var mode UIMode
 	var libraryTarget *target.Info
 	for _, target := range targets {
 		fmt.Println(target.Title, "|", target.URL)

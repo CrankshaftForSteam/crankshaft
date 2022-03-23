@@ -27,7 +27,7 @@ func run() error {
 	ctx, cancel := getSteamCtx(*debugPort)
 	defer cancel()
 
-	libraryCtx, libraryMode, err := getLibraryCtx(ctx)
+	libraryCtx, uiMode, err := getLibraryCtx(ctx)
 	if err != nil {
 		return fmt.Errorf("Error getting library context: %w", err)
 	}
@@ -44,7 +44,7 @@ func run() error {
 	// need to chromedp.Reload after patching
 	patcher.PatchSteamUiFile("libraryroot~sp.js", "./patches/open-quick-access.patch")
 
-	libraryEvalScript, err := buildEvalScript(*serverPort, *libraryMode, ".build/library.js")
+	libraryEvalScript, err := buildEvalScript(*serverPort, *uiMode, ".build/library.js")
 	if err != nil {
 		return fmt.Errorf("Failed to build library eval script: %w", err)
 	}
@@ -52,7 +52,7 @@ func run() error {
 		return fmt.Errorf("Error injecting library script: %w", err)
 	}
 
-	menuEvalScript, err := buildEvalScript(*serverPort, *libraryMode, ".build/menu.js")
+	menuEvalScript, err := buildEvalScript(*serverPort, *uiMode, ".build/menu.js")
 	if err != nil {
 		return fmt.Errorf("Failed to build menu eval script: %w", err)
 	}

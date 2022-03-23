@@ -21,7 +21,7 @@ export class MenuManager {
 
   constructor(entry: 'library' | 'menu') {
     this.menuItems = [];
-    if (!(window.smmLibraryMode === 'deck' && entry === 'menu')) {
+    if (!(window.smmUIMode === 'deck' && entry === 'menu')) {
       return;
     }
     this.inject();
