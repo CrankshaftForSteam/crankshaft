@@ -13,6 +13,8 @@ export class MenuManager {
   private menuItems: MenuItem[];
 
   private menuContainer!: HTMLDivElement;
+  private footerBoxShadow!: HTMLDivElement;
+
   private menuItemTemplate!: HTMLDivElement;
 
   private icons!: Record<string, HTMLDivElement>;
@@ -33,6 +35,10 @@ export class MenuManager {
       DECK_SELECTORS.menuContainer
     )!;
 
+    this.footerBoxShadow = document.querySelector<HTMLDivElement>(
+      DECK_SELECTORS.menuFooterBoxShadow
+    )!;
+
     // Find first non-active item
     let menuItem = this.menuContainer.childNodes[0] as HTMLDivElement;
     for (const _node of this.menuContainer.childNodes) {
@@ -50,12 +56,17 @@ export class MenuManager {
     );
 
     // Make the menu scroll
+    // ====================
     this.menuContainer.style.overflow = 'scroll';
     this.menuContainer.style.justifyContent = 'unset';
+
+    this.footerBoxShadow.style.height = '0';
+
     const menuItemStyle = document.createElement('style');
     menuItemStyle.dataset.smmMenuItemStyle = '';
     menuItemStyle.innerHTML = `.${menuItemClass} { flex-shrink: 0 !important; }`;
     document.querySelector('head')?.appendChild(menuItemStyle);
+    // ====================
 
     this.menuItemTemplate = document.importNode(
       menuItem,
@@ -106,7 +117,7 @@ export class MenuManager {
       );
     }
 
-    this.menuContainer.appendChild(newMenuItem);
+    this.menuContainer.insertBefore(newMenuItem, this.footerBoxShadow);
 
     this.menuItems.push({ ...item, node: newMenuItem });
   }

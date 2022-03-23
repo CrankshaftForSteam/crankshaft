@@ -16,6 +16,7 @@ export const DECK_SELECTORS = {
   menuItemActive: '[class*=mainmenu_Active_]',
   menuItemLabel: '[class^=mainmenu_ItemLabel_]',
   menuItemIcon: '[class^=mainmenu_ItemIcon_]',
+  menuFooterBoxShadow: '[class^=mainmenu_FooterBoxShadow_]',
 };
 
 const createModeSelectors = <
