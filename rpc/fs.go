@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
@@ -72,6 +73,43 @@ func (service *FSService) ReadFile(r *http.Request, req *ReadFileArgs, res *Read
 	}
 
 	res.Data = string(data)
+
+	return nil
+}
+
+type UntarArgs struct {
+	TarPath  string `json:"tarPath"`
+	DestPath string `json:"destPath"`
+}
+
+type UntarReply struct{}
+
+func (service *FSService) Untar(r *http.Request, req *UntarArgs, res *UntarReply) error {
+	tarPath := substituteHomeDir(req.TarPath)
+	destPath := substituteHomeDir(req.DestPath)
+
+	// TODO: handle errors when im not tired
+	cmd := exec.Command("tar", "-xf", tarPath, "-C", destPath)
+	fmt.Println("untar command", cmd.String())
+	_ = cmd.Run()
+
+	/*
+		 * archive/tar seems to not handle symlinks :(
+		 * need to look into it more, using tar for now
+
+		f, err := os.Open(tarPath)
+		if err != nil {
+			fmt.Println("Error opening tar file", tarPath)
+			return err
+		}
+		defer f.Close()
+
+		err = untar.Untar(f, destPath)
+		if err != nil {
+			fmt.Println("Error untaring file", tarPath, destPath)
+			return err
+		}
+	*/
 
 	return nil
 }

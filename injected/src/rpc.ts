@@ -16,5 +16,9 @@ export const rpcRequest = async <Params, Response>(
     }),
   });
 
+  if (res.status !== 200) {
+    throw new Error();
+  }
+
   return (await res.json()).result as Response;
 };

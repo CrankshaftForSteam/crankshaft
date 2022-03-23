@@ -11,6 +11,7 @@ interface Release {
   assets: {
     content_type: string;
     browser_download_url: string;
+    name: string;
   }[];
 }
 
@@ -48,103 +49,103 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
 
       const style = (
         <style data-smm-proton-updater-style>{`
-					.smm-proton-updater-modal {
-						position: absolute;
-						top: 0;
-						left: 0;
-						right: 0;
-						bottom: 0;
-						margin: auto;
+          .smm-proton-updater-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
 
-						display: flex;
-						flex-direction: column;
+            display: flex;
+            flex-direction: column;
 
-						maxWidth: 600px;
-						maxHeight: 500px;
-						width: 80%;
-						height: 80%;
-						padding: 4px 12px;
+            maxWidth: 600px;
+            maxHeight: 500px;
+            width: 80%;
+            height: 80%;
+            padding: 4px 12px;
 
-						background-color: #23262e;
-						border-radius: 8px;
-						box-shadow: -12px 18px 24px -12px rgba(0, 0, 0, 0.5);
-						color: #b8bcbf;
-					}
+            background-color: #23262e;
+            border-radius: 8px;
+            box-shadow: -12px 18px 24px -12px rgba(0, 0, 0, 0.5);
+            color: #b8bcbf;
+          }
 
-					.smm-proton-updater-modal > button.smm-proton-updater-modal-close {
-						position: absolute;
-						top: 0;
-						right: 8px;
+          .smm-proton-updater-modal > button.smm-proton-updater-modal-close {
+            position: absolute;
+            top: 0;
+            right: 8px;
 
-						border: none;
-						background: none;
-						color: rgba(255, 255, 255, 50%);
-						font-size: 20px;
-						font-weight: 600;
-					}
+            border: none;
+            background: none;
+            color: rgba(255, 255, 255, 50%);
+            font-size: 20px;
+            font-weight: 600;
+          }
 
-					.smm-proton-updater-container {
-						display: flex;
-						flex-direction: row;
-						height: 100%;
-					}
+          .smm-proton-updater-container {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+          }
 
-					.smm-proton-updater-container > div {
-						width: 50%;
-						height: 100%;
-						display: flex;
-						flex-direction: column;
-					}
+          .smm-proton-updater-container > div {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+          }
 
-					.smm-proton-updater-modal h1 {
-						margin: unset;
-						font-size: 24px;
-					}
+          .smm-proton-updater-modal h1 {
+            margin: unset;
+            font-size: 24px;
+          }
 
-					.smm-proton-updater-modal h2 {
-						font-size: 16px;
-					}
+          .smm-proton-updater-modal h2 {
+            font-size: 16px;
+          }
 
-					.smm-proton-updater-version-list {
-						height: 100%;
-						margin-top: 0;
-						margin-bottom: 48px;
-						padding: 0;
-						overflow-y: scroll;
+          .smm-proton-updater-version-list {
+            height: 100%;
+            margin-top: 0;
+            margin-bottom: 48px;
+            padding: 0;
+            overflow-y: scroll;
 
-						list-style: none;
-						background-color: rgba(0, 0, 0, 25%);
-						border: solid 1px white;
-						border-radius: 8px;
-					}
+            list-style: none;
+            background-color: rgba(0, 0, 0, 25%);
+            border: solid 1px white;
+            border-radius: 8px;
+          }
 
-					.smm-proton-updater-version-list > li {
-						display: flex;
-						justify-content: space-between;
+          .smm-proton-updater-version-list > li {
+            display: flex;
+            justify-content: space-between;
 
-						padding: 4px 8px;
-						transition: all 300ms;
-					}
+            padding: 4px 8px;
+            transition: all 300ms;
+          }
 
-					.smm-proton-updater-version-list > li:hover {
-						background-color: rgba(255, 255, 255, 10%);
-					}
+          .smm-proton-updater-version-list > li:hover {
+            background-color: rgba(255, 255, 255, 10%);
+          }
 
-					.smm-proton-updater-version-list > li:hover> button {
-						display: unset;
-					}
+          .smm-proton-updater-version-list > li:hover> button {
+            display: unset;
+          }
 
-					.smm-proton-updater-version-list > li > button {
-						display: none;
+          .smm-proton-updater-version-list > li > button {
+            display: none;
 
-						background-color: #1a9fff;
-						text-transform: uppercase;
-						border: none;
-						color: white;
-						border-radius: 2px;
-						cursor: pointer;
-					}
-			`}</style>
+            background-color: #1a9fff;
+            text-transform: uppercase;
+            border: none;
+            color: white;
+            border-radius: 2px;
+            cursor: pointer;
+          }
+      `}</style>
       );
       deleteAll('[data-smm-proton-updater-style]');
       document.querySelector('head')?.appendChild(style);
@@ -212,10 +213,46 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
       releases
         .filter((release) => !installedToolVersions.includes(release.tag_name))
         .forEach((release) => {
+          const handleInstall = async () => {
+            // Find downalod
+            const { name, browser_download_url } = release.assets.find(
+              (asset) => asset.content_type === 'application/gzip'
+            )!;
+            try {
+              console.info('Start downloading', { name, browser_download_url });
+              await smm.Network.download(
+                browser_download_url,
+                join(COMPAT_TOOLS_DIR, name)
+              );
+              console.info('Done downloading', { name, browser_download_url });
+            } catch (err) {
+              smm.Toast.addToast(
+                `Error downloading Proton-GE ${release.tag_name}`
+              );
+              console.error('Error downloading Proton-GE', release, err);
+              return;
+            }
+
+            try {
+              console.info('Untarring', { name });
+              await smm.FS.untar(
+                join(COMPAT_TOOLS_DIR, name),
+                COMPAT_TOOLS_DIR
+              );
+              console.info('Done untarring', { name });
+            } catch (err) {
+              smm.Toast.addToast(
+                `Error extracting Proton-GE ${release.tag_name}`
+              );
+              console.error('Error extracting Proton-GE', release, err);
+              return;
+            }
+          };
+
           availableVersionsList.appendChild(
             <li>
               <span>{release.tag_name}</span>
-              <button>Install</button>
+              <button onClick={handleInstall}>Install</button>
             </li>
           );
         });

@@ -27,4 +27,13 @@ export class FS extends Service {
     >('FSService.ReadFile', { path });
     return data.trim();
   }
+
+  async untar(tarPath: string, destPath: string) {
+    info('untar', { tarPath, destPath });
+
+    return rpcRequest<{ tarPath: string; destPath: string }, void>(
+      'FSService.Untar',
+      { tarPath, destPath }
+    );
+  }
 }
