@@ -5,9 +5,8 @@ import { Service } from './Service';
 export class FS extends Service {
   async listDir(path: string) {
     info('listDir', path);
-    const {
-      res: { contents },
-    } = await rpcRequest<
+
+    const { getRes } = rpcRequest<
       { path: string },
       {
         contents: {
@@ -16,20 +15,21 @@ export class FS extends Service {
         }[];
       }
     >('FSService.ListDir', { path });
-    return contents;
+
+    return (await getRes()).contents;
   }
 
   async readFile(path: string) {
     info('readFile', path);
-    const {
-      res: { data },
-    } = await rpcRequest<
+
+    const { getRes } = rpcRequest<
       { path: string },
       {
         data: string;
       }
     >('FSService.ReadFile', { path });
-    return data.trim();
+
+    return (await getRes()).data.trim();
   }
 
   async untar(tarPath: string, destPath: string) {

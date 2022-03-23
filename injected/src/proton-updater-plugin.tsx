@@ -1,7 +1,11 @@
 import { join } from 'path-browserify';
 import { parse } from 'vdf';
+import {
+  NetworkDownloadCancelledError,
+  NetworkDownloadTimeoutError,
+} from './services/Network';
 import { SMM } from './SMM';
-import { deleteAll } from './util';
+import { deleteAll, info } from './util';
 
 interface Release {
   tag_name: string;
@@ -218,20 +222,36 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
             const { name, browser_download_url } = release.assets.find(
               (asset) => asset.content_type === 'application/gzip'
             )!;
+
+            const { cancel, download } = smm.Network.download({
+              url: browser_download_url,
+              path: join(COMPAT_TOOLS_DIR, name),
+              timeoutSeconds: 1 * 60,
+            });
+
             try {
               console.info('Start downloading', { name, browser_download_url });
-              await smm.Network.download(
-                browser_download_url,
-                join(COMPAT_TOOLS_DIR, name)
-              );
-              console.info('Done downloading', { name, browser_download_url });
+              await download();
             } catch (err) {
+              if (err instanceof NetworkDownloadCancelledError) {
+                smm.Toast.addToast(`${release.tag_name} download cancelled.`);
+                return;
+              }
+              if (err instanceof NetworkDownloadTimeoutError) {
+                smm.Toast.addToast(`${release.tag_name} download timed out.`);
+                return;
+              }
+
               smm.Toast.addToast(
                 `Error downloading Proton-GE ${release.tag_name}`
               );
               console.error('Error downloading Proton-GE', release, err);
               return;
             }
+
+            smm.Toast.addToast(`${release.tag_name} downloaded, extracting...`);
+
+            console.info('Done downloading', { name, browser_download_url });
 
             try {
               console.info('Untarring', { name });
@@ -279,6 +299,7 @@ const getInstalledTools = async (smm: SMM) => {
   );
   return Promise.all(
     dirs.map(async (toolDir) => {
+      info({ toolDir });
       const version = (
         await smm.FS.readFile(join(COMPAT_TOOLS_DIR, toolDir.name, 'version'))
       ).split(' ')[1];

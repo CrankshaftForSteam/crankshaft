@@ -3,28 +3,31 @@ import { NetworkGetError } from './services/Network';
 import { SMM } from './SMM';
 import { deleteAll, info } from './util';
 
-export const loadProtonDBPlugin = (smm: SMM) => {
-  enum TierColours {
-    pending = '#6a6a6a',
-    borked = '#ff0000',
-    bronze = '#cd7f32',
-    silver = '#a6a6a6',
-    gold = '#cfb53b',
-    platinum = '#b4c7dc',
-  }
+enum TierColours {
+  pending = '#6a6a6a',
+  borked = '#ff0000',
+  bronze = '#cd7f32',
+  silver = '#a6a6a6',
+  gold = '#cfb53b',
+  platinum = '#b4c7dc',
+}
 
+type TierRes = { tier: keyof typeof TierColours };
+
+const getTierUrl = (appId: string) =>
+  `https://www.protondb.com/api/v1/reports/summaries/${appId}.json`;
+
+export const loadProtonDBPlugin = (smm: SMM) => {
   const protonDbCache: Record<string, any> = {};
 
   smm.addEventListener('switchToAppDetails', async (event: any) => {
     deleteAll('[data-smm-protondb]');
 
     const { appId, appName } = event.detail;
-    let data = protonDbCache[appId];
+    let data: TierRes = protonDbCache[appId];
     if (!data) {
       try {
-        data = await smm.Network.get(
-          `https://www.protondb.com/api/v1/reports/summaries/${appId}.json`
-        );
+        data = await smm.Network.get<TierRes>(getTierUrl(appId));
         protonDbCache[appId] = data;
       } catch (err) {
         if (err instanceof NetworkGetError) {
@@ -34,7 +37,7 @@ export const loadProtonDBPlugin = (smm: SMM) => {
         }
       }
     }
-    const { tier } = data as { tier: keyof typeof TierColours };
+    const { tier } = data;
 
     const indicator = (
       <a

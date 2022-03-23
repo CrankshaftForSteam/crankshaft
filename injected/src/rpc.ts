@@ -1,31 +1,61 @@
 import { uuidv4 } from './util';
 
-export const rpcRequest = async <Params, Response>(
+export class RpcRequestError extends Error {
+  readonly status?: number;
+  constructor(status?: number) {
+    let msg = 'RPC request failed';
+    if (status) {
+      msg += ` with status code: ${status}`;
+    }
+    super(msg);
+
+    this.status = status;
+  }
+}
+
+export class RpcRequestCancelledError extends Error {
+  constructor() {
+    super('RPC request cancelled');
+  }
+}
+
+export const rpcRequest = <Params, Response>(
   method: string,
   params: Params
 ) => {
   const controller = new AbortController();
   const cancel = () => controller.abort();
 
-  const res = await fetch(`http://localhost:${window.smmServerPort}/rpc`, {
-    signal: controller.signal,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      method,
-      params: [params],
-      id: uuidv4(),
-    }),
-  });
+  const getRes = async (): Promise<Response> => {
+    try {
+      const res = await fetch(`http://localhost:${window.smmServerPort}/rpc`, {
+        signal: controller.signal,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          method,
+          params: [params],
+          id: uuidv4(),
+        }),
+      });
 
-  if (res.status !== 200) {
-    throw new Error();
-  }
+      if (!res.ok) {
+        throw new RpcRequestError(res.status);
+      }
+
+      return (await res.json()).result;
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw new RpcRequestCancelledError();
+      }
+      throw new RpcRequestError();
+    }
+  };
 
   return {
-    res: (await res.json()).result as Response,
+    getRes,
     cancel,
   };
 };
