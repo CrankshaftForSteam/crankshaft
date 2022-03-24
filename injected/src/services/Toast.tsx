@@ -33,7 +33,7 @@ export class Toast extends Service {
     document.querySelector('body')?.appendChild(this.toastsContainer);
   }
 
-  addToast(message: string) {
+  addToast(message: string, level: 'error' | 'info' | 'success' = 'error') {
     const newToast = (
       <li
         style={{
@@ -43,7 +43,12 @@ export class Toast extends Service {
           justifyContent: 'space-between',
           alignItems: 'baseline',
 
-          backgroundColor: 'rgb(209, 28, 28)',
+          backgroundColor:
+            level === 'error'
+              ? 'rgb(209, 28, 28)'
+              : level === 'info'
+              ? '#1a9fff'
+              : '#01a75b',
           borderRadius: 4,
           padding: '0px 12px 6px',
 
