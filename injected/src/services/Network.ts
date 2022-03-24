@@ -50,13 +50,15 @@ export class Network extends Service {
   download({ url, path, timeoutSeconds }: Omit<DownloadArgs, 'id'>) {
     info('download', url, path);
 
+    const id = uuidv4();
+
     const { cancel, getRes } = rpcRequest<
       DownloadArgs,
       { status: 'success' | 'timeout' }
     >('NetworkService.Download', {
       url,
       path,
-      id: uuidv4(),
+      id,
       timeoutSeconds,
     });
 
@@ -75,6 +77,21 @@ export class Network extends Service {
       }
     };
 
-    return { cancel, download };
+    return { cancel, download, id };
+  }
+
+  checkDownloadProgress(id: string) {
+    const { getRes } = rpcRequest<
+      { id: string },
+      {
+        finalSizeBytes: number;
+        progressBytes: number;
+        progressPercent: number;
+      }
+    >('NetworkService.CheckDownloadProgress', {
+      id,
+    });
+
+    return getRes();
   }
 }
