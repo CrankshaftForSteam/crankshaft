@@ -33,6 +33,7 @@ func (service *FSService) ListDir(r *http.Request, req *ListDirArgs, res *ListDi
 		return err
 	}
 
+	res.Contents = []Content{}
 	for _, entry := range c {
 		res.Contents = append(res.Contents, Content{
 			Name:  entry.Name(),
