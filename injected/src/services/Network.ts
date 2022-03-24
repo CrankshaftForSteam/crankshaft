@@ -22,6 +22,12 @@ export class NetworkDownloadTimeoutError extends Error {
   }
 }
 
+interface DownloadProgress {
+  finalSizeBytes: number;
+  progressBytes: number;
+  progressPercent: number;
+}
+
 interface DownloadArgs {
   url: string;
   path: string;
@@ -47,7 +53,16 @@ export class Network extends Service {
     return JSON.parse(data) as T;
   }
 
-  download({ url, path, timeoutSeconds }: Omit<DownloadArgs, 'id'>) {
+  download({
+    url,
+    path,
+    timeoutSeconds,
+    progressCallback,
+    checkProgressInterval = 500,
+  }: Omit<DownloadArgs, 'id'> & {
+    progressCallback?: (progress: DownloadProgress) => void;
+    checkProgressInterval?: number;
+  }) {
     info('download', url, path);
 
     const id = uuidv4();
@@ -63,6 +78,24 @@ export class Network extends Service {
     });
 
     const download = async () => {
+      const checkProgress = async () => {
+        if (!progressCallback) {
+          return;
+        }
+
+        try {
+          const progress = await this.checkDownloadProgress(id);
+          progressCallback?.(progress);
+        } catch {
+          // i sure hope this doesn't happen
+        }
+      };
+
+      const progressInterval = setInterval(
+        checkProgress,
+        checkProgressInterval
+      );
+
       try {
         const { status } = await getRes();
         if (status === 'timeout') {
@@ -74,6 +107,8 @@ export class Network extends Service {
           throw new NetworkDownloadCancelledError();
         }
         throw err;
+      } finally {
+        clearInterval(progressInterval);
       }
     };
 
@@ -81,16 +116,12 @@ export class Network extends Service {
   }
 
   checkDownloadProgress(id: string) {
-    const { getRes } = rpcRequest<
-      { id: string },
+    const { getRes } = rpcRequest<{ id: string }, DownloadProgress>(
+      'NetworkService.CheckDownloadProgress',
       {
-        finalSizeBytes: number;
-        progressBytes: number;
-        progressPercent: number;
+        id,
       }
-    >('NetworkService.CheckDownloadProgress', {
-      id,
-    });
+    );
 
     return getRes();
   }
