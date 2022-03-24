@@ -60,6 +60,7 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
             right: 0;
             bottom: 0;
             margin: auto;
+            z-index: 999;
 
             display: flex;
             flex-direction: column;
@@ -164,6 +165,7 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
 
       const modal = (
         <div
+          data-smm-modal={true}
           data-smm-proton-updater-modal={true}
           className="smm-proton-updater-modal"
         >

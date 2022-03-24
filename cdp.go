@@ -23,8 +23,8 @@ func getSteamCtx(debugPort string) (context.Context, func()) {
 type UIMode string
 
 const (
-	Desktop UIMode = "desktop"
-	Deck           = "deck"
+	UIModeDesktop UIMode = "desktop"
+	UIModeDeck           = "deck"
 )
 
 func getLibraryCtx(ctx context.Context) (context.Context, *UIMode, error) {
@@ -43,12 +43,12 @@ func getLibraryCtx(ctx context.Context) (context.Context, *UIMode, error) {
 
 		if match := targetDesktopLibraryRe.MatchString(target.URL); match {
 			libraryTarget = target
-			mode = Desktop
+			mode = UIModeDesktop
 			break
 		}
 		if match := targetDeckLibraryRe.MatchString(target.URL); match {
 			libraryTarget = target
-			mode = Deck
+			mode = UIModeDeck
 			break
 		}
 	}

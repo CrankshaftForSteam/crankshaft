@@ -26,6 +26,7 @@ func bundleScripts() {
 		"--jsx-factory=h",
 		"--jsx-fragment=DocumentFragment",
 		"--inject:./injected/dom-chef-shim.js",
+		"--loader:.svg=dataurl",
 		`--define:process={"env":{"NODE_ENV":"development"}}`,
 		"--outdir=.build/",
 	})

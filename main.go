@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -32,9 +33,12 @@ func run() error {
 		return fmt.Errorf("Error getting library context: %w", err)
 	}
 
-	menuCtx, err := getDeckMenuCtx(ctx)
-	if err != nil {
-		return fmt.Errorf("Error getting menu context: %w", err)
+	var menuCtx context.Context
+	if *uiMode == UIModeDeck {
+		menuCtx, err = getDeckMenuCtx(ctx)
+		if err != nil {
+			return fmt.Errorf("Error getting menu context: %w", err)
+		}
 	}
 
 	bundleScripts()
@@ -52,12 +56,14 @@ func run() error {
 		return fmt.Errorf("Error injecting library script: %w", err)
 	}
 
-	menuEvalScript, err := buildEvalScript(*serverPort, *uiMode, ".build/menu.js")
-	if err != nil {
-		return fmt.Errorf("Failed to build menu eval script: %w", err)
-	}
-	if err = runScriptInCtx(menuCtx, menuEvalScript); err != nil {
-		return fmt.Errorf("Error injecting menu script: %w", err)
+	if *uiMode == UIModeDeck {
+		menuEvalScript, err := buildEvalScript(*serverPort, *uiMode, ".build/menu.js")
+		if err != nil {
+			return fmt.Errorf("Failed to build menu eval script: %w", err)
+		}
+		if err = runScriptInCtx(menuCtx, menuEvalScript); err != nil {
+			return fmt.Errorf("Error injecting menu script: %w", err)
+		}
 	}
 
 	rpcServer := rpc.HandleRpc()

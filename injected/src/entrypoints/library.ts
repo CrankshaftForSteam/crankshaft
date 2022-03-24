@@ -1,3 +1,4 @@
+import { loadProtonUpdaterPlugin } from '../proton-updater-plugin';
 import { loadProtonDBPlugin } from '../protondb-plugin';
 import { getSelectorByMode } from '../selectors';
 import { SMM } from '../SMM';
@@ -19,6 +20,10 @@ const mainLibraryEl = document.querySelector<HTMLDivElement>(
 createTabObserver(smm, mainLibraryEl);
 
 loadProtonDBPlugin(smm);
+
+if (window.smmUIMode === 'desktop') {
+  loadProtonUpdaterPlugin(smm);
+}
 
 document.addEventListener('keydown', (event) => {
   if (event.shiftKey && event.key === 'Tab') {

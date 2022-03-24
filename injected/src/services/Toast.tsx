@@ -23,7 +23,7 @@ export class Toast extends Service {
           marginLeft: 'auto',
           marginRight: 'auto',
           width: 400,
-          zIndex: 999,
+          zIndex: 999999,
 
           display: 'flex',
           flexDirection: 'column',
