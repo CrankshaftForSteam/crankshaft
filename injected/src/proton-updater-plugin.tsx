@@ -466,7 +466,6 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
         window.smmUIMode === 'deck'
           ? 'Compatibility Tools'
           : 'Compatibility Tools Manager',
-      icon: 'settings',
       fontSize: 16,
     },
     handleMenuItemClick

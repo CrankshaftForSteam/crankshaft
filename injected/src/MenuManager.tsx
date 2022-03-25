@@ -5,7 +5,6 @@ import { deleteAll, info } from './util';
 interface MenuItem {
   id: string;
   label: string;
-  icon?: string;
   fontSize?: number;
   node: HTMLElement;
 }
@@ -18,8 +17,6 @@ export class MenuManager {
   private footerBoxShadow!: HTMLDivElement;
 
   private menuItemTemplate!: HTMLDivElement;
-
-  private icons!: Record<string, HTMLDivElement>;
 
   constructor(entry: 'library' | 'menu') {
     this.entry = entry;
@@ -208,19 +205,17 @@ export class MenuManager {
       menuItem,
       true
     ) as HTMLDivElement;
-
-    // Get icons
-    this.icons = {};
-    document.querySelectorAll(DECK_SELECTORS.menuItem).forEach((item) => {
-      const name = item
-        .querySelector(DECK_SELECTORS.menuItemLabel)!
-        .textContent!.toLowerCase();
-      const icon = document.importNode<HTMLDivElement>(
-        item.querySelector(DECK_SELECTORS.menuItemIcon)!,
-        true
+    this.menuItemTemplate
+      .querySelector(DECK_SELECTORS.menuItemIcon)
+      ?.childNodes[0].remove();
+    this.menuItemTemplate
+      .querySelector(DECK_SELECTORS.menuItemIcon)
+      ?.appendChild(
+        <img
+          src={puzzleIcon}
+          style={{ width: 20, filter: 'brightness(225%)' }}
+        />
       );
-      this.icons[name] = icon;
-    });
   }
 
   addMenuItem(
@@ -241,13 +236,6 @@ export class MenuManager {
 
       if (item.fontSize) {
         label.style.fontSize = `${item.fontSize}px`;
-      }
-
-      if (item.icon) {
-        newMenuItem.querySelector(DECK_SELECTORS.menuItemIcon)?.remove();
-        (newMenuItem.childNodes[0] as HTMLDivElement).prepend(
-          document.importNode(this.icons[item.icon], true)
-        );
       }
     } else {
       newMenuItem = (
