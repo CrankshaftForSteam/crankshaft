@@ -22,7 +22,7 @@ export class NetworkDownloadTimeoutError extends Error {
   }
 }
 
-interface DownloadProgress {
+export interface DownloadProgress {
   finalSizeBytes: number;
   progressBytes: number;
   progressPercent: number;

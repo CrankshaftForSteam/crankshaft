@@ -55,6 +55,22 @@ export class MenuManager {
           [data-smm-menu-page] h1 {
             margin: 0;
           }
+
+          [data-smm-menu-item] {
+            cursor: pointer;
+          }
+
+          [data-smm-menu-item]:hover {
+              background-color: 'rgba(255, 255, 255, 15%)',
+          }
+
+          [data-smm-menu-item]:focus {
+            outline: none;
+          }
+
+          [data-smm-menu-item]:focus-visible {
+            outline: inherit;
+          }
         `}</style>
       );
       document.querySelector('head')?.appendChild(style);
@@ -138,7 +154,7 @@ export class MenuManager {
         .querySelector('[class^=library_Container_]')
         ?.appendChild(menuPage);
 
-      this.menuContainer = document.createElement('ul');
+      this.menuContainer = <div style={{ listStyle: 'none', padding: 0 }} />;
       menuPage.appendChild(this.menuContainer);
     }
 
@@ -235,9 +251,21 @@ export class MenuManager {
       }
     } else {
       newMenuItem = (
-        <li>
-          <button>{item.label}</button>
-        </li>
+        // <li>
+        <button
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 5%)',
+            color: 'rgba(255, 255, 255, 90%)',
+            border: 'none',
+            fontSize: 16,
+            padding: '8px 24px',
+            borderRadius: 8,
+            transition: 'all 150ms',
+          }}
+        >
+          {item.label}
+        </button>
+        // </li>
       );
       // ====
     }

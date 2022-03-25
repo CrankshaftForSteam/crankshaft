@@ -32,7 +32,7 @@ export class FS extends Service {
     return (await getRes()).data.trim();
   }
 
-  async untar(tarPath: string, destPath: string) {
+  untar(tarPath: string, destPath: string) {
     info('untar', { tarPath, destPath });
 
     return rpcRequest<{ tarPath: string; destPath: string }, void>(
