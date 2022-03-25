@@ -22,4 +22,7 @@
 # Go workspace file
 go.work
 
+# Build output
 .build
+# Random notes
+.scratch
