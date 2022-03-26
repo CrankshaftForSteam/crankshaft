@@ -1,4 +1,4 @@
-import { MenuManager } from './MenuManager';
+import { MenuManager } from './menu-manager';
 import { FS } from './services/FS';
 import { Network } from './services/Network';
 import { Toast } from './services/Toast';
