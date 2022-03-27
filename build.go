@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"text/template"
 
+	"git.sr.ht/~avery/steam-mod-manager/cdp"
 	"github.com/evanw/esbuild/pkg/cli"
 )
 
@@ -33,7 +34,7 @@ func bundleScripts() {
 }
 
 // buildEvalScript builds a script to be evaluated in the Steam target context.
-func buildEvalScript(serverPort string, uiMode UIMode, script string) (string, error) {
+func buildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (string, error) {
 	injectedScriptBytes, err := ioutil.ReadFile(script)
 	if err != nil {
 		return "", fmt.Errorf("Failed to read injected script: %w", err)
@@ -47,7 +48,7 @@ func buildEvalScript(serverPort string, uiMode UIMode, script string) (string, e
 		Version        string
 		InjectedScript string
 		ServerPort     string
-		UIMode         UIMode
+		UIMode         cdp.UIMode
 	}{
 		Version:        VERSION,
 		InjectedScript: injectedScript,

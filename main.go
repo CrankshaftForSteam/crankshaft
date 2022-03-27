@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"git.sr.ht/~avery/steam-mod-manager/cdp"
 	"git.sr.ht/~avery/steam-mod-manager/rpc"
 	"github.com/gorilla/handlers"
 )
@@ -24,17 +25,17 @@ func run() error {
 	serverPort := flag.String("server-port", "8085", "Port to run HTTP/websocket server on")
 	flag.Parse()
 
-	ctx, cancel := getSteamCtx(*debugPort)
+	ctx, cancel := cdp.GetSteamCtx(*debugPort)
 	defer cancel()
 
-	libraryCtx, uiMode, err := getLibraryCtx(ctx)
+	libraryCtx, uiMode, err := cdp.GetLibraryCtx(ctx)
 	if err != nil {
 		return fmt.Errorf("Error getting library context: %w", err)
 	}
 
 	var menuCtx context.Context
-	if *uiMode == UIModeDeck {
-		menuCtx, err = getDeckMenuCtx(ctx)
+	if *uiMode == cdp.UIModeDeck {
+		menuCtx, err = cdp.GetDeckMenuCtx(ctx)
 		if err != nil {
 			return fmt.Errorf("Error getting menu context: %w", err)
 		}
@@ -51,16 +52,16 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("Failed to build library eval script: %w", err)
 	}
-	if err = runScriptInCtx(libraryCtx, libraryEvalScript); err != nil {
+	if err = cdp.RunScriptInCtx(libraryCtx, libraryEvalScript); err != nil {
 		return fmt.Errorf("Error injecting library script: %w", err)
 	}
 
-	if *uiMode == UIModeDeck {
+	if *uiMode == cdp.UIModeDeck {
 		menuEvalScript, err := buildEvalScript(*serverPort, *uiMode, ".build/menu.js")
 		if err != nil {
 			return fmt.Errorf("Failed to build menu eval script: %w", err)
 		}
-		if err = runScriptInCtx(menuCtx, menuEvalScript); err != nil {
+		if err = cdp.RunScriptInCtx(menuCtx, menuEvalScript); err != nil {
 			return fmt.Errorf("Error injecting menu script: %w", err)
 		}
 	}

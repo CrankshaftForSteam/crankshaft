@@ -1,4 +1,4 @@
-package main
+package cdp
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-func getSteamCtx(debugPort string) (context.Context, func()) {
+func GetSteamCtx(debugPort string) (context.Context, func()) {
 	allocatorCtx, cancel1 := chromedp.NewRemoteAllocator(context.Background(), "http://localhost:"+debugPort)
 
 	ctx, cancel2 := chromedp.NewContext(allocatorCtx)
@@ -27,7 +27,7 @@ const (
 	UIModeDeck           = "deck"
 )
 
-func getLibraryCtx(ctx context.Context) (context.Context, *UIMode, error) {
+func GetLibraryCtx(ctx context.Context) (context.Context, *UIMode, error) {
 	targetDesktopLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/index.html`)
 	targetDeckLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/routes\/`)
 
@@ -60,7 +60,7 @@ func getLibraryCtx(ctx context.Context) (context.Context, *UIMode, error) {
 	return targetCtx, &mode, nil
 }
 
-func getDeckMenuCtx(ctx context.Context) (context.Context, error) {
+func GetDeckMenuCtx(ctx context.Context) (context.Context, error) {
 	targets, err := chromedp.Targets(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get targets: %w", err)
@@ -80,7 +80,7 @@ func getDeckMenuCtx(ctx context.Context) (context.Context, error) {
 	return targetCtx, nil
 }
 
-func runScriptInCtx(ctx context.Context, script string) error {
+func RunScriptInCtx(ctx context.Context, script string) error {
 	err := chromedp.Run(ctx,
 		chromedp.Evaluate(script, nil),
 	)
