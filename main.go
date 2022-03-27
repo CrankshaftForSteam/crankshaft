@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 
 	"git.sr.ht/~avery/steam-mod-manager/cdp"
+	"git.sr.ht/~avery/steam-mod-manager/patcher"
 	"git.sr.ht/~avery/steam-mod-manager/rpc"
 	"github.com/gorilla/handlers"
 )
@@ -41,12 +43,21 @@ func run() error {
 		}
 	}
 
-	bundleScripts()
+	// Patch and bundle in parallel
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	// TODO: have a system to load these dynamically
-	// TODO: Right now you have to manually refresh Steam to get it to use the,
-	// need to chromedp.Reload after patching
-	// patcher.PatchSteamUiFile("libraryroot~sp.js", "./patches/open-quick-access.patch")
+	go func() {
+		defer wg.Done()
+		patcher.Patch(*debugPort)
+	}()
+
+	go func() {
+		defer wg.Done()
+		bundleScripts()
+	}()
+
+	wg.Wait()
 
 	libraryEvalScript, err := buildEvalScript(*serverPort, *uiMode, ".build/library.js")
 	if err != nil {
