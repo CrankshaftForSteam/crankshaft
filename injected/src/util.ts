@@ -25,3 +25,17 @@ export const formatBytes = (bytes: number, decimals: number = 2) => {
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
+
+export const waitForElement = (selector: string) =>
+  new Promise<void>((resolve) => {
+    if (document.querySelector(selector)) {
+      resolve();
+    }
+
+    const observer = new MutationObserver(() => {
+      if (document.querySelector(selector)) {
+        resolve();
+      }
+    });
+    observer.observe(document, { subtree: true, childList: true });
+  });

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -25,23 +24,8 @@ func main() {
 func run() error {
 	debugPort := flag.String("debug-port", "8080", "CEF debug port")
 	serverPort := flag.String("server-port", "8085", "Port to run HTTP/websocket server on")
+	skipPatching := flag.Bool("skip-patching", false, "Skip patching Steam client resources")
 	flag.Parse()
-
-	ctx, cancel := cdp.GetSteamCtx(*debugPort)
-	defer cancel()
-
-	libraryCtx, uiMode, err := cdp.GetLibraryCtx(ctx)
-	if err != nil {
-		return fmt.Errorf("Error getting library context: %w", err)
-	}
-
-	var menuCtx context.Context
-	if *uiMode == cdp.UIModeDeck {
-		menuCtx, err = cdp.GetDeckMenuCtx(ctx)
-		if err != nil {
-			return fmt.Errorf("Error getting menu context: %w", err)
-		}
-	}
 
 	// Patch and bundle in parallel
 	var wg sync.WaitGroup
@@ -49,6 +33,9 @@ func run() error {
 
 	go func() {
 		defer wg.Done()
+		if *skipPatching {
+			return
+		}
 		patcher.Patch(*debugPort)
 	}()
 
@@ -59,20 +46,28 @@ func run() error {
 
 	wg.Wait()
 
-	libraryEvalScript, err := buildEvalScript(*serverPort, *uiMode, ".build/library.js")
+	steamClient, err := cdp.NewSteamClient(*debugPort)
+	if err != nil {
+		return err
+	}
+	defer steamClient.Cancel()
+
+	fmt.Println("Client mode:", steamClient.UiMode)
+
+	libraryEvalScript, err := buildEvalScript(*serverPort, steamClient.UiMode, ".build/library.js")
 	if err != nil {
 		return fmt.Errorf("Failed to build library eval script: %w", err)
 	}
-	if err = cdp.RunScriptInCtx(libraryCtx, libraryEvalScript); err != nil {
+	if err := steamClient.RunScriptInLibrary(libraryEvalScript); err != nil {
 		return fmt.Errorf("Error injecting library script: %w", err)
 	}
 
-	if *uiMode == cdp.UIModeDeck {
-		menuEvalScript, err := buildEvalScript(*serverPort, *uiMode, ".build/menu.js")
+	if steamClient.UiMode == cdp.UIModeDeck {
+		menuEvalScript, err := buildEvalScript(*serverPort, steamClient.UiMode, ".build/menu.js")
 		if err != nil {
 			return fmt.Errorf("Failed to build menu eval script: %w", err)
 		}
-		if err = cdp.RunScriptInCtx(menuCtx, menuEvalScript); err != nil {
+		if err := steamClient.RunScriptInMenu(menuEvalScript); err != nil {
 			return fmt.Errorf("Error injecting menu script: %w", err)
 		}
 	}

@@ -7,7 +7,7 @@ clean:
 	rm -rf .build
 
 run: clean
-	go run .
+	go run . $(ARGS)
 
 test:
 	go test ./...

@@ -148,15 +148,13 @@ func findCoolClassConstructor(fileLines []string) (int, error) {
 // reloadClient reloads relevant parts of the Steam client to load our
 // patched scripts.
 func reloadClient(debugPort string) error {
-	ctx, cancel := cdp.GetSteamCtx(debugPort)
-	defer cancel()
-
-	libraryCtx, _, err := cdp.GetLibraryCtx(ctx)
+	steamClient, err := cdp.NewSteamClient(debugPort)
 	if err != nil {
 		return err
 	}
+	defer steamClient.Cancel()
 
-	err = cdp.RunScriptInCtx(libraryCtx, "window.location.reload()")
+	err = steamClient.RunScriptInLibrary("window.location.reload()")
 	if err != nil {
 		return err
 	}

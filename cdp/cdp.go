@@ -3,13 +3,16 @@ package cdp
 import (
 	"context"
 	"fmt"
-	"regexp"
+	"strconv"
+	"time"
 
+	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/cdproto/target"
 	"github.com/chromedp/chromedp"
 )
 
-func GetSteamCtx(debugPort string) (context.Context, func()) {
+// GetSteamCtx returns the CDP context for the running Steam client.
+func GetSteamCtx(debugPort string) (ctx context.Context, cancel func(), err error) {
 	allocatorCtx, cancel1 := chromedp.NewRemoteAllocator(context.Background(), "http://localhost:"+debugPort)
 
 	ctx, cancel2 := chromedp.NewContext(allocatorCtx)
@@ -17,9 +20,10 @@ func GetSteamCtx(debugPort string) (context.Context, func()) {
 	return ctx, func() {
 		cancel1()
 		cancel2()
-	}
+	}, nil
 }
 
+// UIMode indicates if Steam is running in desktop or deck mode.
 type UIMode string
 
 const (
@@ -27,66 +31,139 @@ const (
 	UIModeDeck           = "deck"
 )
 
-func GetLibraryCtx(ctx context.Context) (context.Context, *UIMode, error) {
-	targetDesktopLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/index.html`)
-	targetDeckLibraryRe := regexp.MustCompile(`^https:\/\/steamloopback\.host\/routes\/`)
+// SteamClient is a wrapper around CDP commands that allow you to run scripts
+// in and retrieve information about the running Steam client.
+type SteamClient struct {
+	debugPort string
 
-	targets, err := chromedp.Targets(ctx)
-	if err != nil {
-		return nil, nil, fmt.Errorf("Failed to get targets: %w", err)
-	}
+	steamCtx context.Context
+	Cancel   func()
 
-	var mode UIMode
-	var libraryTarget *target.Info
-	for _, target := range targets {
-		fmt.Println(target.Title, "|", target.URL)
-
-		if match := targetDesktopLibraryRe.MatchString(target.URL); match {
-			libraryTarget = target
-			mode = UIModeDesktop
-			break
-		}
-		if match := targetDeckLibraryRe.MatchString(target.URL); match {
-			libraryTarget = target
-			mode = UIModeDeck
-			break
-		}
-	}
-	fmt.Println("found library target mode", mode, ":", libraryTarget.URL)
-
-	targetCtx, _ := chromedp.NewContext(ctx, chromedp.WithTargetID(libraryTarget.TargetID))
-	// Don't cancel or it'll close the Steam window
-
-	return targetCtx, &mode, nil
+	UiMode UIMode
 }
 
-func GetDeckMenuCtx(ctx context.Context) (context.Context, error) {
-	targets, err := chromedp.Targets(ctx)
+// NewSteamClient creates and initializes a new SteamClient.
+func NewSteamClient(debugPort string) (*SteamClient, error) {
+	steamCtx, cancel, _ := GetSteamCtx(debugPort)
+
+	steamClient := SteamClient{
+		debugPort: debugPort,
+
+		steamCtx: steamCtx,
+		Cancel:   cancel,
+	}
+
+	// Get UI mode
+	out, _ := steamClient.runScriptInTargetWithOutput(LibraryTarget, "SteamClient.UI.GetUIMode()")
+	uiModeNum, err := strconv.Atoi(out)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get targets: %w", err)
+		return nil, err
+	}
+	switch uiModeNum {
+	case 0:
+		steamClient.UiMode = UIModeDesktop
+	case 4:
+		steamClient.UiMode = UIModeDeck
 	}
 
-	var menuTarget *target.Info
-	for _, target := range targets {
-		if target.Title == "MainMenu" {
-			menuTarget = target
-			break
-		}
-	}
-	fmt.Println("found deck menu target", menuTarget.URL)
-
-	targetCtx, _ := chromedp.NewContext(ctx, chromedp.WithTargetID(menuTarget.TargetID))
-
-	return targetCtx, nil
+	return &steamClient, nil
 }
 
-func RunScriptInCtx(ctx context.Context, script string) error {
-	err := chromedp.Run(ctx,
-		chromedp.Evaluate(script, nil),
-	)
+func (sc *SteamClient) getTargets() ([]*target.Info, error) {
+	return chromedp.Targets(sc.steamCtx)
+}
+
+// SteamTarget indicates which of the Steam Client's CDP targets you want to
+// use as the context for whatever command you're executing.
+type SteamTarget string
+
+const (
+	LibraryTarget SteamTarget = "SP"
+	MenuTarget                = "MainMenu"
+)
+
+// Maximum number of times to retry getting a target
+// Useful if you just reloaded the page and are waiting for target to load
+// Will sleep for 1 second between retries
+const getTargetRetryMax = 10
+
+func (sc *SteamClient) runScriptInTarget(steamTarget SteamTarget, script string) error {
+	var ctx context.Context = nil
+	retries := 0
+
+	for ctx == nil && retries < 10 {
+		if retries != 0 {
+			time.Sleep(1 * time.Second)
+		}
+
+		targets, err := sc.getTargets()
+		if err != nil {
+			return err
+		}
+
+		for _, target := range targets {
+			if target.Title == string(steamTarget) {
+				ctx, _ = chromedp.NewContext(sc.steamCtx, chromedp.WithTargetID(target.TargetID))
+				break
+			}
+		}
+		retries++
+	}
+
+	if ctx == nil {
+		return fmt.Errorf("Couldn't find context for target %s", steamTarget)
+	}
+
+	err := chromedp.Run(ctx, chromedp.Evaluate(script, nil))
 	if err != nil {
-		return fmt.Errorf("Failed to inject eval script: %w", err)
+		return err
 	}
 
 	return nil
+}
+
+func (sc *SteamClient) RunScriptInLibrary(script string) error {
+	return sc.runScriptInTarget(LibraryTarget, script)
+}
+
+func (sc *SteamClient) RunScriptInMenu(script string) error {
+	if sc.UiMode != UIModeDeck {
+		return fmt.Errorf("Running in desktop mode, unable to inject script into Deck menu")
+	}
+
+	return sc.runScriptInTarget(MenuTarget, script)
+}
+
+func (sc *SteamClient) runScriptInTargetWithOutput(steamTarget SteamTarget, script string) (string, error) {
+	targets, err := sc.getTargets()
+	if err != nil {
+		return "", nil
+	}
+
+	var ctx context.Context
+	for _, target := range targets {
+		if target.Title == string(steamTarget) {
+			ctx, _ = chromedp.NewContext(sc.steamCtx, chromedp.WithTargetID(target.TargetID))
+			break
+		}
+	}
+
+	var output []byte
+
+	err = chromedp.Run(ctx,
+		chromedp.Evaluate(
+			script,
+			&output,
+			withAwaitPromise,
+		),
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return string(output), nil
+}
+
+func withAwaitPromise(p *runtime.EvaluateParams) *runtime.EvaluateParams {
+	return p.WithAwaitPromise(true)
 }

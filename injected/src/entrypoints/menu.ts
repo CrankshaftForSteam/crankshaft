@@ -1,6 +1,7 @@
+import { MENU_DECK_SELECTORS } from '../menu-manager/selectors';
 import { loadProtonUpdaterPlugin } from '../proton-updater-plugin';
 import { SMM } from '../SMM';
-import { info } from '../util';
+import { info, waitForElement } from '../util';
 
 const main = () => {
   info('Successfully injected menu script');
@@ -8,6 +9,8 @@ const main = () => {
   if (window.smmUIMode === 'desktop') {
     return;
   }
+
+  waitForElement(MENU_DECK_SELECTORS.menuContainer);
 
   const smm = new SMM('menu');
   if (window.smm) {
