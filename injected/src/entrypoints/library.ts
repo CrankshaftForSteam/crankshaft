@@ -30,7 +30,7 @@ const main = async () => {
 
   document.addEventListener('keydown', (event) => {
     if (event.shiftKey && event.key === 'Tab') {
-      window.OpenQuickAccessMenu();
+      window.coolClass.OpenQuickAccessMenu();
     }
   });
 };

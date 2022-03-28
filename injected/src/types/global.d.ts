@@ -11,6 +11,8 @@ declare global {
     smmServerPort: string;
     smmUIMode: 'desktop' | 'deck';
 
-    OpenQuickAccessMenu: () => void;
+    coolClass: {
+      OpenQuickAccessMenu: (tab?: number) => void;
+    };
   }
 }
