@@ -26,16 +26,19 @@ export const formatBytes = (bytes: number, decimals: number = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
-export const waitForElement = (selector: string) =>
-  new Promise<void>((resolve) => {
-    if (document.querySelector(selector)) {
-      resolve();
-    }
+export const waitForElement = <T extends HTMLElement>(selector: string) =>
+  new Promise<T>((resolve) => {
+    const check = () => {
+      const el = document.querySelector<T>(selector);
+      if (el) {
+        resolve(el);
+      }
+    };
+
+    check();
 
     const observer = new MutationObserver(() => {
-      if (document.querySelector(selector)) {
-        resolve();
-      }
+      check();
     });
     observer.observe(document, { subtree: true, childList: true });
   });

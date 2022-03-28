@@ -114,7 +114,7 @@ func (sc *SteamClient) runScriptInTarget(steamTarget SteamTarget, script string)
 		return fmt.Errorf("Couldn't find context for target %s", steamTarget)
 	}
 
-	err := chromedp.Run(ctx, chromedp.Evaluate(script, nil))
+	err := chromedp.Run(ctx, chromedp.Evaluate(script, nil, withAwaitPromise))
 	if err != nil {
 		return err
 	}

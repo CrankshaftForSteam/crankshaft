@@ -1,4 +1,4 @@
-package main
+package build
 
 import (
 	"bytes"
@@ -10,7 +10,9 @@ import (
 	"github.com/evanw/esbuild/pkg/cli"
 )
 
-func bundleScripts() {
+const VERSION = "0.1.0"
+
+func BundleScripts() {
 	fmt.Println("Bundling scripts to inject...")
 
 	// TODO: get sourcemaps working
@@ -34,7 +36,7 @@ func bundleScripts() {
 }
 
 // buildEvalScript builds a script to be evaluated in the Steam target context.
-func buildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (string, error) {
+func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (string, error) {
 	injectedScriptBytes, err := ioutil.ReadFile(script)
 	if err != nil {
 		return "", fmt.Errorf("Failed to read injected script: %w", err)

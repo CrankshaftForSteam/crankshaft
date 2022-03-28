@@ -6,15 +6,13 @@ import (
 	"log"
 	"net/http"
 	"sync"
-	"time"
 
+	"git.sr.ht/~avery/steam-mod-manager/build"
 	"git.sr.ht/~avery/steam-mod-manager/cdp"
 	"git.sr.ht/~avery/steam-mod-manager/patcher"
 	"git.sr.ht/~avery/steam-mod-manager/rpc"
 	"github.com/gorilla/handlers"
 )
-
-const VERSION = "0.1.0"
 
 func main() {
 	if err := run(); err != nil {
@@ -32,7 +30,10 @@ func run() error {
 
 	cdp.WaitForConnection(*debugPort)
 
-	time.Sleep(3 * time.Second)
+	err := cdp.WaitForLibraryEl(*debugPort)
+	if err != nil {
+		return err
+	}
 
 	// Patch and bundle in parallel
 	var wg sync.WaitGroup
@@ -43,45 +44,17 @@ func run() error {
 		if *skipPatching {
 			return
 		}
-		patcher.Patch(*debugPort)
+		patcher.Patch(*debugPort, *serverPort)
 	}()
 
 	go func() {
 		defer wg.Done()
-		bundleScripts()
+		build.BundleScripts()
 	}()
 
 	wg.Wait()
 
-	time.Sleep(3 * time.Second)
-
-	steamClient, err := cdp.NewSteamClient(*debugPort)
-	if err != nil {
-		return err
-	}
-	defer steamClient.Cancel()
-
-	fmt.Println("Client mode:", steamClient.UiMode)
-
-	libraryEvalScript, err := buildEvalScript(*serverPort, steamClient.UiMode, ".build/library.js")
-	if err != nil {
-		return fmt.Errorf("Failed to build library eval script: %w", err)
-	}
-	if err := steamClient.RunScriptInLibrary(libraryEvalScript); err != nil {
-		return fmt.Errorf("Error injecting library script: %w", err)
-	}
-
-	if steamClient.UiMode == cdp.UIModeDeck {
-		menuEvalScript, err := buildEvalScript(*serverPort, steamClient.UiMode, ".build/menu.js")
-		if err != nil {
-			return fmt.Errorf("Failed to build menu eval script: %w", err)
-		}
-		if err := steamClient.RunScriptInMenu(menuEvalScript); err != nil {
-			return fmt.Errorf("Error injecting menu script: %w", err)
-		}
-	}
-
-	rpcServer := rpc.HandleRpc()
+	rpcServer := rpc.HandleRpc(*debugPort, *serverPort)
 
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 	http.Handle("/rpc", handlers.CORS(

@@ -6,6 +6,6 @@ import "git.sr.ht/~avery/steam-mod-manager/pathutil"
 const linuxSteamUiPath = "~/.steam/steam/steamui/"
 
 // Patch patches necessary Steam resources.
-func Patch(debugPort string) {
-	PatchJS(pathutil.SubstituteHomeDir(linuxSteamUiPath), debugPort)
+func Patch(debugPort string, serverPort string) {
+	PatchJS(pathutil.SubstituteHomeDir(linuxSteamUiPath), debugPort, serverPort)
 }
