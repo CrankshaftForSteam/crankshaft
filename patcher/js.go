@@ -55,12 +55,6 @@ func PatchJS(steamuiPath string, debugPort string) error {
 		return err
 	}
 
-	fmt.Println("Reloading Steam client...")
-	err = reloadClient(debugPort)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 

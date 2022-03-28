@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"git.sr.ht/~avery/steam-mod-manager/cdp"
 	"git.sr.ht/~avery/steam-mod-manager/patcher"
@@ -27,6 +28,12 @@ func run() error {
 	skipPatching := flag.Bool("skip-patching", false, "Skip patching Steam client resources")
 	flag.Parse()
 
+	waitForSteamProcess()
+
+	cdp.WaitForConnection(*debugPort)
+
+	time.Sleep(3 * time.Second)
+
 	// Patch and bundle in parallel
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -45,6 +52,8 @@ func run() error {
 	}()
 
 	wg.Wait()
+
+	time.Sleep(3 * time.Second)
 
 	steamClient, err := cdp.NewSteamClient(*debugPort)
 	if err != nil {

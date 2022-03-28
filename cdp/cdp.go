@@ -167,3 +167,35 @@ func (sc *SteamClient) runScriptInTargetWithOutput(steamTarget SteamTarget, scri
 func withAwaitPromise(p *runtime.EvaluateParams) *runtime.EvaluateParams {
 	return p.WithAwaitPromise(true)
 }
+
+func WaitForConnection(debugPort string) {
+	steamCtx, cancel, _ := GetSteamCtx(debugPort)
+
+	fmt.Println("Waiting to connect to Steam client...")
+
+	connected := false
+	for !connected {
+		cancel()
+		steamCtx, cancel, _ = GetSteamCtx(debugPort)
+
+		targets, err := chromedp.Targets(steamCtx)
+		if err != nil {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		foundSp := false
+		for _, t := range targets {
+			if t.Title == string(LibraryTarget) {
+				foundSp = true
+			}
+		}
+		if foundSp {
+			connected = true
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+
+	fmt.Println("Connected!")
+}
