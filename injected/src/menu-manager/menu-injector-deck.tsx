@@ -15,9 +15,12 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
 
   private menuItemTemplate: HTMLDivElement;
 
+  private pageContainer!: HTMLDivElement;
+
   constructor() {
     deleteAll('[data-smm-menu-item-style]');
     deleteAll('[data-smm-menu-item]');
+    deleteAll('[data-smm-menu-page]');
 
     const menuContainer = document.querySelector<HTMLDivElement>(
       MENU_DECK_SELECTORS.menuContainer
@@ -37,6 +40,8 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
 
     const { menuItemClass, menuItemTemplate } = this.createMenuItemTemplate();
     this.menuItemTemplate = menuItemTemplate;
+
+    this.createMenuPage(menuContainer);
 
     this.enableMenuScroll(
       this.menuContainer,
@@ -69,6 +74,12 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
     this.menuContainer.insertBefore(newMenuItem, this.footerBoxShadow);
 
     return newMenuItem;
+  }
+
+  renderMenuItem(_id: string, element: JSX.Element) {
+    this.pageContainer.childNodes.forEach((node) => node.remove());
+    this.pageContainer.appendChild(element);
+    this.pageContainer.style.display = 'unset';
   }
 
   private enableMenuScroll(
@@ -126,5 +137,21 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
       );
 
     return { menuItemClass, menuItemTemplate };
+  }
+
+  private createMenuPage(menuContainer: HTMLDivElement) {
+    const menuPage = (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#23262e',
+          display: 'none',
+        }}
+        data-smm-menu-page
+      />
+    );
+    this.pageContainer = menuPage as unknown as HTMLDivElement;
+    menuContainer.parentElement?.appendChild(menuPage);
   }
 }

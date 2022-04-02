@@ -86,13 +86,13 @@ const createProgressModal = ({
       data-smm-modal={true}
       data-smm-proton-updater-progress-modal={true}
       style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        // position: 'absolute',
+        // top: 0,
+        // left: 0,
+        // right: 0,
+        // bottom: 0,
         margin: 'auto',
-        zIndex: 9999,
+        // zIndex: 9999,
 
         height: 'min-content',
         maxWidth: '40%',
@@ -157,48 +157,21 @@ const createProgressModal = ({
 export const loadProtonUpdaterPlugin = (smm: SMM) => {
   deleteAll('[data-smm-proton-updater-modal]');
   deleteAll('[data-smm-proton-updater-progress-modal]');
+  deleteAll('[data-smm-proton-updater-style]');
 
-  const handleMenuItemClick = async () => {
-    const handleClose = () => {
-      deleteAll('[data-smm-proton-updater-modal]');
-      deleteAll('[data-smm-proton-updater-style]');
-      document.removeEventListener('click', handleClose);
-    };
-
-    // Close when clicked outside the modal
-    document.addEventListener('click', (event) => {
-      if (
-        !(event.target as HTMLElement)?.closest(
-          '[data-smm-proton-updater-modal]'
-        )
-      ) {
-        handleClose();
-      }
-    });
-
+  const render = async () => {
     const style = (
       <style data-smm-proton-updater-style>{`
           .smm-proton-updater-modal {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            margin: auto;
-            z-index: 999;
-
             display: flex;
             flex-direction: column;
 
-            maxWidth: 600px;
-            maxHeight: 500px;
-            width: 80%;
-            height: 80%;
+            height: 100%;
             padding: 4px 12px;
 
             background-color: #23262e;
             border-radius: 8px;
-            box-shadow: -12px 18px 24px -12px rgba(0, 0, 0, 0.5);
+            /*box-shadow: -12px 18px 24px -12px rgba(0, 0, 0, 0.5);*/
             color: #b8bcbf;
           }
 
@@ -313,12 +286,6 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
         data-smm-proton-updater-modal={true}
         className="smm-proton-updater-modal"
       >
-        <button
-          onClick={handleClose}
-          className="smm-proton-updater-modal-close"
-        >
-          x
-        </button>
         <h1>Compatibility Tools Manager</h1>
         <div className="smm-proton-updater-container">
           <div
@@ -340,7 +307,7 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
         </div>
       </div>
     );
-    document.querySelector('body')?.appendChild(modal);
+    // document.querySelector('body')?.appendChild(modal);
 
     const installedTools = await getInstalledTools(smm);
     installedTools
@@ -446,8 +413,7 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
 
           smm.Toast.addToast(`${release.tag_name} installed!`, 'success');
 
-          handleClose();
-          handleMenuItemClick();
+          render();
         };
 
         availableVersionsList.appendChild(
@@ -457,6 +423,8 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
           </li>
         );
       });
+
+    return modal;
   };
 
   smm.MenuManager.addMenuItem(
@@ -468,7 +436,7 @@ export const loadProtonUpdaterPlugin = (smm: SMM) => {
           : 'Compatibility Tools Manager',
       fontSize: 16,
     },
-    handleMenuItemClick
+    render
   );
 };
 

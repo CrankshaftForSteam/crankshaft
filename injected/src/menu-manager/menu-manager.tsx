@@ -10,7 +10,8 @@ interface MenuItem {
 }
 
 export interface MenuInjector<MenuItemType extends HTMLElement> {
-  createMenuItem: (props: { label: string; fontSize?: number }) => MenuItemType;
+  createMenuItem: (props: Omit<MenuItem, 'node'>) => MenuItemType;
+  renderMenuItem: (id: string, element: JSX.Element) => void;
 }
 
 export class MenuManager {
@@ -35,14 +36,14 @@ export class MenuManager {
 
   addMenuItem(
     item: Omit<MenuItem, 'node'>,
-    onClick: (event: MouseEvent) => void
+    render: () => JSX.Element | Promise<JSX.Element>
   ) {
     const newMenuItem = this.injector.createMenuItem(item);
     newMenuItem.dataset.smmMenuItem = item.id;
 
-    newMenuItem.addEventListener('click', (event) => {
+    newMenuItem.addEventListener('click', async (event) => {
       event.stopPropagation();
-      onClick(event);
+      this.injector.renderMenuItem(item.id, await render());
     });
 
     this.menuItems.push({ ...item, node: newMenuItem });
