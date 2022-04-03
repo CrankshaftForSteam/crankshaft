@@ -1,6 +1,7 @@
 package patcher
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -27,6 +28,8 @@ func PatchJS(steamuiPath string, debugPort string, serverPort string) error {
 	scriptPath := path.Join(steamuiPath, libraryRootSP)
 
 	fmt.Printf("Patching %s...\n", scriptPath)
+
+	checkForOriginal(scriptPath)
 
 	// TODO: use checksum to cache output
 	// f, _ := os.Open(scriptPath)
@@ -58,6 +61,28 @@ func PatchJS(steamuiPath string, debugPort string, serverPort string) error {
 	err = reloadClient(debugPort)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func checkForOriginal(scriptPath string) error {
+	f, err := os.Open(scriptPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	s := bufio.NewScanner(f)
+	// Check first line
+	s.Scan()
+	firstLine := s.Text()
+	if strings.Contains(firstLine, "patched by crankshaft") {
+		// Replace with original if possible
+		err = pathutil.Copy(pathutil.AddExtPrefix(scriptPath, ".orig"), scriptPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -103,7 +128,7 @@ func patchCoolClass(unminPath string, origPath string, serverPort string) error 
 
 	insertAtPos(&fileLines, constructorLineNum, "window.coolClass = this;")
 
-	script := fmt.Sprintf(`
+	script := fmt.Sprintf(`// file patched by crankshaft
 		console.info('[Crankshaft] Loading patched libraryroot~sp.js');
 
 		window.addEventListener('load', () => {
