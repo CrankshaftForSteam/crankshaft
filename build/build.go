@@ -26,6 +26,7 @@ func BundleScripts() {
 		"injected/src/entrypoints/library.ts",
 		"injected/src/entrypoints/menu.ts",
 		"--bundle",
+		"--format=iife",
 		"--jsx-factory=h",
 		"--jsx-fragment=DocumentFragment",
 		"--inject:./injected/dom-chef-shim.js",
