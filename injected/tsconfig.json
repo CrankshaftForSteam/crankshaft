@@ -2,14 +2,14 @@
 	"compilerOptions": {
 		"target": "ES2020",
 		"strict": true,
-		"noEmit": true,
+		"emitDeclarationOnly": true,
+		"declaration": true,
+		"outDir": "types",
 		"lib": ["ES2020", "DOM", "DOM.Iterable"],
 		"isolatedModules": true,
 		"esModuleInterop": true,
 		"moduleResolution": "node",
-		"jsx": "preserve",
-		"jsxFactory": "h",
-		"jsxFragmentFactory": "DocumentFragment"
+		"jsx": "preserve"
 	},
 	"include": ["src/**/*"]
 }

@@ -1,0 +1,9 @@
+{
+  "name": "@crankshaft/types",
+  "author": "Avery <avery@avery.cafe>",
+  "version": "0.1.0",
+  "license": "GPL-3.0",
+  "private": false,
+  "main": "index.d.ts",
+  "types": "index.d.ts"
+}
