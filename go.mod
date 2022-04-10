@@ -3,6 +3,8 @@ module git.sr.ht/~avery/steam-mod-manager
 go 1.18
 
 require (
+	github.com/BurntSushi/toml v1.0.0
+	github.com/adrg/xdg v0.4.0
 	github.com/chromedp/cdproto v0.0.0-20220217222649-d8c14a5c6edf
 	github.com/chromedp/chromedp v0.7.8
 	github.com/evanw/esbuild v0.14.27

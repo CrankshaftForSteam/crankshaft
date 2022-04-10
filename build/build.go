@@ -2,17 +2,18 @@ package build
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"text/template"
 
 	"git.sr.ht/~avery/steam-mod-manager/cdp"
-	"github.com/evanw/esbuild/pkg/cli"
+	"github.com/evanw/esbuild/pkg/api"
 )
 
 const VERSION = "0.1.0"
 
-func BundleScripts() {
+func BundleScripts() error {
 	fmt.Println("Bundling scripts to inject...")
 
 	// TODO: get sourcemaps working
@@ -22,18 +23,77 @@ func BundleScripts() {
 	// throwing an error.
 	// (not a huge deal since the bundle is small and isn't minified or anything)
 
-	cli.Run([]string{
-		"injected/src/entrypoints/library.ts",
-		"injected/src/entrypoints/menu.ts",
-		"--bundle",
-		"--format=iife",
-		"--jsx-factory=h",
-		"--jsx-fragment=DocumentFragment",
-		"--inject:./injected/dom-chef-shim.js",
-		"--loader:.svg=dataurl",
-		`--define:process={"env":{"NODE_ENV":"development"}}`,
-		"--outdir=.build/",
+	res := api.Build(api.BuildOptions{
+		EntryPoints: []string{
+			"injected/src/entrypoints/library.ts",
+			"injected/src/entrypoints/menu.ts",
+		},
+		Bundle:      true,
+		Format:      api.FormatIIFE,
+		JSXFactory:  "smmShared.h",
+		JSXFragment: "DocumentFragment",
+		Loader: map[string]api.Loader{
+			".svg": api.LoaderDataURL,
+		},
+		Define: map[string]string{
+			"process": `{"env":{"NODE_ENV":"development"}}`,
+		},
+		Outdir: ".build",
+		Write:  true,
 	})
+
+	if len(res.Errors) > 0 {
+		fmt.Println("Injected script bundling errors:")
+		for i, err := range res.Errors {
+			fmt.Println(i, ":", err)
+		}
+		return errors.New("Error bundling injected scripts, see above")
+	}
+
+	if len(res.Warnings) > 0 {
+		fmt.Println("Injected script bundling warnings:")
+		for i, err := range res.Warnings {
+			fmt.Println(i, ":", err)
+		}
+	}
+
+	return nil
+}
+
+func BundleSharedScripts() (string, error) {
+	res := api.Build(api.BuildOptions{
+		EntryPoints: []string{
+			"injected/src/entrypoints/shared.ts",
+		},
+		Bundle:     true,
+		Format:     api.FormatIIFE,
+		GlobalName: "smmShared",
+		Outdir:     ".build",
+		Write:      true,
+	})
+
+	// TODO: refactor to share this stuff with BundleScripts
+	if len(res.Errors) > 0 {
+		fmt.Println("Injected script bundling errors:")
+		for i, err := range res.Errors {
+			fmt.Println(i, ":", err)
+		}
+		return "", errors.New("Error bundling injected scripts, see above")
+	}
+
+	if len(res.Warnings) > 0 {
+		fmt.Println("Injected script bundling warnings:")
+		for i, err := range res.Warnings {
+			fmt.Println(i, ":", err)
+		}
+	}
+
+	script, err := ioutil.ReadFile(res.OutputFiles[0].Path)
+	if err != nil {
+		return "", fmt.Errorf("Failed to read shared scripts output: %v", err)
+	}
+
+	return string(script), nil
 }
 
 // buildEvalScript builds a script to be evaluated in the Steam target context.

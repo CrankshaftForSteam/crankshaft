@@ -14,6 +14,8 @@ export class SMM extends EventTarget {
   readonly MenuManager: MenuManager;
   readonly FS: FS;
 
+  readonly serverPort: string;
+
   constructor(entry: 'library' | 'menu') {
     super();
 
@@ -25,6 +27,8 @@ export class SMM extends EventTarget {
     this.Toast = new Toast(this);
     this.MenuManager = new MenuManager(entry);
     this.FS = new FS(this);
+
+    this.serverPort = window.smmServerPort;
   }
 
   get currentTab() {
@@ -80,5 +84,16 @@ export class SMM extends EventTarget {
     this.dispatchEvent(
       new CustomEvent('switchToAppDetails', { detail: { appId, appName } })
     );
+  }
+
+  async loadPlugins() {
+    // It's probably better to load these sequentially
+    for (const [name, { load, unload }] of Object.entries(
+      window.smmPlugins ?? {}
+    )) {
+      info(`Loading plugin ${name}...`);
+      await unload?.();
+      await load(this);
+    }
   }
 }

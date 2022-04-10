@@ -36,6 +36,8 @@ const main = async () => {
 
   createTabObserver(smm, mainLibraryEl);
 
+  await smm.loadPlugins();
+
   document.addEventListener('keydown', (event) => {
     if (event.shiftKey && event.key === 'Tab') {
       window.coolClass.OpenQuickAccessMenu();
