@@ -50,6 +50,11 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
     );
   }
 
+  isLoaded() {
+    // TODO
+    return true;
+  }
+
   createMenuItem({
     label,
     fontSize,

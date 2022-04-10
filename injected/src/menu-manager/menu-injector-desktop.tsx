@@ -11,7 +11,7 @@ class InjectError extends Error {
 
 export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
   private menuContainer!: HTMLUListElement;
-
+  private modsButton!: HTMLElement;
   private pageContainer!: HTMLDivElement;
 
   constructor() {
@@ -24,9 +24,9 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
 
     this.injectMenuStyles();
 
-    const modsButton = this.createModsButton(collectionsButton);
+    this.modsButton = this.createModsButton(collectionsButton);
 
-    this.createMenuPage(modsButton);
+    this.createMenuPage(this.modsButton);
   }
 
   createMenuItem({ id, label }: { id: string; label: string }) {
@@ -171,6 +171,10 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
         </button>
       </div>
     );
+  }
+
+  isLoaded() {
+    return document.contains(this.modsButton);
   }
 
   private createMenuPage(modsButton: HTMLElement) {

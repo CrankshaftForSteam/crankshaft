@@ -2,16 +2,20 @@ import { info } from '../util';
 import { MenuInjectorDeck } from './menu-injector-deck';
 import { MenuInjectorDesktop } from './menu-injector-desktop';
 
+type MenuItemRender = () => JSX.Element | Promise<JSX.Element>;
+
 interface MenuItem {
   id: string;
   label: string;
   fontSize?: number;
   node: HTMLElement;
+  render: MenuItemRender;
 }
 
 export interface MenuInjector<MenuItemType extends HTMLElement> {
   createMenuItem: (props: Omit<MenuItem, 'node'>) => MenuItemType;
   renderMenuItem: (id: string, element: JSX.Element) => void;
+  isLoaded: () => boolean;
 }
 
 export class MenuManager {
@@ -32,18 +36,39 @@ export class MenuManager {
       info('Injecting MenuManager for Deck menu');
       this.injector = new MenuInjectorDeck();
     }
+
+    window.addEventListener('focus', () => {
+      if (!this.injector.isLoaded()) {
+        this.reload();
+      }
+    });
   }
 
-  addMenuItem(
-    item: Omit<MenuItem, 'node'>,
-    render: () => JSX.Element | Promise<JSX.Element>
-  ) {
+  reload() {
+    if (this.entry === 'library' && window.smmUIMode === 'desktop') {
+      info('Injecting MenuManager for desktop library');
+      this.injector = new MenuInjectorDesktop();
+    }
+
+    if (this.entry === 'menu' && window.smmUIMode === 'deck') {
+      info('Injecting MenuManager for Deck menu');
+      this.injector = new MenuInjectorDeck();
+    }
+
+    const prevMenuItems = this.menuItems.slice();
+    this.menuItems = [];
+    for (const item of prevMenuItems) {
+      this.addMenuItem(item);
+    }
+  }
+
+  addMenuItem(item: Omit<MenuItem, 'node'>) {
     const newMenuItem = this.injector.createMenuItem(item);
     newMenuItem.dataset.smmMenuItem = item.id;
 
     newMenuItem.addEventListener('click', async (event) => {
       event.stopPropagation();
-      this.injector.renderMenuItem(item.id, await render());
+      this.injector.renderMenuItem(item.id, await item.render());
     });
 
     this.menuItems.push({ ...item, node: newMenuItem });
