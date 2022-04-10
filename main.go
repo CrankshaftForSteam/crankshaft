@@ -28,8 +28,14 @@ func run() error {
 	debugPort := flag.String("debug-port", "8080", "CEF debug port")
 	serverPort := flag.String("server-port", "8085", "Port to run HTTP/websocket server on")
 	skipPatching := flag.Bool("skip-patching", false, "Skip patching Steam client resources")
+	dataDir := flag.String("data-dir", path.Join(xdg.DataHome, "crankshaft"), "Crankshaft data directory")
 	pluginsDir := flag.String("plugins-dir", path.Join(xdg.DataHome, "crankshaft", "plugins"), "Directory to load plugins from")
 	flag.Parse()
+
+	// Ensure data directory exists
+	if err := os.MkdirAll(*dataDir, 0700); err != nil {
+		return fmt.Errorf(`Error creating data directory "%s": %v`, *dataDir, err)
+	}
 
 	// Ensure plugins directory exists
 	if err := os.MkdirAll(*pluginsDir, 0700); err != nil {
@@ -37,7 +43,7 @@ func run() error {
 	}
 
 	// List all plugins
-	plugins, err := plugins.LoadPlugins(*pluginsDir)
+	plugins, err := plugins.LoadPlugins(*dataDir, *pluginsDir)
 	if err != nil {
 		return err
 	}

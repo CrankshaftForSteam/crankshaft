@@ -58,6 +58,10 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 	}
 
 	for _, plugin := range service.plugins {
+		if !plugin.Enabled {
+			continue
+		}
+
 		entrypoints := plugin.Config.Entrypoints[steamClient.UiMode]
 
 		if entrypoints.Library {

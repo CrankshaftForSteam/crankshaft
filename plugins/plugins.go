@@ -46,13 +46,20 @@ func (p *pluginConfig) validateConfig() error {
 }
 
 type Plugin struct {
-	Dir    string
-	Config pluginConfig
-	Script string
+	Dir     string
+	Config  pluginConfig
+	Script  string
+	Enabled bool
 }
 
-func LoadPlugins(pluginsDir string) ([]Plugin, error) {
+func LoadPlugins(dataDir, pluginsDir string) ([]Plugin, error) {
 	plugins := []Plugin{}
+
+	// Get Crankshaft config to see which plugins are enabled
+	crksftConfig, err := readConfig(dataDir)
+	if err != nil {
+		return nil, err
+	}
 
 	d, err := os.ReadDir(pluginsDir)
 	if err != nil {
@@ -63,7 +70,10 @@ func LoadPlugins(pluginsDir string) ([]Plugin, error) {
 			continue
 		}
 
-		data, err := os.ReadFile(path.Join(pluginsDir, entry.Name(), "plugin.toml"))
+		pluginName := entry.Name()
+		pluginDir := path.Join(pluginsDir, pluginName)
+
+		data, err := os.ReadFile(path.Join(pluginDir, "plugin.toml"))
 		if err != nil {
 			return nil, err
 		}
@@ -74,13 +84,13 @@ func LoadPlugins(pluginsDir string) ([]Plugin, error) {
 		}
 
 		if err := config.validateConfig(); err != nil {
-			return nil, fmt.Errorf(`Error found in config for plugin "%s": %v`, entry.Name(), err)
+			return nil, fmt.Errorf(`Error found in config for plugin "%s": %v`, pluginName, err)
 		}
 
 		jsx := false
-		data, err = os.ReadFile(path.Join(pluginsDir, entry.Name(), "dist", "index.js"))
+		data, err = os.ReadFile(path.Join(pluginDir, "dist", "index.js"))
 		if err != nil && errors.Is(err, fs.ErrNotExist) {
-			data, err = os.ReadFile(path.Join(pluginsDir, entry.Name(), "dist", "index.jsx"))
+			data, err = os.ReadFile(path.Join(pluginDir, "dist", "index.jsx"))
 			jsx = true
 			if err != nil {
 				return nil, err
@@ -89,17 +99,23 @@ func LoadPlugins(pluginsDir string) ([]Plugin, error) {
 			return nil, err
 		}
 
-		fmt.Printf("Building plugin script \"%s\"...\n", entry.Name())
-		script, err := BuildPluginScript(string(data), entry.Name(), jsx)
+		fmt.Printf("Building plugin script \"%s\"...\n", pluginName)
+		script, err := BuildPluginScript(string(data), pluginName, jsx)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
 
+		enabled := false
+		if crksftPluginConfig, found := crksftConfig.Plugins[pluginName]; found {
+			enabled = crksftPluginConfig.Enabled
+		}
+
 		plugins = append(plugins, Plugin{
-			Dir:    path.Join(pluginsDir, entry.Name()),
-			Script: script,
-			Config: config,
+			Dir:     pluginDir,
+			Script:  script,
+			Config:  config,
+			Enabled: enabled,
 		})
 	}
 
