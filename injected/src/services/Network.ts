@@ -36,6 +36,14 @@ interface DownloadArgs {
 }
 
 export class Network extends Service {
+  get errors() {
+    return {
+      NetworkGetError,
+      NetworkDownloadCancelledError,
+      NetworkDownloadTimeoutError,
+    };
+  }
+
   async get<T>(url: string) {
     info('get', url);
 
