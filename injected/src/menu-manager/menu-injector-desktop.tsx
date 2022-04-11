@@ -33,7 +33,9 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
     const newMenuItem = (
       <li>
         <button
-          style={{}}
+          style={{
+            width: '100%',
+          }}
           className="smm-menu-item-button"
           data-smm-menu-item-button={id}
         >
@@ -184,6 +186,8 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
         style={{
           width: '100%',
           height: '100%',
+          backgroundColor: '#23262e',
+          color: '#b8bcbf',
         }}
         data-smm-menu-page
       />
@@ -192,7 +196,7 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
 
     // TODO: fix these names
     this.menuContainer = (
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0 }} />
+      <ul style={{ listStyle: 'none', width: '100%', margin: 0, padding: 0 }} />
     ) as unknown as HTMLUListElement;
 
     deleteAll('[data-smm-menu-page-container]');
@@ -210,6 +214,7 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            minWidth: 200,
           }}
         >
           {this.menuContainer}
