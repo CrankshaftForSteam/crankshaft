@@ -76,6 +76,9 @@ export class MenuManager {
 
   removeMenuItem(id: string) {
     const index = this.menuItems.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return;
+    }
     this.menuItems[index].node.remove();
     this.menuItems.splice(index, 1);
   }
