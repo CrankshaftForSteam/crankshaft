@@ -1,8 +1,9 @@
+import { SMM } from '../SMM';
 import { info } from '../util';
 import { MenuInjectorDeck } from './menu-injector-deck';
 import { MenuInjectorDesktop } from './menu-injector-desktop';
 
-type MenuItemRender = () => JSX.Element | Promise<JSX.Element>;
+type MenuItemRender = (smm: SMM) => JSX.Element | Promise<JSX.Element>;
 
 interface MenuItem {
   id: string;
@@ -19,11 +20,13 @@ export interface MenuInjector<MenuItemType extends HTMLElement> {
 }
 
 export class MenuManager {
+  private smm: SMM;
   private entry: 'library' | 'menu';
   private menuItems: MenuItem[];
   private injector!: MenuInjector<HTMLElement>;
 
-  constructor(entry: 'library' | 'menu') {
+  constructor(smm: SMM, entry: 'library' | 'menu') {
+    this.smm = smm;
     this.entry = entry;
     this.menuItems = [];
 
@@ -68,7 +71,7 @@ export class MenuManager {
 
     newMenuItem.addEventListener('click', async (event) => {
       event.stopPropagation();
-      this.injector.renderMenuItem(item.id, await item.render());
+      this.injector.renderMenuItem(item.id, await item.render(this.smm));
     });
 
     this.menuItems.push({ ...item, node: newMenuItem });

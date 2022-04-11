@@ -1,3 +1,4 @@
+import { load as loadManagePlugins } from '../manage-plugins/manage-plugins';
 import { getSelectorByMode } from '../selectors';
 import { SMM } from '../SMM';
 import { createTabObserver } from '../tab-observer';
@@ -35,6 +36,8 @@ const main = async () => {
   );
 
   createTabObserver(smm, mainLibraryEl);
+
+  loadManagePlugins(smm);
 
   await smm.loadPlugins();
 

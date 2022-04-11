@@ -27,7 +27,7 @@ export class SMM extends EventTarget {
 
     this.Network = new Network(this);
     this.Toast = new Toast(this);
-    this.MenuManager = new MenuManager(entry);
+    this.MenuManager = new MenuManager(this, entry);
     this.FS = new FS(this);
     this.Plugins = new Plugins(this);
 
