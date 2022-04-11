@@ -14,23 +14,23 @@ import (
 )
 
 type authorInfo struct {
-	Name string
-	Link string
+	Name string `json:"name"`
+	Link string `json:"link"`
 }
 
 type entrypoint struct {
-	Library bool
-	Menu    bool
+	Library bool `json:"library"`
+	Menu    bool `json:"menu"`
 }
 
 type pluginConfig struct {
-	Name   string
-	Link   string
-	Source string
+	Name   string `json:"name"`
+	Link   string `json:"link"`
+	Source string `json:"source"`
 
-	Author authorInfo
+	Author authorInfo `json:"author"`
 
-	Entrypoints map[cdp.UIMode]entrypoint
+	Entrypoints map[cdp.UIMode]entrypoint `json:"entrypoints"`
 }
 
 func (p *pluginConfig) validateConfig() error {
@@ -46,10 +46,10 @@ func (p *pluginConfig) validateConfig() error {
 }
 
 type Plugin struct {
-	Dir     string
-	Config  pluginConfig
-	Script  string
-	Enabled bool
+	Dir     string       `json:"dir"`
+	Config  pluginConfig `json:"config"`
+	Script  string       `json:"script"`
+	Enabled bool         `json:"enabled"`
 }
 
 func LoadPlugins(dataDir, pluginsDir string) ([]Plugin, error) {

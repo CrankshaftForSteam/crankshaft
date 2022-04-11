@@ -13,5 +13,6 @@ func HandleRpc(debugPort, serverPort string, plugins []plugins.Plugin) *rpc.Serv
 	server.RegisterService(network.NewNetworkService(), "NetworkService")
 	server.RegisterService(new(FSService), "")
 	server.RegisterService(NewInjectService(debugPort, serverPort, plugins), "InjectService")
+	server.RegisterService(NewPluginsService(plugins), "PluginsService")
 	return server
 }
