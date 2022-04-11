@@ -1,5 +1,3 @@
-import { loadProtonUpdaterPlugin } from '../proton-updater-plugin';
-import { loadProtonDBPlugin } from '../protondb-plugin';
 import { getSelectorByMode } from '../selectors';
 import { SMM } from '../SMM';
 import { createTabObserver } from '../tab-observer';
@@ -37,12 +35,6 @@ const main = async () => {
   );
 
   createTabObserver(smm, mainLibraryEl);
-
-  loadProtonDBPlugin(smm);
-
-  if (window.smmUIMode === 'desktop') {
-    loadProtonUpdaterPlugin(smm);
-  }
 
   document.addEventListener('keydown', (event) => {
     if (event.shiftKey && event.key === 'Tab') {

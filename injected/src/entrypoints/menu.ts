@@ -1,5 +1,4 @@
 import { MENU_DECK_SELECTORS } from '../menu-manager/selectors';
-import { loadProtonUpdaterPlugin } from '../proton-updater-plugin';
 import { SMM } from '../SMM';
 import { info, waitForElement } from '../util';
 
@@ -17,8 +16,6 @@ const main = () => {
     delete window.smm;
   }
   window.smm = smm;
-
-  loadProtonUpdaterPlugin(smm);
 };
 
 main();
