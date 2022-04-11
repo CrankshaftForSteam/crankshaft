@@ -95,7 +95,7 @@ export class SMM extends EventTarget {
       window.smmPlugins ?? {}
     )) {
       info(`Loading plugin ${name}...`);
-      await unload?.();
+      await unload?.(this);
       await load(this);
     }
   }

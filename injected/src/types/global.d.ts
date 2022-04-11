@@ -14,7 +14,7 @@ declare global {
       string,
       {
         load: (smm: SMM) => void | Promise<void>;
-        unload?: () => void | Promise<void>;
+        unload?: (smm: SMM) => void | Promise<void>;
       }
     >;
 
