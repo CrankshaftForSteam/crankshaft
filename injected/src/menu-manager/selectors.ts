@@ -8,7 +8,7 @@ export const MENU_DECK_SELECTORS = {
 } as const;
 
 export const MENU_DESKTOP_SELECTORS = {
-  collectionsButton: '[class^=gamelistbar_CollectionsButton_]',
+  collectionsButton: '[class*=gamelistbar_CollectionsButton]',
   collectionsButtonInner: '[class*=gamelisthome_CollectionButton_]',
   libraryContainer: '[class^=library_Container_]',
 };
