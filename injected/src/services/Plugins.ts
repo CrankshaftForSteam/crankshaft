@@ -7,6 +7,7 @@ interface Entrypoint {
 }
 
 interface Plugin {
+  id: string;
   dir: string;
   config: {
     name: string;

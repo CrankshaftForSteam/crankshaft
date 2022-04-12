@@ -46,6 +46,7 @@ func (p *pluginConfig) validateConfig() error {
 }
 
 type Plugin struct {
+	Id      string       `json:"id"`
 	Dir     string       `json:"dir"`
 	Config  pluginConfig `json:"config"`
 	Script  string       `json:"script"`
@@ -112,6 +113,7 @@ func LoadPlugins(dataDir, pluginsDir string) ([]Plugin, error) {
 		}
 
 		plugins = append(plugins, Plugin{
+			Id:      entry.Name(),
 			Dir:     pluginDir,
 			Script:  script,
 			Config:  config,
