@@ -5,6 +5,10 @@ import { Plugins } from './services/Plugins';
 import { Toast } from './services/Toast';
 import { info } from './util';
 
+type PluginId = string;
+
+type AddEventListenerArgs = Parameters<EventTarget['addEventListener']>;
+
 export class SMM extends EventTarget {
   private _currentTab?: 'home' | 'collections' | 'appDetails';
   private _currentAppId?: string;
@@ -17,6 +21,21 @@ export class SMM extends EventTarget {
   readonly Plugins: Plugins;
 
   readonly serverPort: string;
+
+  // The current plugin that we're loading
+  // This is set before calling a plugin's load method, so that we can keep
+  // track of which events the plugin attaches, and remove them when we unload
+  // that plugin.
+  private currentPlugin?: string;
+  // Events attached by plugins
+  private attachedEvents: Record<
+    PluginId,
+    {
+      type: AddEventListenerArgs[0];
+      callback: AddEventListenerArgs[1];
+      options: AddEventListenerArgs[2];
+    }[]
+  >;
 
   constructor(entry: 'library' | 'menu') {
     super();
@@ -32,6 +51,8 @@ export class SMM extends EventTarget {
     this.Plugins = new Plugins(this);
 
     this.serverPort = window.smmServerPort;
+
+    this.attachedEvents = {};
   }
 
   get currentTab() {
@@ -94,9 +115,54 @@ export class SMM extends EventTarget {
     for (const [name, { load, unload }] of Object.entries(
       window.smmPlugins ?? {}
     )) {
-      info(`Loading plugin ${name}...`);
-      await unload?.(this);
-      await load(this);
+      await this.loadPlugin(name);
     }
+  }
+
+  async loadPlugin(pluginId: PluginId) {
+    await this.unloadPlugin(pluginId);
+
+    if (!window.smmPlugins?.[pluginId]) {
+      return;
+    }
+
+    info(`Loading plugin ${name}...`);
+    this.currentPlugin = pluginId;
+    await window.smmPlugins[pluginId].load(this);
+    this.currentPlugin = undefined;
+  }
+
+  async unloadPlugin(pluginId: PluginId) {
+    if (!window.smmPlugins) {
+      return;
+    }
+
+    info(`Unloading plugin ${name}...`);
+    await window.smmPlugins[pluginId]?.unload?.(this);
+
+    if (this.attachedEvents[pluginId]) {
+      for (const { type, callback, options } of this.attachedEvents[pluginId]) {
+        this.removeEventListener(type, callback, options);
+      }
+      delete this.attachedEvents[pluginId];
+    }
+  }
+
+  addEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    options?: boolean | AddEventListenerOptions
+  ): void {
+    if (!this.currentPlugin) {
+      console.error('[SMM] addEventListener missing this.currentPlugin!');
+      return;
+    }
+
+    if (!this.attachedEvents[this.currentPlugin]) {
+      this.attachedEvents[this.currentPlugin] = [];
+    }
+
+    this.attachedEvents[this.currentPlugin].push({ type, callback, options });
+    super.addEventListener(type, callback, options);
   }
 }

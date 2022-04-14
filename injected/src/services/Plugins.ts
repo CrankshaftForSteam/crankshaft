@@ -36,4 +36,12 @@ export class Plugins extends Service {
     );
     return (await getRes()).plugins;
   }
+
+  async load(pluginName: string) {
+    await this.smm.loadPlugin(pluginName);
+  }
+
+  async unload(pluginName: string) {
+    await this.smm.unloadPlugin(pluginName);
+  }
 }
