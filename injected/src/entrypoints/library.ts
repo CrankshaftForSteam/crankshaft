@@ -37,15 +37,19 @@ const main = async () => {
 
   createTabObserver(smm, mainLibraryEl);
 
-  loadManagePlugins(smm);
+  if (window.smmUIMode === 'desktop') {
+    loadManagePlugins(smm);
+  }
 
   await smm.loadPlugins();
 
-  document.addEventListener('keydown', (event) => {
-    if (event.shiftKey && event.key === 'Tab') {
-      window.coolClass.OpenQuickAccessMenu();
-    }
-  });
+  if (window.smmUIMode === 'deck') {
+    document.addEventListener('keydown', (event) => {
+      if (event.shiftKey && event.key === 'Tab') {
+        window.coolClass.OpenQuickAccessMenu();
+      }
+    });
+  }
 };
 
 main();

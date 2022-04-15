@@ -1,8 +1,9 @@
+import { load as loadManagePlugins } from '../manage-plugins/manage-plugins';
 import { MENU_DECK_SELECTORS } from '../menu-manager/selectors';
 import { SMM } from '../SMM';
 import { info, waitForElement } from '../util';
 
-const main = () => {
+const main = async () => {
   info('Successfully injected menu script');
 
   if (window.smmUIMode === 'desktop') {
@@ -16,6 +17,10 @@ const main = () => {
     delete window.smm;
   }
   window.smm = smm;
+
+  loadManagePlugins(smm);
+
+  await smm.loadPlugins();
 };
 
 main();
