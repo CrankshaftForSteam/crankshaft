@@ -36,11 +36,22 @@ export class Plugins extends Service {
     return (await getRes()).plugins;
   }
 
+  async setEnabled(id: string, enabled: boolean) {
+    console.info('setEnabled', id, enabled);
+    const { getRes } = rpcRequest<{ id: string; enabled: boolean }, {}>(
+      'PluginsService.SetEnabled',
+      { id, enabled }
+    );
+    return getRes();
+  }
+
   async load(pluginName: string) {
     await this.smm.loadPlugin(pluginName);
+    await this.setEnabled(pluginName, true);
   }
 
   async unload(pluginName: string) {
     await this.smm.unloadPlugin(pluginName);
+    await this.setEnabled(pluginName, false);
   }
 }

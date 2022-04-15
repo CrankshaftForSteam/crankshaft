@@ -31,3 +31,15 @@ func (service *PluginsService) List(r *http.Request, req *ListArgs, res *ListRep
 	}
 	return nil
 }
+
+type SetEnabledArgs struct {
+	Id      string `json:"id"`
+	Enabled bool   `json:"enabled"`
+}
+
+type SetEnabledReply struct{}
+
+func (service *PluginsService) SetEnabled(r *http.Request, req *SetEnabledArgs, res *SetEnabledReply) error {
+	err := service.plugins.SetEnabled(req.Id, req.Enabled)
+	return err
+}

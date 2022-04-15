@@ -7,6 +7,8 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"git.sr.ht/~avery/steam-mod-manager/config"
 )
 
 type Plugin struct {
@@ -20,18 +22,16 @@ type Plugin struct {
 type PluginMap = map[string]Plugin
 
 type Plugins struct {
-	PluginMap PluginMap
+	PluginMap    PluginMap
+	pluginsDir   string
+	crksftConfig *config.CrksftConfig
 }
 
-func NewPlugins(dataDir, pluginsDir string) (*Plugins, error) {
+func NewPlugins(crksftConfig *config.CrksftConfig, pluginsDir string) (*Plugins, error) {
 	plugins := Plugins{
-		PluginMap: PluginMap{},
-	}
-
-	// Get Crankshaft config to see which plugins are enabled
-	crksftConfig, err := NewCrksftConfig(dataDir)
-	if err != nil {
-		return nil, err
+		PluginMap:    PluginMap{},
+		pluginsDir:   pluginsDir,
+		crksftConfig: crksftConfig,
 	}
 
 	d, err := os.ReadDir(pluginsDir)
@@ -98,5 +98,10 @@ func (p *Plugins) SetEnabled(pluginId string, enabled bool) error {
 	}
 	plugin.Enabled = enabled
 	p.PluginMap[pluginId] = plugin
+
+	p.crksftConfig.UpdatePlugin(pluginId, config.CrksftConfigPlugin{
+		Enabled: plugin.Enabled,
+	})
+
 	return nil
 }

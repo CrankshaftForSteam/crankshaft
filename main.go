@@ -11,6 +11,7 @@ import (
 
 	"git.sr.ht/~avery/steam-mod-manager/build"
 	"git.sr.ht/~avery/steam-mod-manager/cdp"
+	"git.sr.ht/~avery/steam-mod-manager/config"
 	"git.sr.ht/~avery/steam-mod-manager/patcher"
 	"git.sr.ht/~avery/steam-mod-manager/plugins"
 	"git.sr.ht/~avery/steam-mod-manager/rpc"
@@ -42,7 +43,12 @@ func run() error {
 		return fmt.Errorf(`Error creating plugins directory "%s": %v`, *pluginsDir, err)
 	}
 
-	plugins, err := plugins.NewPlugins(*dataDir, *pluginsDir)
+	crksftConfig, err := config.NewCrksftConfig(*dataDir)
+	if err != nil {
+		return err
+	}
+
+	plugins, err := plugins.NewPlugins(crksftConfig, *pluginsDir)
 	if err != nil {
 		return err
 	}
