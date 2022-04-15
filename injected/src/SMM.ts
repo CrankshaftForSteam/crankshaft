@@ -137,7 +137,7 @@ export class SMM extends EventTarget {
       return;
     }
 
-    info(`Unloading plugin ${name}...`);
+    info(`Unloading plugin ${pluginId}...`);
     await window.smmPlugins[pluginId]?.unload?.(this);
 
     if (this.attachedEvents[pluginId]) {
