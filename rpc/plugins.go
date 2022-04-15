@@ -7,20 +7,27 @@ import (
 )
 
 type PluginsService struct {
-	plugins []plugins.Plugin
+	plugins *plugins.Plugins
 }
 
-func NewPluginsService(plugins []plugins.Plugin) *PluginsService {
+func NewPluginsService(plugins *plugins.Plugins) *PluginsService {
 	return &PluginsService{plugins}
 }
 
 type ListArgs struct{}
 
 type ListReply struct {
-	Plugins []plugins.Plugin `json:"plugins"`
+	Plugins plugins.PluginMap `json:"plugins"`
 }
 
 func (service *PluginsService) List(r *http.Request, req *ListArgs, res *ListReply) error {
-	res.Plugins = service.plugins
+	res.Plugins = service.plugins.PluginMap
+	for id, plugin := range res.Plugins {
+		p := plugin
+		// Remove script (it's large and not needed here since we're not loading
+		// the plugin, just getting info about it)
+		p.Script = ""
+		res.Plugins[id] = p
+	}
 	return nil
 }

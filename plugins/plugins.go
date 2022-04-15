@@ -7,43 +7,7 @@ import (
 	"os"
 	"path"
 	"strings"
-
-	"git.sr.ht/~avery/steam-mod-manager/cdp"
-	"github.com/BurntSushi/toml"
-	"github.com/evanw/esbuild/pkg/api"
 )
-
-type authorInfo struct {
-	Name string `json:"name"`
-	Link string `json:"link"`
-}
-
-type entrypoint struct {
-	Library bool `json:"library"`
-	Menu    bool `json:"menu"`
-}
-
-type pluginConfig struct {
-	Name   string `json:"name"`
-	Link   string `json:"link"`
-	Source string `json:"source"`
-
-	Author authorInfo `json:"author"`
-
-	Entrypoints map[cdp.UIMode]entrypoint `json:"entrypoints"`
-}
-
-func (p *pluginConfig) validateConfig() error {
-	if _, contains := p.Entrypoints["desktop"]; !contains {
-		return errors.New("Config was missing entrypoints.desktop")
-	}
-
-	if _, contains := p.Entrypoints["deck"]; !contains {
-		return errors.New("Config was missing entrypoints.deck")
-	}
-
-	return nil
-}
 
 type Plugin struct {
 	Id      string       `json:"id"`
@@ -53,11 +17,19 @@ type Plugin struct {
 	Enabled bool         `json:"enabled"`
 }
 
-func LoadPlugins(dataDir, pluginsDir string) ([]Plugin, error) {
-	plugins := []Plugin{}
+type PluginMap = map[string]Plugin
+
+type Plugins struct {
+	PluginMap PluginMap
+}
+
+func NewPlugins(dataDir, pluginsDir string) (*Plugins, error) {
+	plugins := Plugins{
+		PluginMap: PluginMap{},
+	}
 
 	// Get Crankshaft config to see which plugins are enabled
-	crksftConfig, err := readConfig(dataDir)
+	crksftConfig, err := NewCrksftConfig(dataDir)
 	if err != nil {
 		return nil, err
 	}
@@ -74,22 +46,13 @@ func LoadPlugins(dataDir, pluginsDir string) ([]Plugin, error) {
 		pluginName := entry.Name()
 		pluginDir := path.Join(pluginsDir, pluginName)
 
-		data, err := os.ReadFile(path.Join(pluginDir, "plugin.toml"))
+		config, err := NewPluginConfig(pluginDir)
 		if err != nil {
 			return nil, err
 		}
 
-		var config pluginConfig
-		if _, err := toml.Decode(string(data), &config); err != nil {
-			return nil, err
-		}
-
-		if err := config.validateConfig(); err != nil {
-			return nil, fmt.Errorf(`Error found in config for plugin "%s": %v`, pluginName, err)
-		}
-
 		jsx := false
-		data, err = os.ReadFile(path.Join(pluginDir, "dist", "index.js"))
+		data, err := os.ReadFile(path.Join(pluginDir, "dist", "index.js"))
 		if err != nil && errors.Is(err, fs.ErrNotExist) {
 			data, err = os.ReadFile(path.Join(pluginDir, "dist", "index.jsx"))
 			jsx = true
@@ -101,7 +64,7 @@ func LoadPlugins(dataDir, pluginsDir string) ([]Plugin, error) {
 		}
 
 		fmt.Printf("Building plugin script \"%s\"...\n", pluginName)
-		script, err := BuildPluginScript(string(data), pluginName, jsx)
+		script, err := buildPluginScript(string(data), pluginName, jsx)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -112,36 +75,28 @@ func LoadPlugins(dataDir, pluginsDir string) ([]Plugin, error) {
 			enabled = crksftPluginConfig.Enabled
 		}
 
-		plugins = append(plugins, Plugin{
+		plugins.addPlugin(Plugin{
 			Id:      entry.Name(),
 			Dir:     pluginDir,
 			Script:  script,
-			Config:  config,
+			Config:  *config,
 			Enabled: enabled,
 		})
 	}
 
-	return plugins, nil
+	return &plugins, nil
 }
 
-func BuildPluginScript(script string, name string, jsx bool) (string, error) {
-	loader := api.LoaderJS
-	if jsx {
-		loader = api.LoaderJSX
-	}
+func (p *Plugins) addPlugin(plugin Plugin) {
+	p.PluginMap[plugin.Id] = plugin
+}
 
-	res := api.Transform(script, api.TransformOptions{
-		JSXMode:     api.JSXModeTransform,
-		JSXFactory:  "smmShared.h",
-		JSXFragment: "DocumentFragment",
-		Loader:      loader,
-		Format:      api.FormatIIFE,
-		GlobalName:  "smmPlugins['" + name + "']",
-	})
-	if len(res.Errors) > 0 {
-		fmt.Println(res.Errors)
-		return "", fmt.Errorf("Error transforming plugin script.")
+func (p *Plugins) SetEnabled(pluginId string, enabled bool) error {
+	plugin, ok := p.PluginMap[pluginId]
+	if !ok {
+		return errors.New("Plugin not found: " + pluginId)
 	}
-
-	return string(res.Code), nil
+	plugin.Enabled = enabled
+	p.PluginMap[pluginId] = plugin
+	return nil
 }

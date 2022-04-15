@@ -7,7 +7,7 @@ import (
 	rpcJson "github.com/gorilla/rpc/v2/json"
 )
 
-func HandleRpc(debugPort, serverPort string, plugins []plugins.Plugin) *rpc.Server {
+func HandleRpc(debugPort, serverPort string, plugins *plugins.Plugins) *rpc.Server {
 	server := rpc.NewServer()
 	server.RegisterCodec(rpcJson.NewCodec(), "application/json")
 	server.RegisterService(network.NewNetworkService(), "NetworkService")

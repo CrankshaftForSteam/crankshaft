@@ -24,13 +24,12 @@ interface Plugin {
       deck: Entrypoint;
     };
   };
-  script: string;
   enabled: boolean;
 }
 
 export class Plugins extends Service {
   async list() {
-    const { getRes } = rpcRequest<{}, { plugins: Plugin[] }>(
+    const { getRes } = rpcRequest<{}, { plugins: Record<string, Plugin> }>(
       'PluginsService.List',
       {}
     );

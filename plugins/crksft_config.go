@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path"
@@ -9,16 +10,14 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type plugin struct {
-	Enabled bool
+type CrksftConfig struct {
+	Plugins map[string]struct {
+		Enabled bool
+	}
 }
 
-type crksftConfig struct {
-	Plugins map[string]plugin
-}
-
-func readConfig(dataDir string) (crksftConfig, error) {
-	var config crksftConfig
+func NewCrksftConfig(dataDir string) (*CrksftConfig, error) {
+	var config CrksftConfig
 
 	data, err := os.ReadFile(path.Join(
 		dataDir, "config.toml",
@@ -26,15 +25,15 @@ func readConfig(dataDir string) (crksftConfig, error) {
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			// Return empty config, the file will be created once there's something to save
-			return config, nil
+			return &config, nil
 		} else {
-			return config, err
+			return &config, err
 		}
 	}
 
 	if _, err := toml.Decode(string(data), &config); err != nil {
-		return config, err
+		return &config, fmt.Errorf("Error decoding Crankshaft config: %v", err)
 	}
 
-	return config, nil
+	return &config, nil
 }

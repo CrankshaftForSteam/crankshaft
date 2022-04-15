@@ -42,8 +42,7 @@ func run() error {
 		return fmt.Errorf(`Error creating plugins directory "%s": %v`, *pluginsDir, err)
 	}
 
-	// List all plugins
-	plugins, err := plugins.LoadPlugins(*dataDir, *pluginsDir)
+	plugins, err := plugins.NewPlugins(*dataDir, *pluginsDir)
 	if err != nil {
 		return err
 	}

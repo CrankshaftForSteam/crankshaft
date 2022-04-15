@@ -12,10 +12,10 @@ import (
 type InjectService struct {
 	debugPort  string
 	serverPort string
-	plugins    []plugins.Plugin
+	plugins    *plugins.Plugins
 }
 
-func NewInjectService(debugPort, serverPort string, plugins []plugins.Plugin) *InjectService {
+func NewInjectService(debugPort, serverPort string, plugins *plugins.Plugins) *InjectService {
 	return &InjectService{debugPort, serverPort, plugins}
 }
 
@@ -57,7 +57,7 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 		return fmt.Errorf("Error injecting shared script: %v", err)
 	}
 
-	for _, plugin := range service.plugins {
+	for _, plugin := range service.plugins.PluginMap {
 		if !plugin.Enabled {
 			continue
 		}

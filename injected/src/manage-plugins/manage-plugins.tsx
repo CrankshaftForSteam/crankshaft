@@ -26,7 +26,7 @@ const showPlugin = async (smm: SMM) => {
             padding: 0,
           }}
         >
-          {plugins.map((plugin) => (
+          {Object.values(plugins).map((plugin) => (
             <li
               style={{
                 display: 'block',
