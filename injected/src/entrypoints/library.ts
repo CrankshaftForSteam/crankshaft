@@ -1,4 +1,4 @@
-import { load as loadManagePlugins } from '../manage-plugins/manage-plugins';
+import { loadPluginManager } from '../internal-plugins';
 import { getSelectorByMode } from '../selectors';
 import { SMM } from '../SMM';
 import { createTabObserver } from '../tab-observer';
@@ -38,7 +38,7 @@ const main = async () => {
   createTabObserver(smm, mainLibraryEl);
 
   if (window.smmUIMode === 'desktop') {
-    loadManagePlugins(smm);
+    loadPluginManager(smm);
   }
 
   await smm.loadPlugins();

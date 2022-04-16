@@ -1,4 +1,4 @@
-import { SMM } from '../SMM';
+import { SMM } from '../../SMM';
 
 export const load = (smm: SMM) => {
   smm.MenuManager.addMenuItem({
@@ -13,6 +13,16 @@ const showPlugin = async (smm: SMM) => {
 
   const render = async () => {
     const plugins = await smm.Plugins.list();
+
+    const handleLoad = (pluginId: string) => {
+      smm.Plugins.load(pluginId);
+      setTimeout(render, 50);
+    };
+
+    const handleUnload = (pluginId: string) => {
+      smm.Plugins.unload(pluginId);
+      setTimeout(render, 50);
+    };
 
     const contents = (
       <>
@@ -56,10 +66,7 @@ const showPlugin = async (smm: SMM) => {
                       borderRadius: 2,
                       cursor: 'pointer',
                     }}
-                    onClick={() => {
-                      smm.Plugins.unload(plugin.id);
-                      setTimeout(render, 50);
-                    }}
+                    onClick={() => handleUnload(plugin.id)}
                   >
                     Unload
                   </button>
@@ -74,10 +81,7 @@ const showPlugin = async (smm: SMM) => {
                       borderRadius: 2,
                       cursor: 'pointer',
                     }}
-                    onClick={() => {
-                      smm.Plugins.load(plugin.id);
-                      setTimeout(render, 50);
-                    }}
+                    onClick={() => handleLoad(plugin.id)}
                   >
                     Load
                   </button>
