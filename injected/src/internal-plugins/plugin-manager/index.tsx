@@ -8,8 +8,8 @@ export const load = (smm: SMM) => {
   });
 };
 
-const showPlugin = async (smm: SMM) => {
-  const container = <div style={{ padding: '4px 12px' }} />;
+const showPlugin = async (smm: SMM, root: HTMLElement) => {
+  const container = <div style={{ padding: '4px 12px' }} /> as unknown as HTMLDivElement;
 
   const render = async () => {
     const plugins = await smm.Plugins.list();
@@ -91,13 +91,13 @@ const showPlugin = async (smm: SMM) => {
           ))}
         </ul>
       </>
-    );
+    ) as unknown as HTMLElement;
 
     container.innerHTML = '';
     container.appendChild(contents);
   };
 
   render();
-
-  return container;
+  
+  root.appendChild(container);
 };

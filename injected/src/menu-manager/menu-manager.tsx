@@ -3,7 +3,7 @@ import { info } from '../util';
 import { MenuInjectorDeck } from './menu-injector-deck';
 import { MenuInjectorDesktop } from './menu-injector-desktop';
 
-type MenuItemRender = (smm: SMM) => JSX.Element | Promise<JSX.Element>;
+type MenuItemRender = (smm: SMM, root: HTMLElement) => void | Promise<void>;
 
 interface MenuItem {
   id: string;
@@ -15,7 +15,7 @@ interface MenuItem {
 
 export interface MenuInjector<MenuItemType extends HTMLElement> {
   createMenuItem: (props: Omit<MenuItem, 'node'>) => MenuItemType;
-  renderMenuItem: (id: string, element: JSX.Element) => void;
+  getRootForMenuItem: (id: string) => HTMLElement;
   isLoaded: () => boolean;
 }
 
@@ -71,7 +71,8 @@ export class MenuManager {
 
     newMenuItem.addEventListener('click', async (event) => {
       event.stopPropagation();
-      this.injector.renderMenuItem(item.id, await item.render(this.smm));
+      const root = this.injector.getRootForMenuItem(item.id);
+      await item.render(this.smm, root);
     });
 
     this.menuItems.push({ ...item, node: newMenuItem });

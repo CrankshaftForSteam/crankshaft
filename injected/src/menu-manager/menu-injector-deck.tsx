@@ -81,10 +81,10 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
     return newMenuItem;
   }
 
-  renderMenuItem(_id: string, element: JSX.Element) {
+  getRootForMenuItem(_id: string) {
     this.pageContainer.childNodes.forEach((node) => node.remove());
-    this.pageContainer.appendChild(element);
     this.pageContainer.style.display = 'unset';
+    return this.pageContainer;
   }
 
   private enableMenuScroll(

@@ -49,16 +49,17 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
     return newMenuItem;
   }
 
-  renderMenuItem(id: string, element: JSX.Element) {
-    this.pageContainer.childNodes.forEach((node) => node.remove());
-    this.pageContainer.appendChild(element);
-    this.pageContainer.style.display = 'unset';
+  getRootForMenuItem(id: string) {
     document
       .querySelectorAll(`[data-smm-menu-item-button]`)
       ?.forEach((node) => node.classList.remove('active'));
     document
       .querySelector(`[data-smm-menu-item-button="${id}"]`)
       ?.classList.add('active');
+
+    [...this.pageContainer.childNodes].forEach((node) => node.remove());
+    this.pageContainer.style.display = 'unset';
+    return this.pageContainer;
   }
 
   private injectMenuStyles() {
@@ -188,6 +189,7 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
           height: '100%',
           backgroundColor: '#23262e',
           color: '#b8bcbf',
+          padding: '4px 12px',
         }}
         data-smm-menu-page
       />
