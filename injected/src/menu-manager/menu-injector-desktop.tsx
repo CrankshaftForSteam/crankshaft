@@ -1,7 +1,12 @@
+import { Fragment, h } from 'dom-chef';
 import { puzzleIcon } from '../assets/assets';
 import { deleteAll } from '../util';
 import { MenuInjector } from './menu-manager';
 import { MENU_DESKTOP_SELECTORS } from './selectors';
+
+// Use dom-chef in this file
+h;
+Fragment;
 
 class InjectError extends Error {
   constructor(msg: string) {

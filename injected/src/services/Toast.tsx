@@ -1,18 +1,7 @@
-import {
-  Fragment as DocumentFragment,
-  FunctionComponent,
-  h,
-  render,
-} from 'preact';
+import { FunctionComponent, render } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { deleteAll, uuidv4 } from '../util';
 import { Service } from './Service';
-
-// TODO
-// These are required so Prettier doesn't remove unused imports
-// Can be removed after getting rid of dom-chef
-h;
-DocumentFragment;
 
 type ToastLevel = 'error' | 'info' | 'success';
 
@@ -82,7 +71,11 @@ const ToastsContainer: FunctionComponent<{ toastEvents: EventTarget }> = ({
       }}
     >
       {toasts.map((toast) => (
-        <ToastItem key={toast.id} toast={toast} onRemove={() => handleRemove(toast.id)} />
+        <ToastItem
+          key={toast.id}
+          toast={toast}
+          onRemove={() => handleRemove(toast.id)}
+        />
       ))}
     </ul>
   );

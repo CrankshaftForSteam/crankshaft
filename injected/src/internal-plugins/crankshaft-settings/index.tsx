@@ -1,17 +1,6 @@
-import {
-  Fragment as DocumentFragment,
-  FunctionComponent,
-  h,
-  render,
-} from 'preact';
+import { FunctionComponent, render } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import { SMM } from '../../SMM';
-
-// TODO
-// These are required so Prettier doesn't remove unused imports
-// Can be removed after getting rid of dom-chef
-h;
-DocumentFragment;
 
 export const load = (smm: SMM) => {
   smm.MenuManager.addMenuItem({
@@ -67,7 +56,7 @@ const Devtools: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
   const [devtoolsFrontendUrl, setDevtoolsFrontendUrl] = useState<
     string | undefined
   >(undefined);
-  
+
   useEffect(() => {
     (async () => {
       const targets = await smm.Network.get<

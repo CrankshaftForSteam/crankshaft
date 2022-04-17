@@ -31,8 +31,8 @@ func BundleScripts() error {
 		Bundle:      true,
 		Format:      api.FormatIIFE,
 		JSXFactory:  "h",
-		JSXFragment: "DocumentFragment",
-		Inject:      []string{"injected/dom-chef-shim.js"},
+		JSXFragment: "Fragment",
+		Inject:      []string{"injected/preact-shim.js"},
 		Loader: map[string]api.Loader{
 			".svg": api.LoaderDataURL,
 		},
