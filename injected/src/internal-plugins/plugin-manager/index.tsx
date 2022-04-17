@@ -54,7 +54,7 @@ const showPlugin = async (smm: SMM) => {
                 }}
               >
                 <h2 style={{ margin: 0 }}>{plugin.config.name}</h2>
-                <span>{plugin.enabled ? 'Loaded' : 'Disabled'}</span>
+                <p>{plugin.enabled ? 'Loaded' : 'Disabled'}</p>
                 {plugin.enabled ? (
                   <button
                     style={{

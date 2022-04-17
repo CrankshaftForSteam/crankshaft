@@ -1,4 +1,4 @@
-import { loadPluginManager } from '../internal-plugins';
+import { loadCrankshaftSettings, loadPluginManager } from '../internal-plugins';
 import { MENU_DECK_SELECTORS } from '../menu-manager/selectors';
 import { SMM } from '../SMM';
 import { info, waitForElement } from '../util';
@@ -18,6 +18,7 @@ const main = async () => {
   }
   window.smm = smm;
 
+  loadCrankshaftSettings(smm);
   loadPluginManager(smm);
 
   await smm.loadPlugins();

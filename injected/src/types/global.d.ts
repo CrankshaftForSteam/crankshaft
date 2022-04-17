@@ -21,5 +21,17 @@ declare global {
     coolClass: {
       OpenQuickAccessMenu: (tab?: number) => void;
     };
+
+    SteamClient: {
+      Settings: {
+        SetCefRemoteDebuggingEnabled: (value: boolean) => void;
+      };
+    };
+
+    settingsStore: {
+      m_Settings: {
+        bCefRemoteDebuggingEnabled: boolean;
+      };
+    };
   }
 }

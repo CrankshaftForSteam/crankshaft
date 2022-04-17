@@ -1,4 +1,4 @@
-import { loadPluginManager } from '../internal-plugins';
+import { loadCrankshaftSettings, loadPluginManager } from '../internal-plugins';
 import { getSelectorByMode } from '../selectors';
 import { SMM } from '../SMM';
 import { createTabObserver } from '../tab-observer';
@@ -38,6 +38,7 @@ const main = async () => {
   createTabObserver(smm, mainLibraryEl);
 
   if (window.smmUIMode === 'desktop') {
+    loadCrankshaftSettings(smm);
     loadPluginManager(smm);
   }
 
