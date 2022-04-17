@@ -1,4 +1,5 @@
 import { puzzleIcon } from '../assets/assets';
+import { dcCreateElement } from '../dom-chef';
 import { deleteAll } from '../util';
 import { MenuInjector } from './menu-manager';
 import { MENU_DECK_SELECTORS } from './selectors';
@@ -99,9 +100,14 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
 
     footerBoxShadow.style.height = '0';
 
-    const menuItemStyle = document.createElement('style');
-    menuItemStyle.dataset.smmMenuItemStyle = '';
-    menuItemStyle.innerHTML = `.${menuItemClass} { flex-shrink: 0 !important; }`;
+    const menuItemStyle = dcCreateElement<HTMLStyleElement>(
+      <style smm-menu-item-style>
+        {`.${menuItemClass} {
+        flex-shrink: 0 !important;
+      }`}
+      </style>
+    );
+
     document.querySelector('head')?.appendChild(menuItemStyle);
   }
 
@@ -123,31 +129,30 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
       /^mainmenu_ItemOuter_/.exec(c)
     );
     if (!menuItemClass) {
-      throw new InjectError(`coudln't get menuItemClass`);
+      throw new InjectError(`couldn't get menuItemClass`);
     }
 
-    const menuItemTemplate = document.importNode(
-      menuItem,
-      true
-    ) as HTMLDivElement;
+    const menuItemTemplate = document.importNode(menuItem, true);
     menuItemTemplate
       .querySelector(MENU_DECK_SELECTORS.menuItemIcon)
       ?.childNodes[0].remove();
     menuItemTemplate
       .querySelector(MENU_DECK_SELECTORS.menuItemIcon)
       ?.appendChild(
-        <img
-          src={puzzleIcon}
-          // TODO: add proper way to change svg fill
-          style={{ width: 20, filter: 'brightness(225%)' }}
-        />
+        dcCreateElement<HTMLImageElement>(
+          <img
+            src={puzzleIcon}
+            // TODO: add proper way to change svg fill
+            style={{ width: 20, filter: 'brightness(225%)' }}
+          />
+        )
       );
 
     return { menuItemClass, menuItemTemplate };
   }
 
   private createMenuPage(menuContainer: HTMLDivElement) {
-    const menuPage = (
+    const menuPage = dcCreateElement<HTMLDivElement>(
       <div
         style={{
           width: '100%',
@@ -158,7 +163,7 @@ export class MenuInjectorDeck implements MenuInjector<HTMLDivElement> {
         data-smm-menu-page
       />
     );
-    this.pageContainer = menuPage as unknown as HTMLDivElement;
+    this.pageContainer = menuPage;
     menuContainer.parentElement?.appendChild(menuPage);
   }
 }

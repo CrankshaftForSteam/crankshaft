@@ -3,8 +3,6 @@ import { info } from '../util';
 import { MenuInjectorDeck } from './menu-injector-deck';
 import { MenuInjectorDesktop } from './menu-injector-desktop';
 
-// @use-dom-chef
-
 type MenuItemRender = (smm: SMM, root: HTMLElement) => void | Promise<void>;
 
 interface MenuItem {

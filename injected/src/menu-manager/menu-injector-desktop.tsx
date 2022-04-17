@@ -1,4 +1,5 @@
 import { puzzleIcon } from '../assets/assets';
+import { dcCreateElement } from '../dom-chef';
 import { deleteAll } from '../util';
 import { MenuInjector } from './menu-manager';
 import { MENU_DESKTOP_SELECTORS } from './selectors';
@@ -32,7 +33,7 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
   }
 
   createMenuItem({ id, label }: { id: string; label: string }) {
-    const newMenuItem = (
+    const newMenuItem = dcCreateElement<HTMLLIElement>(
       <li>
         <button
           style={{
@@ -44,7 +45,7 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
           {label}
         </button>
       </li>
-    ) as unknown as HTMLLIElement;
+    );
 
     this.menuContainer.appendChild(newMenuItem);
 
@@ -67,7 +68,8 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
   private injectMenuStyles() {
     deleteAll('[data-smm-menu-style]');
     document.querySelector('head')?.appendChild(
-      <style data-smm-menu-style>{`
+      dcCreateElement<HTMLStyleElement>(
+        <style data-smm-menu-style>{`
           [data-smm-menu-button]:hover img {
             filter: brightness(10);
           }
@@ -123,6 +125,7 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
           }
 
         `}</style>
+      )
     );
   }
 
@@ -150,31 +153,33 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
     deleteAll('[data-smm-menu-button]');
 
     return collectionsButtonParent.appendChild(
-      <div
-        className={collectionsButtonClasses}
-        style={{
-          width: 36,
-          height: 36,
-        }}
-        data-smm-menu-button
-      >
-        <button
-          className={collectionsButtonInnerClasses}
+      dcCreateElement<HTMLDivElement>(
+        <div
+          className={collectionsButtonClasses}
           style={{
-            width: '100%',
-            height: 32,
-            padding: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            border: 'none',
-            filter: 'brightness(1)',
-            transition: 'all 150ms',
+            width: 36,
+            height: 36,
           }}
+          data-smm-menu-button
         >
-          <img src={puzzleIcon} style={{ width: 20 }} />
-        </button>
-      </div>
+          <button
+            className={collectionsButtonInnerClasses}
+            style={{
+              width: '100%',
+              height: 32,
+              padding: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              border: 'none',
+              filter: 'brightness(1)',
+              transition: 'all 150ms',
+            }}
+          >
+            <img src={puzzleIcon} style={{ width: 20 }} />
+          </button>
+        </div>
+      )
     );
   }
 
@@ -184,7 +189,7 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
 
   private createMenuPage(modsButton: HTMLElement) {
     deleteAll('[data-smm-menu-page]');
-    const menuPage = (
+    const menuPage = dcCreateElement<HTMLDivElement>(
       <div
         style={{
           width: '100%',
@@ -196,15 +201,15 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
         data-smm-menu-page
       />
     );
-    this.pageContainer = menuPage as unknown as HTMLDivElement;
+    this.pageContainer = menuPage;
 
     // TODO: fix these names
-    this.menuContainer = (
+    this.menuContainer = dcCreateElement<HTMLUListElement>(
       <ul style={{ listStyle: 'none', width: '100%', margin: 0, padding: 0 }} />
-    ) as unknown as HTMLUListElement;
+    );
 
     deleteAll('[data-smm-menu-page-container]');
-    const menuContainer = (
+    const menuContainer = dcCreateElement<HTMLDivElement>(
       <div
         style={{
           display: 'none',
