@@ -51,20 +51,17 @@ func NewPlugins(crksftConfig *config.CrksftConfig, pluginsDir string) (*Plugins,
 			return nil, err
 		}
 
-		jsx := false
-		data, err := os.ReadFile(path.Join(pluginDir, "dist", "index.js"))
+		indexJsPath := path.Join(pluginDir, "dist", "index.js")
+		data, err := os.ReadFile(indexJsPath)
 		if err != nil && errors.Is(err, fs.ErrNotExist) {
-			data, err = os.ReadFile(path.Join(pluginDir, "dist", "index.jsx"))
-			jsx = true
-			if err != nil {
-				return nil, err
+			if errors.Is(err, fs.ErrNotExist) {
+				return nil, fmt.Errorf(`[Plugin %s]: index.js not found at "%s" - %v`, pluginName, indexJsPath, err)
 			}
-		} else if err != nil {
 			return nil, err
 		}
 
 		fmt.Printf("Building plugin script \"%s\"...\n", pluginName)
-		script, err := buildPluginScript(string(data), pluginName, jsx)
+		script, err := buildPluginScript(string(data), pluginName)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err

@@ -6,19 +6,10 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-func buildPluginScript(script string, name string, jsx bool) (string, error) {
-	loader := api.LoaderJS
-	if jsx {
-		loader = api.LoaderJSX
-	}
-
+func buildPluginScript(script string, name string) (string, error) {
 	res := api.Transform(script, api.TransformOptions{
-		JSXMode:     api.JSXModeTransform,
-		JSXFactory:  "smmShared.h",
-		JSXFragment: "DocumentFragment",
-		Loader:      loader,
-		Format:      api.FormatIIFE,
-		GlobalName:  "smmPlugins['" + name + "']",
+		Format:     api.FormatIIFE,
+		GlobalName: "smmPlugins['" + name + "']",
 	})
 	if len(res.Errors) > 0 {
 		fmt.Println(res.Errors)

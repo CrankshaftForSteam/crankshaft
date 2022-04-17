@@ -30,8 +30,9 @@ func BundleScripts() error {
 		},
 		Bundle:      true,
 		Format:      api.FormatIIFE,
-		JSXFactory:  "smmShared.h",
+		JSXFactory:  "h",
 		JSXFragment: "DocumentFragment",
+		Inject:      []string{"injected/dom-chef-shim.js"},
 		Loader: map[string]api.Loader{
 			".svg": api.LoaderDataURL,
 		},

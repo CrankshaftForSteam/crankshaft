@@ -1,3 +1,3 @@
-import { h } from 'dom-chef';
+// Leaving this here for now, might want shared scripts in the future
 
-export { h };
+export {};
