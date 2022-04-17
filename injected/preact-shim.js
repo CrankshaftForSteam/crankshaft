@@ -1,2 +1,2 @@
 import { h, Fragment } from 'preact';
-export { h, Fragment };
+export { h, Fragment, Fragment as DocumentFragment };

@@ -1,12 +1,9 @@
-import { Fragment, h } from 'dom-chef';
 import { SMM } from '../SMM';
 import { info } from '../util';
 import { MenuInjectorDeck } from './menu-injector-deck';
 import { MenuInjectorDesktop } from './menu-injector-desktop';
 
-// Use dom-chef in this file
-h;
-Fragment;
+// @use-dom-chef
 
 type MenuItemRender = (smm: SMM, root: HTMLElement) => void | Promise<void>;
 
