@@ -6,7 +6,7 @@ interface Entrypoint {
   menu: boolean;
 }
 
-interface Plugin {
+export interface Plugin {
   id: string;
   dir: string;
   config: {
