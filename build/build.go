@@ -2,10 +2,8 @@ package build
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io/ioutil"
-	"strings"
 	"text/template"
 
 	"git.sr.ht/~avery/steam-mod-manager/cdp"
@@ -24,27 +22,6 @@ func BundleScripts() error {
 	// throwing an error.
 	// (not a huge deal since the bundle is small and isn't minified or anything)
 
-	// This plugin allows using dom-chef instead of Preact in the given TSX file
-	// by adding a comment that says `// @use-dom-chef` at the top of the file
-	domChefPlugin := api.Plugin{
-		Name: "dom-chef",
-		Setup: func(build api.PluginBuild) {
-			build.OnLoad(api.OnLoadOptions{Filter: `\.tsx$`}, func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-				data, err := ioutil.ReadFile(args.Path)
-				if err != nil {
-					return api.OnLoadResult{}, err
-				}
-
-				contents := strings.Replace(string(data), "// @use-dom-chef", "import { h } from 'dom-chef';", 1)
-
-				return api.OnLoadResult{
-					Contents: &contents,
-					Loader:   api.LoaderTSX,
-				}, nil
-			})
-		},
-	}
-
 	res := api.Build(api.BuildOptions{
 		EntryPoints: []string{
 			"injected/src/entrypoints/library.ts",
@@ -61,26 +38,16 @@ func BundleScripts() error {
 		Define: map[string]string{
 			"process": `{"env":{"NODE_ENV":"development"}}`,
 		},
-		Plugins: []api.Plugin{domChefPlugin},
+		Plugins: []api.Plugin{DomChefPlugin()},
 		Outdir:  ".build",
 		Write:   true,
 	})
 
-	if len(res.Errors) > 0 {
-		fmt.Println("Injected script bundling errors:")
-		for i, err := range res.Errors {
-			fmt.Printf("%d : %s %d:%d\n", i+1, err.Location.File, err.Location.Line, err.Location.Column)
-			fmt.Println("    " + err.Text)
-		}
-		return errors.New("Error bundling injected scripts, see above")
+	if err := checkErrors(res.Errors); err != nil {
+		return err
 	}
 
-	if len(res.Warnings) > 0 {
-		fmt.Println("Injected script bundling warnings:")
-		for i, err := range res.Warnings {
-			fmt.Println(i, ":", err)
-		}
-	}
+	checkWarnings(res.Warnings)
 
 	return nil
 }
@@ -97,21 +64,11 @@ func BundleSharedScripts() (string, error) {
 		Write:      true,
 	})
 
-	// TODO: refactor to share this stuff with BundleScripts
-	if len(res.Errors) > 0 {
-		fmt.Println("Injected script bundling errors:")
-		for i, err := range res.Errors {
-			fmt.Println(i, ":", err)
-		}
-		return "", errors.New("Error bundling injected scripts, see above")
+	if err := checkErrors(res.Errors); err != nil {
+		return "", err
 	}
 
-	if len(res.Warnings) > 0 {
-		fmt.Println("Injected script bundling warnings:")
-		for i, err := range res.Warnings {
-			fmt.Println(i, ":", err)
-		}
-	}
+	checkWarnings(res.Warnings)
 
 	script, err := ioutil.ReadFile(res.OutputFiles[0].Path)
 	if err != nil {
