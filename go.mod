@@ -1,4 +1,4 @@
-module git.sr.ht/~avery/steam-mod-manager
+module git.sr.ht/~avery/crankshaft
 
 go 1.18
 

@@ -9,12 +9,12 @@ import (
 	"path"
 	"sync"
 
-	"git.sr.ht/~avery/steam-mod-manager/build"
-	"git.sr.ht/~avery/steam-mod-manager/cdp"
-	"git.sr.ht/~avery/steam-mod-manager/config"
-	"git.sr.ht/~avery/steam-mod-manager/patcher"
-	"git.sr.ht/~avery/steam-mod-manager/plugins"
-	"git.sr.ht/~avery/steam-mod-manager/rpc"
+	"git.sr.ht/~avery/crankshaft/build"
+	"git.sr.ht/~avery/crankshaft/cdp"
+	"git.sr.ht/~avery/crankshaft/config"
+	"git.sr.ht/~avery/crankshaft/patcher"
+	"git.sr.ht/~avery/crankshaft/plugins"
+	"git.sr.ht/~avery/crankshaft/rpc"
 	"github.com/adrg/xdg"
 	"github.com/gorilla/handlers"
 )

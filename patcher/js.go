@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"git.sr.ht/~avery/steam-mod-manager/cdp"
-	"git.sr.ht/~avery/steam-mod-manager/pathutil"
+	"git.sr.ht/~avery/crankshaft/cdp"
+	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
 const jsBeautifyBin = "js-beautify"

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"git.sr.ht/~avery/steam-mod-manager/cdp"
+	"git.sr.ht/~avery/crankshaft/cdp"
 	"github.com/BurntSushi/toml"
 )
 

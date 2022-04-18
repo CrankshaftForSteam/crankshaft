@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"git.sr.ht/~avery/steam-mod-manager/config"
+	"git.sr.ht/~avery/crankshaft/config"
 )
 
 type Plugin struct {

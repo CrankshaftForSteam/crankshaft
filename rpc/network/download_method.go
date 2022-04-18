@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"git.sr.ht/~avery/steam-mod-manager/pathutil"
+	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
 type DownloadArgs struct {

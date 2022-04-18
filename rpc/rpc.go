@@ -1,8 +1,8 @@
 package rpc
 
 import (
-	"git.sr.ht/~avery/steam-mod-manager/plugins"
-	"git.sr.ht/~avery/steam-mod-manager/rpc/network"
+	"git.sr.ht/~avery/crankshaft/plugins"
+	"git.sr.ht/~avery/crankshaft/rpc/network"
 	"github.com/gorilla/rpc/v2"
 	rpcJson "github.com/gorilla/rpc/v2/json"
 )

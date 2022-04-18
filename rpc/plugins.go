@@ -3,7 +3,7 @@ package rpc
 import (
 	"net/http"
 
-	"git.sr.ht/~avery/steam-mod-manager/plugins"
+	"git.sr.ht/~avery/crankshaft/plugins"
 )
 
 type PluginsService struct {

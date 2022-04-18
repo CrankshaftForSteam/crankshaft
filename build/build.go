@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"text/template"
 
-	"git.sr.ht/~avery/steam-mod-manager/cdp"
+	"git.sr.ht/~avery/crankshaft/cdp"
 	"github.com/evanw/esbuild/pkg/api"
 )
 

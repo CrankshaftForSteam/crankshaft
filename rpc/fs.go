@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 
-	"git.sr.ht/~avery/steam-mod-manager/pathutil"
+	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
 type FSService struct{}

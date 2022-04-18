@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.sr.ht/~avery/steam-mod-manager/build"
-	"git.sr.ht/~avery/steam-mod-manager/cdp"
-	"git.sr.ht/~avery/steam-mod-manager/plugins"
+	"git.sr.ht/~avery/crankshaft/build"
+	"git.sr.ht/~avery/crankshaft/cdp"
+	"git.sr.ht/~avery/crankshaft/plugins"
 )
 
 type InjectService struct {

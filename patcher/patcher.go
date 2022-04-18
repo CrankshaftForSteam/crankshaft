@@ -1,7 +1,7 @@
 // Package patcher handles patching of Steam client resources.
 package patcher
 
-import "git.sr.ht/~avery/steam-mod-manager/pathutil"
+import "git.sr.ht/~avery/crankshaft/pathutil"
 
 const linuxSteamUiPath = "~/.steam/steam/steamui/"
 
