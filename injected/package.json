@@ -5,10 +5,13 @@
   "license": "",
   "private": true,
   "dependencies": {
+    "classnames": "^2.3.1",
     "dom-chef": "5.0.0",
-    "preact": "^10.7.1"
+    "preact": "^10.7.1",
+    "preact-custom-element": "^4.2.1"
   },
   "devDependencies": {
+    "@types/preact-custom-element": "^4.0.1",
     "prettier": "2.6.0",
     "prettier-plugin-organize-imports": "2.3.4",
     "typescript": "4.6.2"

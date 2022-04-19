@@ -122,20 +122,9 @@ const CefDebugToggle: FunctionComponent = () => {
           </span>
           <i>Requires restarting the Steam client to take effect.</i>
         </p>
-        <button
-          style={{
-            width: 75,
-            backgroundColor: '#1a9fff',
-            textTransform: 'uppercase',
-            border: 'none',
-            color: 'white',
-            borderRadius: 2,
-            cursor: 'pointer',
-          }}
-          onClick={handleToggle}
-        >
+        <cs-button onClick={handleToggle}>
           {enabled ? 'Disable' : 'Enable'}
-        </button>
+        </cs-button>
       </>
     </Setting>
   );

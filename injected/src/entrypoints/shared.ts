@@ -1,3 +1,3 @@
-// Leaving this here for now, might want shared scripts in the future
+import { registerCustomElements } from '../ui';
 
-export {};
+registerCustomElements();

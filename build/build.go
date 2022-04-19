@@ -57,11 +57,14 @@ func BundleSharedScripts() (string, error) {
 		EntryPoints: []string{
 			"injected/src/entrypoints/shared.ts",
 		},
-		Bundle:     true,
-		Format:     api.FormatIIFE,
-		GlobalName: "smmShared",
-		Outdir:     ".build",
-		Write:      true,
+		Bundle:      true,
+		Format:      api.FormatIIFE,
+		JSXFactory:  "h",
+		JSXFragment: "DocumentFragment",
+		Inject:      []string{"injected/preact-shim.js"},
+		GlobalName:  "smmShared",
+		Outdir:      ".build",
+		Write:       true,
 	})
 
 	if err := checkErrors(res.Errors); err != nil {

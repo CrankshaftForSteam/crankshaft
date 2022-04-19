@@ -91,35 +91,9 @@ const Plugin: FunctionComponent<{
       <h2 style={{ margin: 0 }}>{plugin.config.name}</h2>
       <p>{plugin.enabled ? 'Loaded' : 'Disabled'}</p>
       {plugin.enabled ? (
-        <button
-          style={{
-            width: 75,
-            backgroundColor: '#1a9fff',
-            textTransform: 'uppercase',
-            border: 'none',
-            color: 'white',
-            borderRadius: 2,
-            cursor: 'pointer',
-          }}
-          onClick={onUnload}
-        >
-          Unload
-        </button>
+        <cs-button onClick={onUnload}>Unload</cs-button>
       ) : (
-        <button
-          style={{
-            width: 75,
-            backgroundColor: '#1a9fff',
-            textTransform: 'uppercase',
-            border: 'none',
-            color: 'white',
-            borderRadius: 2,
-            cursor: 'pointer',
-          }}
-          onClick={onLoad}
-        >
-          Load
-        </button>
+        <cs-button onClick={onLoad}>Load</cs-button>
       )}
     </div>
   </li>
