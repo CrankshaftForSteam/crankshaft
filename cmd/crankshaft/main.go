@@ -85,7 +85,6 @@ func run() error {
 	go func() {
 		rpcServer := rpc.HandleRpc(*debugPort, *serverPort, plugins, devmode.DevMode)
 
-		http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 		http.Handle("/rpc", handlers.CORS(
 			handlers.AllowedHeaders([]string{"Content-Type"}),
 			handlers.AllowedMethods([]string{"POST"}),
