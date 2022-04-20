@@ -11,7 +11,7 @@ tasks:
       cd crankshaft
       go mod download
       cd injected
-      yarn
+      yarn install --frozen-lockfile
   - build: |
       cd crankshaft
       make release
