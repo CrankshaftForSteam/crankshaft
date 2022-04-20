@@ -118,15 +118,18 @@ func patchCoolClass(unminPath string, origPath string, serverPort string) error 
 		return err
 	}
 
-	constructorLineNum, err := findCoolClassConstructor(fileLines)
+	constructorLineNum := -1
+	constructorLineNum, err = findCoolClassConstructor(fileLines)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		fmt.Println("Error finding constructor:", err)
+		// return err
 	}
 
 	// Add our code
 
-	insertAtPos(&fileLines, constructorLineNum, "window.coolClass = this;")
+	if constructorLineNum > -1 {
+		insertAtPos(&fileLines, constructorLineNum, "window.coolClass = this;")
+	}
 
 	script := fmt.Sprintf(`// file patched by crankshaft
 		console.info('[Crankshaft] Loading patched libraryroot~sp.js');
