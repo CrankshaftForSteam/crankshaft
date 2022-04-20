@@ -1,4 +1,4 @@
-package rpc
+package inject
 
 import (
 	"fmt"
