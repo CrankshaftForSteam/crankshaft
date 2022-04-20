@@ -14,6 +14,7 @@ import (
 	"git.sr.ht/~avery/crankshaft/config"
 	"git.sr.ht/~avery/crankshaft/patcher"
 	"git.sr.ht/~avery/crankshaft/plugins"
+	"git.sr.ht/~avery/crankshaft/ps"
 	"git.sr.ht/~avery/crankshaft/rpc"
 	"github.com/adrg/xdg"
 	"github.com/gorilla/handlers"
@@ -64,7 +65,7 @@ func run() error {
 
 	// If Steam is already running we can patch it while bundling
 	alreadyPatched := false
-	if isSteamRunning() && !*skipPatching {
+	if ps.IsSteamRunning() && !*skipPatching {
 		wg.Add(1)
 		alreadyPatched = true
 
@@ -96,18 +97,18 @@ func run() error {
 
 	// If Steam was already running and we patched it earlier, wait for Steam to stop first
 	if alreadyPatched {
-		waitForSteamProcessToStop()
+		ps.WaitForSteamProcessToStop()
 	}
 
 	// Repatch Steam as it starts and stops
 	for {
 		fmt.Println("Waiting for Steam to start...")
-		waitForSteamProcess()
+		ps.WaitForSteamProcess()
 
 		cdp.WaitForConnection(*debugPort)
 		cdp.WaitForLibraryEl(*debugPort)
 		patcher.Patch(*debugPort, *serverPort)
 
-		waitForSteamProcessToStop()
+		ps.WaitForSteamProcessToStop()
 	}
 }
