@@ -1,0 +1,17 @@
+image: archlinux
+packages:
+  - go
+  - yarn
+sources:
+  - https://git.sr.ht/~avery/crankshaft
+artifacts:
+  - crankshaft/.dist/crankshaft
+tasks:
+  - setup: |
+      cd crankshaft
+      go mod download
+      cd injected
+      yarn
+  - build: |
+      cd crankshaft
+      make release
