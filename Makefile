@@ -35,3 +35,7 @@ format-go:
 format-js:
 	cd injected && \
 	yarn prettier src --write
+
+.PHONY: bundle-scripts
+bundle-scripts:
+	go run cmd/bundle-scripts/main.go

@@ -23,6 +23,6 @@
 go.work
 
 # Build output
-.build
+.build/
 # Random notes
-.scratch
+.scratch/
