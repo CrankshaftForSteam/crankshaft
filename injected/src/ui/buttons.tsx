@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { FunctionComponent, JSX } from 'preact';
 import register from 'preact-custom-element';
-import { useSetupComponent } from './use-setup-component';
 
 const buttonStyles = `
 	.cs-button {
@@ -24,7 +23,12 @@ const buttonStyles = `
 		background-color: var(--cs-col-primary-hover);
 	}
 
+	.cs-button:focus {
+		outline: none;
+	}
+
 	.cs-button:focus-visible {
+		outline: unset;
 		background-color: white;
 		color: black;
 	}
@@ -32,22 +36,16 @@ const buttonStyles = `
 
 export type ButtonProps = JSX.HTMLAttributes<HTMLButtonElement>;
 
-const Button =
-  (css: CSSStyleSheet): FunctionComponent<ButtonProps> =>
-  (props) =>
-    (
-      <button
-        ref={useSetupComponent(css)}
-        className={classNames('cs-button', props.className)}
-        {...props}
-      >
-        {props.children}
-      </button>
-    );
+const Button: FunctionComponent<ButtonProps> = (props) => (
+  <button className={classNames('cs-button', props.className)} {...props}>
+    {props.children}
+  </button>
+);
 
-export default {
-  styles: buttonStyles,
-  register: (css: CSSStyleSheet) => {
-    register(Button(css), 'cs-button', [], { shadow: true });
-  },
+export default (css: CSSStyleSheet) => {
+  register(Button, 'cs-button', [], {
+    shadow: true,
+    adoptedStyleSheets: [css],
+  });
+  return buttonStyles;
 };

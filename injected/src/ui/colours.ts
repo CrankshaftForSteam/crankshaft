@@ -11,4 +11,4 @@ const colourStyles = `
 	}
 `;
 
-export default { styles: colourStyles };
+export default () => colourStyles;

@@ -1,29 +1,19 @@
 import registerButtons from './buttons';
 import registerColours from './colours';
 
-export interface RegisterComponents {
-  styles?: string;
-  register?: (css: CSSStyleSheet) => void;
-}
-
-const registerComponentsFuncs: RegisterComponents[] = [
-  registerButtons,
-  registerColours,
-];
+const registerComponentsFuncs = [registerButtons, registerColours];
 
 export const registerCustomElements = async () => {
+  const stylesheet = new CSSStyleSheet();
   let styleSheetContents = '';
 
-  for (const { styles } of registerComponentsFuncs) {
-    if (styles) {
-      styleSheetContents += styles + '\n';
-    }
+  for (const r of registerComponentsFuncs) {
+    styleSheetContents += r(stylesheet) ?? '';
   }
 
   // Typescript has bad types for constructable stylesheets, so we need some
   // custom types below
 
-  const stylesheet = new CSSStyleSheet();
   await (stylesheet as any).replace(styleSheetContents);
 
   // im so sorry
@@ -34,8 +24,4 @@ export const registerCustomElements = async () => {
       .adoptedStyleSheets,
     stylesheet,
   ];
-
-  for (const { register } of registerComponentsFuncs) {
-    register?.(stylesheet);
-  }
 };
