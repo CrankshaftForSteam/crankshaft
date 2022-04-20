@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/chromedp/cdproto/target"
@@ -33,7 +34,7 @@ func NewSteamClient(debugPort string) (*SteamClient, error) {
 	}
 
 	// Get UI mode
-	out, _ := steamClient.runScriptInTargetWithOutput(LibraryTarget, "SteamClient.UI.GetUIMode()")
+	out, _ := steamClient.runScriptInTargetWithOutput(IsLibraryTarget, "SteamClient.UI.GetUIMode()")
 	uiModeNum, err := strconv.Atoi(out)
 	if err != nil {
 		return nil, err
@@ -61,12 +62,22 @@ const (
 	MenuTarget                = "MainMenu"
 )
 
+type targetFilterFunc func(target *target.Info) bool
+
+func IsLibraryTarget(target *target.Info) bool {
+	return target.Title == "SP" || strings.HasPrefix(target.URL, "https://steamloopback.host/index.html")
+}
+
+func IsMenuTarget(target *target.Info) bool {
+	return target.Title == MenuTarget
+}
+
 // Maximum number of times to retry getting a target
 // Useful if you just reloaded the page and are waiting for target to load
 // Will sleep for 1 second between retries
 const getTargetRetryMax = 10
 
-func (sc *SteamClient) runScriptInTarget(steamTarget SteamTarget, script string) error {
+func (sc *SteamClient) runScriptInTarget(isTarget targetFilterFunc, script string) error {
 	var ctx context.Context = nil
 	retries := 0
 
@@ -81,7 +92,7 @@ func (sc *SteamClient) runScriptInTarget(steamTarget SteamTarget, script string)
 		}
 
 		for _, target := range targets {
-			if target.Title == string(steamTarget) {
+			if isTarget(target) {
 				ctx, _ = chromedp.NewContext(sc.steamCtx, chromedp.WithTargetID(target.TargetID))
 				break
 			}
@@ -90,7 +101,7 @@ func (sc *SteamClient) runScriptInTarget(steamTarget SteamTarget, script string)
 	}
 
 	if ctx == nil {
-		return fmt.Errorf("Couldn't find context for target %s", steamTarget)
+		return fmt.Errorf("Couldn't find context for target")
 	}
 
 	err := chromedp.Run(ctx, chromedp.Evaluate(script, nil, withAwaitPromise))
@@ -102,7 +113,7 @@ func (sc *SteamClient) runScriptInTarget(steamTarget SteamTarget, script string)
 }
 
 func (sc *SteamClient) RunScriptInLibrary(script string) error {
-	return sc.runScriptInTarget(LibraryTarget, script)
+	return sc.runScriptInTarget(IsLibraryTarget, script)
 }
 
 func (sc *SteamClient) RunScriptInMenu(script string) error {
@@ -110,10 +121,10 @@ func (sc *SteamClient) RunScriptInMenu(script string) error {
 		return fmt.Errorf("Running in desktop mode, unable to inject script into Deck menu")
 	}
 
-	return sc.runScriptInTarget(MenuTarget, script)
+	return sc.runScriptInTarget(IsMenuTarget, script)
 }
 
-func (sc *SteamClient) runScriptInTargetWithOutput(steamTarget SteamTarget, script string) (string, error) {
+func (sc *SteamClient) runScriptInTargetWithOutput(isTarget targetFilterFunc, script string) (string, error) {
 	targets, err := sc.getTargets()
 	if err != nil {
 		return "", nil
@@ -121,7 +132,7 @@ func (sc *SteamClient) runScriptInTargetWithOutput(steamTarget SteamTarget, scri
 
 	var ctx context.Context
 	for _, target := range targets {
-		if target.Title == string(steamTarget) {
+		if isTarget(target) {
 			ctx, _ = chromedp.NewContext(sc.steamCtx, chromedp.WithTargetID(target.TargetID))
 			break
 		}

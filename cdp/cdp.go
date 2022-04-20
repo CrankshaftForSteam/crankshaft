@@ -46,8 +46,8 @@ func WaitForConnection(debugPort string) {
 		}
 
 		foundSp := false
-		for _, t := range targets {
-			if t.Title == string(LibraryTarget) {
+		for _, target := range targets {
+			if IsLibraryTarget(target) {
 				foundSp = true
 			}
 		}
