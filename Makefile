@@ -14,7 +14,7 @@ run: clean
 
 .PHONY: test
 test:
-	go test ./...
+	go test -tags=dev ./...
 
 .PHONY: serve-docs
 serve-docs:
