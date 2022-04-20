@@ -28,7 +28,7 @@ const buttonStyles = `
 	}
 
 	.cs-button:focus-visible {
-		outline: unset;
+		outline: revert;
 		background-color: white;
 		color: black;
 	}
@@ -37,7 +37,11 @@ const buttonStyles = `
 export type ButtonProps = JSX.HTMLAttributes<HTMLButtonElement>;
 
 const Button: FunctionComponent<ButtonProps> = (props) => (
-  <button className={classNames('cs-button', props.className)} {...props}>
+  <button
+    className={classNames('cs-button', props.className)}
+    tabIndex={0}
+    {...props}
+  >
     {props.children}
   </button>
 );
