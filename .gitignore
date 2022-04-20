@@ -26,3 +26,5 @@ go.work
 .build/
 # Random notes
 .scratch/
+# Release output
+.dist/

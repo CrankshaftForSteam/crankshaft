@@ -11,6 +11,7 @@ import (
 
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
+	devmode "git.sr.ht/~avery/crankshaft/cmd/crankshaft/dev_mode"
 	"git.sr.ht/~avery/crankshaft/config"
 	"git.sr.ht/~avery/crankshaft/patcher"
 	"git.sr.ht/~avery/crankshaft/plugins"
@@ -56,12 +57,14 @@ func run() error {
 
 	// Patch and bundle in parallel
 	var wg sync.WaitGroup
-	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
-		build.BundleScripts()
-	}()
+	if devmode.DevMode {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			build.BundleScripts()
+		}()
+	}
 
 	// If Steam is already running we can patch it while bundling
 	alreadyPatched := false
@@ -80,7 +83,7 @@ func run() error {
 	// Start RPC server in the background
 	// This will keep running in the background, so we don't need to add it to the wait group
 	go func() {
-		rpcServer := rpc.HandleRpc(*debugPort, *serverPort, plugins)
+		rpcServer := rpc.HandleRpc(*debugPort, *serverPort, plugins, devmode.DevMode)
 
 		http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 		http.Handle("/rpc", handlers.CORS(

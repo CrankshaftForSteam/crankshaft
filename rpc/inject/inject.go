@@ -13,10 +13,11 @@ type InjectService struct {
 	debugPort  string
 	serverPort string
 	plugins    *plugins.Plugins
+	devMode    bool
 }
 
-func NewInjectService(debugPort, serverPort string, plugins *plugins.Plugins) *InjectService {
-	return &InjectService{debugPort, serverPort, plugins}
+func NewInjectService(debugPort, serverPort string, plugins *plugins.Plugins, devMode bool) *InjectService {
+	return &InjectService{debugPort, serverPort, plugins, devMode}
 }
 
 type InjectArgs struct{}
@@ -43,11 +44,16 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 
 	// TODO: this code is awful and terrible aaaaaaaaaaaaaaaaaaaaa
 
-	sharedScript, err := build.BundleSharedScripts()
-	if err != nil {
-		fmt.Println(err)
-		return fmt.Errorf("Failed to build shared scripts: %v", err)
+	// Inject shared script
+
+	if service.devMode {
+		sharedScript, err = build.BundleSharedScripts()
+		if err != nil {
+			fmt.Println(err)
+			return fmt.Errorf("Failed to build shared scripts: %v", err)
+		}
 	}
+
 	err = steamClient.RunScriptInLibrary(sharedScript)
 	if steamClient.UiMode == cdp.UIModeDeck {
 		err = steamClient.RunScriptInMenu(sharedScript)
@@ -56,6 +62,8 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 		fmt.Println(err)
 		return fmt.Errorf("Error injecting shared script: %v", err)
 	}
+
+	// Inject plugins
 
 	for _, plugin := range service.plugins.PluginMap {
 		if !plugin.Enabled {
@@ -79,22 +87,38 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 		}
 	}
 
-	libraryEvalScript, err := build.BuildEvalScript(service.serverPort, steamClient.UiMode, ".build/library.js")
+	// Inject library script
+
+	var libraryEvalScript string
+	if service.devMode {
+		libraryEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/library.js")
+	} else {
+		libraryEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, libraryScript)
+	}
 	if err != nil {
 		fmt.Println(err)
 		return fmt.Errorf("Failed to build library eval script: %w", err)
 	}
+
 	if err := steamClient.RunScriptInLibrary(libraryEvalScript); err != nil {
 		fmt.Println(err)
 		return fmt.Errorf("Error injecting library script: %w", err)
 	}
 
+	// Inject menu script
+
 	if steamClient.UiMode == cdp.UIModeDeck {
-		menuEvalScript, err := build.BuildEvalScript(service.serverPort, steamClient.UiMode, ".build/menu.js")
+		var menuEvalScript string
+		if service.devMode {
+			menuEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/menu.js")
+		} else {
+			menuEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, menuScript)
+		}
 		if err != nil {
 			fmt.Println(err)
 			return fmt.Errorf("Failed to build menu eval script: %w", err)
 		}
+
 		if err := steamClient.RunScriptInMenu(menuEvalScript); err != nil {
 			fmt.Println(err)
 			return fmt.Errorf("Error injecting menu script: %w", err)

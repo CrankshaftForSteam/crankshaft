@@ -85,15 +85,20 @@ func BundleSharedScripts() (string, error) {
 //go:embed eval.template.js
 var evalScriptTemplate string
 
-// buildEvalScript builds a script to be evaluated in the Steam target context.
-func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (string, error) {
-	injectedScriptBytes, err := ioutil.ReadFile(script)
+// BuildEvalScriptFromFile gets a script from a file and builds an eval script with it.
+func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath string) (string, error) {
+	scriptBytes, err := ioutil.ReadFile(scriptPath)
 	if err != nil {
-		return "", fmt.Errorf("Failed to read injected script: %w", err)
+		return "", fmt.Errorf(`Failed to read injected script at "%s": %w`, scriptPath, err)
 	}
 
-	injectedScript := string(injectedScriptBytes)
+	script := string(scriptBytes)
 
+	return BuildEvalScript(serverPort, uiMode, script)
+}
+
+// BuildEvalScript builds a script to be evaluated in the Steam target context.
+func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (string, error) {
 	evalTmpl := template.Must(template.New("eval").Parse(evalScriptTemplate))
 	var evalScript bytes.Buffer
 	if err := evalTmpl.Execute(&evalScript, struct {
@@ -103,7 +108,7 @@ func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (strin
 		UIMode         cdp.UIMode
 	}{
 		Version:        VERSION,
-		InjectedScript: injectedScript,
+		InjectedScript: script,
 		ServerPort:     serverPort,
 		UIMode:         uiMode,
 	}); err != nil {

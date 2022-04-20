@@ -6,10 +6,11 @@ configure-git-hooks:
 clean:
 	rm -rf .build
 	rm -rf .dist
+	rm -rf rpc/inject/scripts
 
 .PHONY: run
 run: clean
-	go run cmd/crankshaft/main.go $(ARGS)
+	go run -tags=dev cmd/crankshaft/main.go $(ARGS)
 
 .PHONY: test
 test:
@@ -39,3 +40,10 @@ format-js:
 .PHONY: bundle-scripts
 bundle-scripts:
 	go run cmd/bundle-scripts/main.go
+
+.PHONY: release
+release: clean bundle-scripts
+	mkdir rpc/inject/scripts
+	cp .build/* rpc/inject/scripts
+	mkdir .dist
+	go build -o .dist/crankshaft cmd/crankshaft/main.go
