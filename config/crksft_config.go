@@ -11,7 +11,7 @@ import (
 )
 
 type CrksftConfigPlugin struct {
-	Enabled bool
+	Enabled bool `toml:"enabled"`
 }
 
 type CrksftConfig struct {
@@ -24,6 +24,7 @@ func NewCrksftConfig(dataDir string) (*CrksftConfig, error) {
 		filePath: path.Join(
 			dataDir, "config.toml",
 		),
+		Plugins: make(map[string]CrksftConfigPlugin),
 	}
 
 	data, err := os.ReadFile(config.filePath)
@@ -44,8 +45,9 @@ func NewCrksftConfig(dataDir string) (*CrksftConfig, error) {
 }
 
 func (c *CrksftConfig) Write() error {
-	file, err := os.OpenFile(c.filePath, os.O_WRONLY|os.O_TRUNC, 0755)
+	file, err := os.OpenFile(c.filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	defer file.Close()
@@ -61,7 +63,8 @@ func (c *CrksftConfig) Write() error {
 func (c *CrksftConfig) UpdatePlugin(pluginId string, newConfig CrksftConfigPlugin) error {
 	plugin, ok := c.Plugins[pluginId]
 	if !ok {
-		return fmt.Errorf(`Plugin "%s" not found in Crankshaft config`, pluginId)
+		// Create a default plugin config
+		plugin = CrksftConfigPlugin{}
 	}
 	plugin.Enabled = newConfig.Enabled
 	c.Plugins[pluginId] = plugin

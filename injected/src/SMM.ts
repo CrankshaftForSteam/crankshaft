@@ -111,11 +111,17 @@ export class SMM extends EventTarget {
   }
 
   async loadPlugins() {
+    const plugins = await this.Plugins.list();
+
+    info('loadPlugins: ', { plugins, smmPlugins: window.smmPlugins });
+
     // It's probably better to load these sequentially
     for (const [name, { load, unload }] of Object.entries(
       window.smmPlugins ?? {}
     )) {
-      await this.loadPlugin(name);
+      if (plugins[name]?.enabled) {
+        await this.loadPlugin(name);
+      }
     }
   }
 
