@@ -2,6 +2,7 @@ package build
 
 import (
 	"bytes"
+	_ "embed"
 	"fmt"
 	"io/ioutil"
 	"text/template"
@@ -81,6 +82,9 @@ func BundleSharedScripts() (string, error) {
 	return string(script), nil
 }
 
+//go:embed eval.template.js
+var evalScriptTemplate string
+
 // buildEvalScript builds a script to be evaluated in the Steam target context.
 func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (string, error) {
 	injectedScriptBytes, err := ioutil.ReadFile(script)
@@ -90,7 +94,7 @@ func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (strin
 
 	injectedScript := string(injectedScriptBytes)
 
-	evalTmpl := template.Must(template.ParseFiles("injected/eval.template.js"))
+	evalTmpl := template.Must(template.New("eval").Parse(evalScriptTemplate))
 	var evalScript bytes.Buffer
 	if err := evalTmpl.Execute(&evalScript, struct {
 		Version        string
