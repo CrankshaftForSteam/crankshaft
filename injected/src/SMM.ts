@@ -1,5 +1,6 @@
 import { MenuManager } from './menu-manager';
 import { FS } from './services/FS';
+import { IPC } from './services/IPC';
 import { Network } from './services/Network';
 import { Plugins } from './services/Plugins';
 import { Toast } from './services/Toast';
@@ -19,6 +20,7 @@ export class SMM extends EventTarget {
   readonly MenuManager: MenuManager;
   readonly FS: FS;
   readonly Plugins: Plugins;
+  readonly IPC: IPC;
 
   readonly serverPort: string;
 
@@ -49,6 +51,7 @@ export class SMM extends EventTarget {
     this.MenuManager = new MenuManager(this, entry);
     this.FS = new FS(this);
     this.Plugins = new Plugins(this);
+    this.IPC = new IPC(this);
 
     this.serverPort = window.smmServerPort;
 

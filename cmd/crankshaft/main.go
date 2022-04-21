@@ -17,6 +17,7 @@ import (
 	"git.sr.ht/~avery/crankshaft/plugins"
 	"git.sr.ht/~avery/crankshaft/ps"
 	"git.sr.ht/~avery/crankshaft/rpc"
+	"git.sr.ht/~avery/crankshaft/ws"
 	"github.com/adrg/xdg"
 	"github.com/gorilla/handlers"
 )
@@ -83,7 +84,13 @@ func run() error {
 	// Start RPC server in the background
 	// This will keep running in the background, so we don't need to add it to the wait group
 	go func() {
-		rpcServer := rpc.HandleRpc(*debugPort, *serverPort, plugins, devmode.DevMode)
+		hub := ws.NewHub()
+		go hub.Run()
+		http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+			ws.ServeWs(hub, w, r)
+		})
+
+		rpcServer := rpc.HandleRpc(*debugPort, *serverPort, plugins, devmode.DevMode, hub)
 
 		http.Handle("/rpc", handlers.CORS(
 			handlers.AllowedHeaders([]string{"Content-Type"}),
