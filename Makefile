@@ -47,3 +47,8 @@ release: clean bundle-scripts
 	cp .build/* rpc/inject/scripts
 	mkdir .dist
 	go build -o .dist/crankshaft cmd/crankshaft/main.go
+	# Get js-beautify binary
+	# See source and build manifest at: https://builds.sr.ht/~avery/job/741873
+	# TODO: this link expires in 90 days lol
+	wget -O .dist/js-beautify https://patchouli.sr.ht/builds.sr.ht/artifacts/~avery/741873/249ceb5c7c3dfa54/js-beautify
+	chmod +x .dist/js-beautify

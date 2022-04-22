@@ -2,10 +2,11 @@ image: archlinux
 packages:
   - go
   - yarn
+  - wget
 sources:
   - https://git.sr.ht/~avery/crankshaft
 artifacts:
-  - crankshaft/.dist/crankshaft
+  - crankshaft/crankshaft.tar.gz
 tasks:
   - setup: |
       cd crankshaft
@@ -15,3 +16,5 @@ tasks:
   - build: |
       cd crankshaft
       make release
+      mv .dist "crankshaft-$(git rev-parse --short HEAD)"
+      tar -czvf crankshaft.tar.gz "crankshaft-$(git rev-parse --short HEAD)"
