@@ -13,8 +13,12 @@ const main = async () => {
   } catch (err) {
     info('Failed to initialize SMM, waiting for focus and retrying...');
     if (!document.hasFocus()) {
-      await new Promise((resolve) => {
-        window.addEventListener('focus', resolve);
+      await new Promise<void>((resolve) => {
+        const handleFocus = () => {
+          resolve();
+          window.removeEventListener('focus', handleFocus);
+        };
+        window.addEventListener('focus', handleFocus);
       });
     }
     try {
