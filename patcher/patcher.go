@@ -1,11 +1,17 @@
 // Package patcher handles patching of Steam client resources.
 package patcher
 
-import "git.sr.ht/~avery/crankshaft/pathutil"
+import (
+	"path"
 
-const linuxSteamUiPath = "~/.steam/steam/steamui/"
+	"github.com/adrg/xdg"
+)
+
+func getSteamUiPath() string {
+	return path.Join(xdg.DataHome, "Steam", "steamui")
+}
 
 // Patch patches necessary Steam resources.
 func Patch(debugPort string, serverPort string) {
-	PatchJS(pathutil.SubstituteHomeDir(linuxSteamUiPath), debugPort, serverPort)
+	PatchJS(getSteamUiPath(), debugPort, serverPort)
 }
