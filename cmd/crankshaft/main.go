@@ -67,8 +67,6 @@ func run() error {
 	logWriter := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(logWriter)
 
-	go tray.StartTray()
-
 	crksftConfig, err := config.NewCrksftConfig(*dataDir)
 	if err != nil {
 		return err
@@ -78,6 +76,21 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
+	waitAndPatch := func() {
+		cdp.WaitForConnection(*debugPort)
+		cdp.WaitForLibraryEl(*debugPort)
+		patcher.Patch(*debugPort, *serverPort)
+	}
+
+	reloadChannel := make(chan struct{})
+	go tray.StartTray(reloadChannel)
+	go func() {
+		for {
+			<-reloadChannel
+			waitAndPatch()
+		}
+	}()
 
 	// Patch and bundle in parallel
 	var wg sync.WaitGroup
@@ -98,9 +111,7 @@ func run() error {
 
 		go func() {
 			defer wg.Done()
-			cdp.WaitForConnection(*debugPort)
-			cdp.WaitForLibraryEl(*debugPort)
-			patcher.Patch(*debugPort, *serverPort)
+			waitAndPatch()
 		}()
 	}
 
@@ -137,9 +148,7 @@ func run() error {
 		log.Println("Waiting for Steam to start...")
 		ps.WaitForSteamProcess()
 
-		cdp.WaitForConnection(*debugPort)
-		cdp.WaitForLibraryEl(*debugPort)
-		patcher.Patch(*debugPort, *serverPort)
+		waitAndPatch()
 
 		ps.WaitForSteamProcessToStop()
 	}
