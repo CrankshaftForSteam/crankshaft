@@ -19,6 +19,7 @@ import (
 	"git.sr.ht/~avery/crankshaft/plugins"
 	"git.sr.ht/~avery/crankshaft/ps"
 	"git.sr.ht/~avery/crankshaft/rpc"
+	"git.sr.ht/~avery/crankshaft/tray"
 	"git.sr.ht/~avery/crankshaft/ws"
 	"github.com/adrg/xdg"
 	"github.com/gorilla/handlers"
@@ -65,6 +66,8 @@ func run() error {
 	// Setup logging to write to stdout and log file
 	logWriter := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(logWriter)
+
+	go tray.StartTray()
 
 	crksftConfig, err := config.NewCrksftConfig(*dataDir)
 	if err != nil {
