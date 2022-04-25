@@ -17,7 +17,8 @@ export class SMM extends EventTarget {
 
   readonly Network: Network;
   readonly Toast: Toast;
-  readonly MenuManager: MenuManager;
+  // TODO: improve types for running in context without menu
+  readonly MenuManager!: MenuManager;
   readonly FS: FS;
   readonly Plugins: Plugins;
   readonly IPC: IPC;
@@ -48,10 +49,13 @@ export class SMM extends EventTarget {
 
     this.Network = new Network(this);
     this.Toast = new Toast(this);
-    this.MenuManager = new MenuManager(this, entry);
     this.FS = new FS(this);
     this.Plugins = new Plugins(this);
     this.IPC = new IPC(this);
+
+    if (entry === 'library') {
+      this.MenuManager = new MenuManager(this);
+    }
 
     this.serverPort = window.smmServerPort;
 

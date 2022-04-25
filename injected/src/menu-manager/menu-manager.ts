@@ -5,57 +5,48 @@ import { MenuInjectorDesktop } from './menu-injector-desktop';
 
 type MenuItemRender = (smm: SMM, root: HTMLElement) => void | Promise<void>;
 
-interface MenuItem {
+export interface MenuItem {
   id: string;
   label: string;
   fontSize?: number;
-  node: HTMLElement;
   render: MenuItemRender;
 }
 
-export interface MenuInjector<MenuItemType extends HTMLElement> {
-  createMenuItem: (props: Omit<MenuItem, 'node'>) => MenuItemType;
-  getRootForMenuItem: (id: string) => HTMLElement;
-  isLoaded: () => boolean;
+export interface MenuInjector {
+  createMenuItem: (item: MenuItem) => void;
+  removeMenuItem: (id: string) => void;
 }
 
 export class MenuManager {
   private smm: SMM;
-  private entry: 'library' | 'menu';
-  private menuItems: MenuItem[];
-  private injector!: MenuInjector<HTMLElement>;
+  // TODO: use a map
+  menuItems: MenuItem[];
+  private injector!: MenuInjector;
 
-  constructor(smm: SMM, entry: 'library' | 'menu') {
+  constructor(smm: SMM) {
     this.smm = smm;
-    this.entry = entry;
     this.menuItems = [];
 
-    if (entry === 'library' && window.smmUIMode === 'desktop') {
+    if (window.smmUIMode === 'desktop') {
       info('Injecting MenuManager for desktop library');
-      this.injector = new MenuInjectorDesktop();
+      this.injector = new MenuInjectorDesktop(this.smm);
     }
 
-    if (entry === 'menu' && window.smmUIMode === 'deck') {
+    if (window.smmUIMode === 'deck') {
       info('Injecting MenuManager for Deck menu');
-      this.injector = new MenuInjectorDeck();
+      this.injector = new MenuInjectorDeck(this.smm, this);
     }
-
-    window.addEventListener('focus', () => {
-      if (!this.injector.isLoaded()) {
-        this.reload();
-      }
-    });
   }
 
   reload() {
-    if (this.entry === 'library' && window.smmUIMode === 'desktop') {
+    if (window.smmUIMode === 'desktop') {
       info('Injecting MenuManager for desktop library');
-      this.injector = new MenuInjectorDesktop();
+      this.injector = new MenuInjectorDesktop(this.smm);
     }
 
-    if (this.entry === 'menu' && window.smmUIMode === 'deck') {
+    if (window.smmUIMode === 'deck') {
       info('Injecting MenuManager for Deck menu');
-      this.injector = new MenuInjectorDeck();
+      this.injector = new MenuInjectorDeck(this.smm, this);
     }
 
     const prevMenuItems = this.menuItems.slice();
@@ -65,25 +56,19 @@ export class MenuManager {
     }
   }
 
-  addMenuItem(item: Omit<MenuItem, 'node'>) {
+  addMenuItem(item: MenuItem) {
     const newMenuItem = this.injector.createMenuItem(item);
-    newMenuItem.dataset.smmMenuItem = item.id;
-
-    newMenuItem.addEventListener('click', async (event) => {
-      event.stopPropagation();
-      const root = this.injector.getRootForMenuItem(item.id);
-      await item.render(this.smm, root);
-    });
-
-    this.menuItems.push({ ...item, node: newMenuItem });
+    this.menuItems.push(item);
   }
 
   removeMenuItem(id: string) {
+    this.injector.removeMenuItem(id);
+
     const index = this.menuItems.findIndex((item) => item.id === id);
     if (index < 0) {
       return;
     }
-    this.menuItems[index].node.remove();
+
     this.menuItems.splice(index, 1);
   }
 }

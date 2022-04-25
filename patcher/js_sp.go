@@ -43,6 +43,7 @@ func patchMenuItems(unminPath, origPath string) error {
 		return err
 	}
 
+	// Find settings tab, menu items will be added below it
 	mainTabsHomeExp := regexp.MustCompile(`label:.*"#MainTabsSettings"`)
 	settingsLineNum := 0
 	found := false
@@ -57,9 +58,24 @@ func patchMenuItems(unminPath, origPath string) error {
 		return errors.New("Didn't find MainTabsSettings")
 	}
 
+	// Find power menu item
+	powerExp := regexp.MustCompile(`label:.*"#Power"`)
+	powerLineNum := -1
+	for i, line := range fileLines {
+		if match := powerExp.MatchString(line); match {
+			powerLineNum = i
+			break
+		}
+	}
+	if powerLineNum == -1 {
+		return errors.New("Didn't find Power")
+	}
+
+	// Find createElement for power menu item
+	// We'll use this component for custom menu items
 	createElementExp := regexp.MustCompile(`^.*(\w+\.\w+\.createElement\(.+,).*$`)
 	var createElementStr string
-	for i := settingsLineNum - 1; i >= settingsLineNum-10; i-- {
+	for i := powerLineNum - 1; i >= powerLineNum-10; i-- {
 		matches := createElementExp.FindStringSubmatch(fileLines[i])
 		if len(matches) > 0 {
 			createElementStr = matches[1]
@@ -77,6 +93,10 @@ func patchMenuItems(unminPath, origPath string) error {
 				(item) => ` + createElementStr + `
 					{
 						label: item.label,
+						active: window.csMenuActiveItem && window.csMenuActiveItem === item.id,
+						action: () => {
+							smm.IPC.send('csMenuItemClicked', { id: item.id });
+						},
 					}
 				)),
 			` + line[insertCol:]
@@ -104,7 +124,7 @@ func patchMenuItems(unminPath, origPath string) error {
 		return errors.New("React not found")
 	}
 
-	// Add a callback to force this component to rerender
+	// Add a callback to force this component to rerender the main menu
 	fileLines[returnLineNum] = fmt.Sprintf(`
 		const [, updateState] = %[1]s.useState();
 		window.csMenuUpdate = %[1]s.useCallback(() => {
@@ -112,6 +132,31 @@ func patchMenuItems(unminPath, origPath string) error {
 		}, [updateState]);
 
 	`, react) + fileLines[returnLineNum]
+
+	// Patch active menu items
+	activePropExp := regexp.MustCompile(`\[.*"route".*\]`)
+	activePropLineNum := -1
+	for i := settingsLineNum - 1; i >= settingsLineNum-500; i-- {
+		if match := activePropExp.MatchString(fileLines[i]); match {
+			activePropLineNum = i
+			break
+		}
+	}
+	if activePropLineNum == -1 {
+		return errors.New("route prop not found")
+	}
+
+	found = false
+	for i := activePropLineNum + 1; i <= activePropLineNum+20; i++ {
+		if strings.Contains(fileLines[i], "active:") {
+			fileLines[i] = strings.Replace(fileLines[i], "active:", `active: window.csMenuActiveItem ? false : `, 1)
+			found = true
+			break
+		}
+	}
+	if !found {
+		return errors.New("active not found")
+	}
 
 	fileLines[0] = "// file patched by crankshaft\n" + fileLines[0]
 

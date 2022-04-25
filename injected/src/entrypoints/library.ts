@@ -44,10 +44,8 @@ const main = async () => {
   // Try to permanently enable CEF debugging
   window.SteamClient?.Settings?.SetCefRemoteDebuggingEnabled(true);
 
-  if (window.smmUIMode === 'desktop') {
-    loadCrankshaftSettings(smm);
-    loadPluginManager(smm);
-  }
+  loadCrankshaftSettings(smm);
+  loadPluginManager(smm);
 
   await smm.loadPlugins();
 

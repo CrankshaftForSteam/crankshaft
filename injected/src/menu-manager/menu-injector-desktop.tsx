@@ -1,7 +1,8 @@
 import { puzzleIcon } from '../assets/assets';
 import { dcCreateElement } from '../dom-chef';
+import { SMM } from '../SMM';
 import { deleteAll } from '../util';
-import { MenuInjector } from './menu-manager';
+import { MenuInjector, MenuItem } from './menu-manager';
 import { MENU_DESKTOP_SELECTORS } from './selectors';
 
 // @use-dom-chef
@@ -12,12 +13,18 @@ class InjectError extends Error {
   }
 }
 
-export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
+export class MenuInjectorDesktop implements MenuInjector {
+  private readonly smm: SMM;
   private menuContainer!: HTMLUListElement;
   private modsButton!: HTMLElement;
   private pageContainer!: HTMLDivElement;
+  private itemNodes: Record<string, HTMLElement>;
 
-  constructor() {
+  constructor(smm: SMM) {
+    this.smm = smm;
+
+    this.itemNodes = {};
+
     const collectionsButton = document.querySelector<HTMLDivElement>(
       MENU_DESKTOP_SELECTORS.collectionsButton
     );
@@ -32,9 +39,15 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
     this.createMenuPage(this.modsButton);
   }
 
-  createMenuItem({ id, label }: { id: string; label: string }) {
+  createMenuItem({ id, label, render }: MenuItem) {
+    const handleClick = async (event: MouseEvent) => {
+      event?.stopPropagation();
+      const root = this.getRootForMenuItem(id);
+      await render(this.smm, root);
+    };
+
     const newMenuItem = dcCreateElement<HTMLLIElement>(
-      <li>
+      <li onClick={handleClick} smm-menu-item={id}>
         <button
           style={{
             width: '100%',
@@ -47,9 +60,18 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
       </li>
     );
 
-    this.menuContainer.appendChild(newMenuItem);
+    this.itemNodes[id] = newMenuItem;
 
-    return newMenuItem;
+    this.menuContainer.appendChild(newMenuItem);
+  }
+
+  removeMenuItem(id: string) {
+    if (!this.itemNodes[id]) {
+      return;
+    }
+
+    this.itemNodes[id].remove();
+    delete this.itemNodes[id];
   }
 
   getRootForMenuItem(id: string) {
@@ -181,10 +203,6 @@ export class MenuInjectorDesktop implements MenuInjector<HTMLLIElement> {
         </div>
       )
     );
-  }
-
-  isLoaded() {
-    return document.contains(this.modsButton);
   }
 
   private createMenuPage(modsButton: HTMLElement) {

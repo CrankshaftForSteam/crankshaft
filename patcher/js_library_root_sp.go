@@ -31,7 +31,32 @@ func patchLibraryRootSP(scriptPath, serverPort string) error {
 		return err
 	}
 
-	err = patchCoolClass(unminFilePath, scriptPath, serverPort)
+	// Read the entire file into memory as fileLines for searching and manipulation,
+	// then at the end overwrite the original
+	fileLines, err := pathutil.FileLines(unminFilePath)
+	if err != nil {
+		return err
+	}
+
+	fileLines, err = patchCoolClass(fileLines, scriptPath, serverPort)
+	if err != nil {
+		return err
+	}
+
+	fileLines, err = addButtonInterceptor(fileLines)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Writing patched file to %s\n", scriptPath)
+
+	f, err := os.OpenFile(scriptPath, os.O_WRONLY|os.O_TRUNC, 0755)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.WriteString(strings.Join(fileLines, "\n"))
 	if err != nil {
 		return err
 	}
@@ -47,20 +72,12 @@ that Crankshaft scripts can access it. I don't know exactly what the class
 does, and the name is minified, but it exposes a lot of cool stuff, so lets
 call it coolClass.
 */
-func patchCoolClass(unminPath string, origPath string, serverPort string) error {
-	fmt.Printf("Patching class in %s\n", unminPath)
-
-	// Read the entire file into memory as fileLines for searching and manipulation,
-	// then at the end overwrite the original
-	fileLines, err := pathutil.FileLines(unminPath)
-	if err != nil {
-		return err
-	}
-
+func patchCoolClass(fileLines []string, origPath string, serverPort string) ([]string, error) {
 	constructorLineNum := -1
-	constructorLineNum, err = findCoolClassConstructor(fileLines)
+	constructorLineNum, err := findCoolClassConstructor(fileLines)
 	if err != nil {
 		fmt.Println("Error finding constructor:", err)
+		// TODO: handle these errors properly (for non-SP branch)
 		// return err
 	}
 
@@ -90,20 +107,7 @@ func patchCoolClass(unminPath string, origPath string, serverPort string) error 
 	`, serverPort)
 	insertAtPos(&fileLines, 0, script)
 
-	fmt.Printf("Writing patched file to %s\n", origPath)
-
-	f, err := os.OpenFile(origPath, os.O_WRONLY|os.O_TRUNC, 0755)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, err = f.WriteString(strings.Join(fileLines, "\n"))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return fileLines, nil
 }
 
 // findCoolClassConstructor finds which line the constructor for coolClass is
@@ -129,4 +133,34 @@ func findCoolClassConstructor(fileLines []string) (int, error) {
 	}
 
 	return 0, fmt.Errorf("constructor not found")
+}
+
+func addButtonInterceptor(fileLines []string) ([]string, error) {
+	onButtonDownExp := regexp.MustCompile(`OnButtonDown\((\S+),.+\) {`)
+	found := false
+	for i, line := range fileLines {
+		matches := onButtonDownExp.FindStringSubmatch(line)
+		if len(matches) >= 2 {
+			found = true
+
+			eventCodeArg := matches[1]
+
+			fileLines[i] = line + `
+				if (window.csButtonInterceptors) {
+					for (const { handler } of window.csButtonInterceptors) {
+						if (handler(` + eventCodeArg + `)) {
+							return;
+						}
+					}
+				}
+			`
+
+			break
+		}
+	}
+	if !found {
+		fmt.Println("Didn't find OnButtonDown")
+	}
+
+	return fileLines, nil
 }
