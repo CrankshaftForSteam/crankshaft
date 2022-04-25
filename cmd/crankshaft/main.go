@@ -3,11 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"sync"
+	"time"
 
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -34,6 +36,7 @@ func run() error {
 	skipPatching := flag.Bool("skip-patching", false, "Skip patching Steam client resources")
 	dataDir := flag.String("data-dir", path.Join(xdg.DataHome, "crankshaft"), "Crankshaft data directory")
 	pluginsDir := flag.String("plugins-dir", path.Join(xdg.DataHome, "crankshaft", "plugins"), "Directory to load plugins from")
+	logsDir := flag.String("logs-dir", path.Join(xdg.StateHome, "crankshaft", "logs"), "Directory to write logs to")
 	flag.Parse()
 
 	// Ensure data directory exists
@@ -45,6 +48,23 @@ func run() error {
 	if err := os.MkdirAll(*pluginsDir, 0700); err != nil {
 		return fmt.Errorf(`Error creating plugins directory "%s": %v`, *pluginsDir, err)
 	}
+
+	// Ensure logs directory exists
+	if err := os.MkdirAll(*logsDir, 0700); err != nil {
+		return fmt.Errorf(`Error creating logs directory "%s": %v`, *logsDir, err)
+	}
+
+	// Create log file
+	logFileName := time.Now().Format("2006-01-02-03:04:05")
+	logFile, err := os.OpenFile(path.Join(*logsDir, logFileName), os.O_CREATE|os.O_WRONLY, 0755)
+	if err != nil {
+		return fmt.Errorf(`Error creating log file "%s": %v`, logFileName, err)
+	}
+	defer logFile.Close()
+
+	// Setup logging to write to stdout and log file
+	logWriter := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(logWriter)
 
 	crksftConfig, err := config.NewCrksftConfig(*dataDir)
 	if err != nil {
