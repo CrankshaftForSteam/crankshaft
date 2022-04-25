@@ -2,7 +2,7 @@ package cdp
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/chromedp/cdproto/runtime"
@@ -32,7 +32,7 @@ func GetSteamCtx(debugPort string) (ctx context.Context, cancel func(), err erro
 func WaitForConnection(debugPort string) {
 	steamCtx, cancel, _ := GetSteamCtx(debugPort)
 
-	fmt.Println("Waiting to connect to Steam client...")
+	log.Println("Waiting to connect to Steam client...")
 
 	connected := false
 	for !connected {
@@ -58,7 +58,7 @@ func WaitForConnection(debugPort string) {
 		time.Sleep(1 * time.Second)
 	}
 
-	fmt.Println("Connected!")
+	log.Println("Connected!")
 }
 
 func withAwaitPromise(p *runtime.EvaluateParams) *runtime.EvaluateParams {

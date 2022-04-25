@@ -2,6 +2,7 @@ package patcher
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -10,7 +11,7 @@ import (
 )
 
 func patchLibraryRootSP(scriptPath, serverPort string) error {
-	fmt.Printf("Patching %s...\n", scriptPath)
+	log.Printf("Patching %s...\n", scriptPath)
 
 	checkForOriginal(scriptPath)
 
@@ -19,7 +20,7 @@ func patchLibraryRootSP(scriptPath, serverPort string) error {
 	// defer f.Close()
 	// h := md5.New()
 	// io.Copy(h, f)
-	// fmt.Printf("%x\n", h.Sum(nil))
+	// log.Printf("%x\n", h.Sum(nil))
 
 	// Make a copy of the original, just in case
 	if err := copyOriginal(scriptPath); err != nil {
@@ -48,7 +49,7 @@ func patchLibraryRootSP(scriptPath, serverPort string) error {
 		return err
 	}
 
-	fmt.Printf("Writing patched file to %s\n", scriptPath)
+	log.Printf("Writing patched file to %s\n", scriptPath)
 
 	f, err := os.OpenFile(scriptPath, os.O_WRONLY|os.O_TRUNC, 0755)
 	if err != nil {
@@ -76,7 +77,7 @@ func patchCoolClass(fileLines []string, origPath string, serverPort string) ([]s
 	constructorLineNum := -1
 	constructorLineNum, err := findCoolClassConstructor(fileLines)
 	if err != nil {
-		fmt.Println("Error finding constructor:", err)
+		log.Println("Error finding constructor:", err)
 		// TODO: handle these errors properly (for non-SP branch)
 		// return err
 	}
@@ -159,7 +160,7 @@ func addButtonInterceptor(fileLines []string) ([]string, error) {
 		}
 	}
 	if !found {
-		fmt.Println("Didn't find OnButtonDown")
+		log.Println("Didn't find OnButtonDown")
 	}
 
 	return fileLines, nil

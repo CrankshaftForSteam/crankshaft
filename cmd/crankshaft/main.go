@@ -98,7 +98,7 @@ func run() error {
 			handlers.AllowedOrigins([]string{"https://steamloopback.host"}),
 		)(rpcServer))
 
-		fmt.Println("Listening on :" + *serverPort)
+		log.Println("Listening on :" + *serverPort)
 		log.Fatal(http.ListenAndServe(":"+*serverPort, nil))
 	}()
 
@@ -111,7 +111,7 @@ func run() error {
 
 	// Repatch Steam as it starts and stops
 	for {
-		fmt.Println("Waiting for Steam to start...")
+		log.Println("Waiting for Steam to start...")
 		ps.WaitForSteamProcess()
 
 		cdp.WaitForConnection(*debugPort)

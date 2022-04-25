@@ -3,6 +3,7 @@ package patcher
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -11,7 +12,7 @@ import (
 )
 
 func patchSP(scriptPath string) error {
-	fmt.Printf("Patching %s...\n", scriptPath)
+	log.Printf("Patching %s...\n", scriptPath)
 
 	checkForOriginal(scriptPath)
 
@@ -36,7 +37,7 @@ patchMenuItems patches the Steam Deck UI to support loading arbitrary main menu
 items.
 */
 func patchMenuItems(unminPath, origPath string) error {
-	fmt.Printf("Patching main menu in %s\n", unminPath)
+	log.Printf("Patching main menu in %s\n", unminPath)
 
 	fileLines, err := pathutil.FileLines(unminPath)
 	if err != nil {

@@ -2,8 +2,8 @@ package network
 
 import (
 	"context"
-	"fmt"
 	"io"
+	"log"
 )
 
 type DownloadProgressReader struct {
@@ -33,7 +33,7 @@ func (dpr *DownloadProgressReader) Read(b []byte) (int, error) {
 
 	// Check if download was cancelled/timed out
 	if err := (*dpr.ctx).Err(); err == context.Canceled || err == context.DeadlineExceeded {
-		fmt.Println("Download stopped", dpr.downloadId)
+		log.Println("Download stopped", dpr.downloadId)
 		return bytesRead, io.EOF
 	}
 

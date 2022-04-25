@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"text/template"
 
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -14,7 +15,7 @@ import (
 const VERSION = "0.1.0"
 
 func BundleScripts() error {
-	fmt.Println("Bundling scripts to inject...")
+	log.Println("Bundling scripts to inject...")
 
 	// TODO: get sourcemaps working
 	// I tried inline sourcemaps, and aside from being massive, they were broken

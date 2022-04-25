@@ -2,6 +2,7 @@ package inject
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -26,22 +27,22 @@ type InjectArgs struct{}
 type InjectReply struct{}
 
 func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *InjectReply) error {
-	fmt.Println("Injecting scripts...")
+	log.Println("Injecting scripts...")
 
 	err := cdp.WaitForLibraryEl(service.debugPort)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return err
 	}
 
 	steamClient, err := cdp.NewSteamClient(service.debugPort)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return err
 	}
 	defer steamClient.Cancel()
 
-	fmt.Println("Client mode:", steamClient.UiMode)
+	log.Println("Client mode:", steamClient.UiMode)
 
 	// TODO: this code is awful and terrible aaaaaaaaaaaaaaaaaaaaa
 
@@ -50,7 +51,7 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 	if service.devMode {
 		sharedScript, err = build.BundleSharedScripts()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return fmt.Errorf("Failed to build shared scripts: %v", err)
 		}
 	}
@@ -60,7 +61,7 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 		err = steamClient.RunScriptInMenu(sharedScript)
 	}
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return fmt.Errorf("Error injecting shared script: %v", err)
 	}
 
@@ -75,14 +76,14 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 
 		if entrypoints.Library {
 			if err := steamClient.RunScriptInLibrary(plugin.Script); err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return fmt.Errorf(`Error injecting plugin "%s" into library: %v`, plugin.Config.Name, err)
 			}
 		}
 
 		if entrypoints.Menu {
 			if err := steamClient.RunScriptInMenu(plugin.Script); err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return fmt.Errorf(`Error injecting plugin "%s" into menu: %v`, plugin.Config.Name, err)
 			}
 		}
@@ -97,12 +98,12 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 		libraryEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, libraryScript)
 	}
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return fmt.Errorf("Failed to build library eval script: %w", err)
 	}
 
 	if err := steamClient.RunScriptInLibrary(libraryEvalScript); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return fmt.Errorf("Error injecting library script: %w", err)
 	}
 
@@ -116,12 +117,12 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 			menuEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, menuScript)
 		}
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return fmt.Errorf("Failed to build menu eval script: %w", err)
 		}
 
 		if err := steamClient.RunScriptInMenu(menuEvalScript); err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return fmt.Errorf("Error injecting menu script: %w", err)
 		}
 	}

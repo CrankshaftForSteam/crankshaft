@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path"
 
@@ -47,7 +48,7 @@ func NewCrksftConfig(dataDir string) (*CrksftConfig, error) {
 func (c *CrksftConfig) Write() error {
 	file, err := os.OpenFile(c.filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return err
 	}
 	defer file.Close()

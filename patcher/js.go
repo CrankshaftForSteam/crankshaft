@@ -2,7 +2,7 @@ package patcher
 
 import (
 	"bufio"
-	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -65,20 +65,20 @@ func checkForOriginal(scriptPath string) error {
 
 func copyOriginal(scriptPath string) error {
 	copyPath := pathutil.AddExtPrefix(scriptPath, ".orig")
-	fmt.Printf("Copying original %s to %s...\n", scriptPath, copyPath)
+	log.Printf("Copying original %s to %s...\n", scriptPath, copyPath)
 	return pathutil.Copy(scriptPath, copyPath)
 }
 
 // unmin unminifies the speecifid Javascript file with js-beautify and returns
 // the unminified file path.
 func unmin(filePath string, flags ...string) (string, error) {
-	fmt.Println("Unminifying...")
+	log.Println("Unminifying...")
 
 	// foo.js will be unminified to foo.unmin.js
 	unminFilePath := pathutil.AddExtPrefix(filePath, ".unmin")
 
 	cmd := exec.Command(jsBeautifyBin, append([]string{filePath, "-o", unminFilePath}, flags...)...)
-	fmt.Println(cmd.String())
+	log.Println(cmd.String())
 	if err := cmd.Run(); err != nil {
 		return "", err
 	}

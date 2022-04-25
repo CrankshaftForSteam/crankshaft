@@ -1,8 +1,8 @@
 package network
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -18,14 +18,14 @@ type GetReply struct {
 func (service *NetworkService) Get(r *http.Request, req *GetArgs, res *GetReply) error {
 	getRes, err := http.Get(req.Url)
 	if err != nil {
-		fmt.Println("Error fetching", req.Url)
+		log.Println("Error fetching", req.Url)
 		return err
 	}
 	defer getRes.Body.Close()
 
 	data, err := ioutil.ReadAll(getRes.Body)
 	if err != nil {
-		fmt.Println("Error reading response body", err)
+		log.Println("Error reading response body", err)
 		return err
 	}
 

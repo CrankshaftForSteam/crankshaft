@@ -1,7 +1,7 @@
 package rpc
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -29,7 +29,7 @@ func (service *FSService) ListDir(r *http.Request, req *ListDirArgs, res *ListDi
 
 	c, err := os.ReadDir(path)
 	if err != nil {
-		fmt.Println("Error reading dir", err)
+		log.Println("Error reading dir", err)
 		return err
 	}
 
@@ -57,7 +57,7 @@ func (service *FSService) ReadFile(r *http.Request, req *ReadFileArgs, res *Read
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Println("Error reading file", err)
+		log.Println("Error reading file", err)
 		return err
 	}
 
@@ -79,7 +79,7 @@ func (service *FSService) Untar(r *http.Request, req *UntarArgs, res *UntarReply
 
 	// TODO: handle errors when im not tired
 	cmd := exec.Command("tar", "-xf", tarPath, "-C", destPath)
-	fmt.Println("untar command", cmd.String())
+	log.Println("untar command", cmd.String())
 	_ = cmd.Run()
 
 	/*
@@ -88,14 +88,14 @@ func (service *FSService) Untar(r *http.Request, req *UntarArgs, res *UntarReply
 
 		f, err := os.Open(tarPath)
 		if err != nil {
-			fmt.Println("Error opening tar file", tarPath)
+			log.Println("Error opening tar file", tarPath)
 			return err
 		}
 		defer f.Close()
 
 		err = untar.Untar(f, destPath)
 		if err != nil {
-			fmt.Println("Error untaring file", tarPath, destPath)
+			log.Println("Error untaring file", tarPath, destPath)
 			return err
 		}
 	*/

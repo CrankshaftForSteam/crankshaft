@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/evanw/esbuild/pkg/api"
 )
@@ -12,7 +13,7 @@ func buildPluginScript(script string, name string) (string, error) {
 		GlobalName: "smmPlugins['" + name + "']",
 	})
 	if len(res.Errors) > 0 {
-		fmt.Println(res.Errors)
+		log.Println(res.Errors)
 		return "", fmt.Errorf("Error transforming plugin script.")
 	}
 

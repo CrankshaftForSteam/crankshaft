@@ -1,7 +1,7 @@
 package ps
 
 import (
-	"fmt"
+	"log"
 	"os/exec"
 	"time"
 )
@@ -14,14 +14,14 @@ func IsSteamRunning() bool {
 
 // WaitForSteamProcess waits for the steamwebhelper process to start.
 func WaitForSteamProcess() {
-	fmt.Println("Waiting for steamwebhelper...")
+	log.Println("Waiting for steamwebhelper...")
 	for {
 		if IsSteamRunning() {
 			break
 		}
 		time.Sleep(1 * time.Second)
 	}
-	fmt.Println("steamwebhelper found!")
+	log.Println("steamwebhelper found!")
 }
 
 // WaitForSteamProcessToStop waits for the steamwebhelper process to stop.

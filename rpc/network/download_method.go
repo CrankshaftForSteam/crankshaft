@@ -3,8 +3,8 @@ package network
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -34,21 +34,21 @@ func (service *NetworkService) Download(r *http.Request, req *DownloadArgs, res 
 	path := pathutil.SubstituteHomeDir(req.Path)
 
 	out, err := os.Create(path)
-	fmt.Println("Created file", path)
+	log.Println("Created file", path)
 	if err != nil {
-		fmt.Println("Error creating download file", req.Url)
+		log.Println("Error creating download file", req.Url)
 		return err
 	}
 	defer out.Close()
 
 	getRes, err := http.Get(req.Url)
-	fmt.Println("got file", req.Url)
+	log.Println("got file", req.Url)
 	if err != nil {
-		fmt.Println("Error getting download", req.Url)
+		log.Println("Error getting download", req.Url)
 		return err
 	}
 	if getRes.StatusCode != 200 {
-		fmt.Println("Download returned non-200 status", req.Url)
+		log.Println("Download returned non-200 status", req.Url)
 		return errors.New("Download returned non-200 status")
 	}
 	defer getRes.Body.Close()
@@ -57,19 +57,19 @@ func (service *NetworkService) Download(r *http.Request, req *DownloadArgs, res 
 	defer cancel()
 
 	_, err = io.Copy(out, NewDownloadProgressReader(getRes.Body, &downloadCtx, service, req.Id, getRes.ContentLength))
-	fmt.Println("copied file", req.Url, path)
+	log.Println("copied file", req.Url, path)
 	if err != nil {
-		fmt.Println("Error saving file", req.Url)
+		log.Println("Error saving file", req.Url)
 		return err
 	}
 
 	if downloadErr := downloadCtx.Err(); downloadErr != nil {
 		switch downloadErr {
 		case context.Canceled:
-			fmt.Println("Download cancelled")
+			log.Println("Download cancelled")
 			return downloadErr
 		case context.DeadlineExceeded:
-			fmt.Println("Download timeout")
+			log.Println("Download timeout")
 			res.Status = DownloadStatusTimeout
 			return nil
 		}

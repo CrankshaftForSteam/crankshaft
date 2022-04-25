@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -60,10 +61,10 @@ func NewPlugins(crksftConfig *config.CrksftConfig, pluginsDir string) (*Plugins,
 			return nil, err
 		}
 
-		fmt.Printf("Building plugin script \"%s\"...\n", pluginName)
+		log.Printf("Building plugin script \"%s\"...\n", pluginName)
 		script, err := buildPluginScript(string(data), pluginName)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return nil, err
 		}
 
