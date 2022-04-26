@@ -3,6 +3,7 @@ packages:
   - go
   - yarn
   - wget
+  - libappindicator-gtk3
 sources:
   - https://git.sr.ht/~avery/crankshaft
 artifacts:
