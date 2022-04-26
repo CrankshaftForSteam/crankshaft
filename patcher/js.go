@@ -77,7 +77,7 @@ func unmin(filePath string, flags ...string) (string, error) {
 	// foo.js will be unminified to foo.unmin.js
 	unminFilePath := pathutil.AddExtPrefix(filePath, ".unmin")
 
-	cmd := exec.Command(jsBeautifyBin, append([]string{filePath, "-o", unminFilePath}, flags...)...)
+	cmd := exec.Command(jsBeautifyBin, append([]string{"-o", unminFilePath, filePath}, flags...)...)
 	log.Println(cmd.String())
 	if err := cmd.Run(); err != nil {
 		return "", err
