@@ -1,6 +1,6 @@
+import register from '@avery42/preact-custom-element';
 import classNames from 'classnames';
 import { FunctionComponent, JSX } from 'preact';
-import register from 'preact-custom-element';
 
 const buttonStyles = `
 	.cs-button {

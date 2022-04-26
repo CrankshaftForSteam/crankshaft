@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@avery42/preact-custom-element@^4.2.1":
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/@avery42/preact-custom-element/-/preact-custom-element-4.2.1.tgz#dc6493004e7ebed30ef7be4adedcd4a4adc99752"
+  integrity sha512-7dlldhWh6QHaiw+Y90G+IK59iING7/r3wpd5eHfxqNZDnGw2a6UE+QTFwyuHc4U+fWirTubMq1bTC4bda2yvJA==
+
 "@types/prop-types@*":
   version "15.7.4"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.4.tgz#fcf7205c25dff795ee79af1e30da2c9790808f11"
@@ -37,10 +42,6 @@ dom-chef@5.0.0:
   integrity sha512-xiGau3sdcuJ1ptdUx6TYjMGZrQ3YMD1WJhQ/IN08TSwXM9chyuQOk7YmHffkrMpY8S52Otw3YIqAZ2EwMFYwpQ==
   dependencies:
     "@types/react" "^17.0.3"
-
-"preact-custom-element@https://github.com/coolavery/preact-custom-element.git":
-  version "4.2.1"
-  resolved "https://github.com/coolavery/preact-custom-element.git#afd47e324033213c229d87db932db050c7bcac93"
 
 preact@^10.7.1:
   version "10.7.1"
