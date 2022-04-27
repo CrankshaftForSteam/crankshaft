@@ -52,3 +52,10 @@ release: clean bundle-scripts
 	# TODO: this link expires in 90 days lol
 	wget -O .dist/js-beautify https://patchouli.sr.ht/builds.sr.ht/artifacts/~avery/741873/249ceb5c7c3dfa54/js-beautify
 	chmod +x .dist/js-beautify
+
+.PHONY: flatpak
+flatpak: bundle-scripts
+	mkdir rpc/inject/scripts
+	cp .build/* rpc/inject/scripts
+	go run cmd/bundle-scripts/main.go
+	go build -o crankshaft cmd/crankshaft/main.go
