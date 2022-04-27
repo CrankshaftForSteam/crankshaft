@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 
+	"git.sr.ht/~avery/crankshaft/executil"
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
@@ -78,7 +78,7 @@ func (service *FSService) Untar(r *http.Request, req *UntarArgs, res *UntarReply
 	destPath := pathutil.SubstituteHomeDir(req.DestPath)
 
 	// TODO: handle errors when im not tired
-	cmd := exec.Command("tar", "-xf", tarPath, "-C", destPath)
+	cmd := executil.Command("tar", "-xf", tarPath, "-C", destPath)
 	log.Println("untar command", cmd.String())
 	_ = cmd.Run()
 

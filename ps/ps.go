@@ -2,13 +2,14 @@ package ps
 
 import (
 	"log"
-	"os/exec"
 	"time"
+
+	"git.sr.ht/~avery/crankshaft/executil"
 )
 
 // IsSteamRunning checks if the steamwebhelper process is running.
 func IsSteamRunning() bool {
-	cmd := exec.Command("bash", "-c", "ps -ef | grep steamwebhelper | grep -v grep")
+	cmd := executil.Command("bash", "-c", "ps -ef | grep steamwebhelper | grep -v grep")
 	return cmd.Run() == nil
 }
 
