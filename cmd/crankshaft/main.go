@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -21,7 +20,6 @@ import (
 	"git.sr.ht/~avery/crankshaft/rpc"
 	"git.sr.ht/~avery/crankshaft/tray"
 	"git.sr.ht/~avery/crankshaft/ws"
-	"github.com/adrg/xdg"
 	"github.com/gorilla/handlers"
 )
 
@@ -32,32 +30,26 @@ func main() {
 }
 
 func run() error {
-	debugPort := flag.String("debug-port", "8080", "CEF debug port")
-	serverPort := flag.String("server-port", "8085", "Port to run HTTP/websocket server on")
-	skipPatching := flag.Bool("skip-patching", false, "Skip patching Steam client resources")
-	dataDir := flag.String("data-dir", path.Join(xdg.DataHome, "crankshaft"), "Crankshaft data directory")
-	pluginsDir := flag.String("plugins-dir", path.Join(xdg.DataHome, "crankshaft", "plugins"), "Directory to load plugins from")
-	logsDir := flag.String("logs-dir", path.Join(xdg.StateHome, "crankshaft", "logs"), "Directory to write logs to")
-	flag.Parse()
+	debugPort, serverPort, skipPatching, dataDir, pluginsDir, logsDir := config.ParseFlags()
 
 	// Ensure data directory exists
-	if err := os.MkdirAll(*dataDir, 0700); err != nil {
-		return fmt.Errorf(`Error creating data directory "%s": %v`, *dataDir, err)
+	if err := os.MkdirAll(dataDir, 0700); err != nil {
+		return fmt.Errorf(`Error creating data directory "%s": %v`, dataDir, err)
 	}
 
 	// Ensure plugins directory exists
-	if err := os.MkdirAll(*pluginsDir, 0700); err != nil {
-		return fmt.Errorf(`Error creating plugins directory "%s": %v`, *pluginsDir, err)
+	if err := os.MkdirAll(pluginsDir, 0700); err != nil {
+		return fmt.Errorf(`Error creating plugins directory "%s": %v`, pluginsDir, err)
 	}
 
 	// Ensure logs directory exists
-	if err := os.MkdirAll(*logsDir, 0700); err != nil {
-		return fmt.Errorf(`Error creating logs directory "%s": %v`, *logsDir, err)
+	if err := os.MkdirAll(logsDir, 0700); err != nil {
+		return fmt.Errorf(`Error creating logs directory "%s": %v`, logsDir, err)
 	}
 
 	// Create log file
 	logFileName := time.Now().Format("2006-01-02-03:04:05")
-	logFile, err := os.OpenFile(path.Join(*logsDir, logFileName), os.O_CREATE|os.O_WRONLY, 0755)
+	logFile, err := os.OpenFile(path.Join(logsDir, logFileName), os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		return fmt.Errorf(`Error creating log file "%s": %v`, logFileName, err)
 	}
@@ -67,20 +59,20 @@ func run() error {
 	logWriter := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(logWriter)
 
-	crksftConfig, err := config.NewCrksftConfig(*dataDir)
+	crksftConfig, err := config.NewCrksftConfig(dataDir)
 	if err != nil {
 		return err
 	}
 
-	plugins, err := plugins.NewPlugins(crksftConfig, *pluginsDir)
+	plugins, err := plugins.NewPlugins(crksftConfig, pluginsDir)
 	if err != nil {
 		return err
 	}
 
 	waitAndPatch := func() {
-		cdp.WaitForConnection(*debugPort)
-		cdp.WaitForLibraryEl(*debugPort)
-		patcher.Patch(*debugPort, *serverPort)
+		cdp.WaitForConnection(debugPort)
+		cdp.WaitForLibraryEl(debugPort)
+		patcher.Patch(debugPort, serverPort)
 	}
 
 	reloadChannel := make(chan struct{})
@@ -105,7 +97,7 @@ func run() error {
 
 	// If Steam is already running we can patch it while bundling
 	alreadyPatched := false
-	if ps.IsSteamRunning() && !*skipPatching {
+	if ps.IsSteamRunning() && !skipPatching {
 		wg.Add(1)
 		alreadyPatched = true
 
@@ -124,7 +116,7 @@ func run() error {
 			ws.ServeWs(hub, w, r)
 		})
 
-		rpcServer := rpc.HandleRpc(*debugPort, *serverPort, plugins, devmode.DevMode, hub)
+		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, devmode.DevMode, hub)
 
 		http.Handle("/rpc", handlers.CORS(
 			handlers.AllowedHeaders([]string{"Content-Type"}),
@@ -132,8 +124,8 @@ func run() error {
 			handlers.AllowedOrigins([]string{"https://steamloopback.host"}),
 		)(rpcServer))
 
-		log.Println("Listening on :" + *serverPort)
-		log.Fatal(http.ListenAndServe(":"+*serverPort, nil))
+		log.Println("Listening on :" + serverPort)
+		log.Fatal(http.ListenAndServe(":"+serverPort, nil))
 	}()
 
 	wg.Wait()

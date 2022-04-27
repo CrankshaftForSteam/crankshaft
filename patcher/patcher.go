@@ -4,11 +4,11 @@ package patcher
 import (
 	"path"
 
-	"github.com/adrg/xdg"
+	"git.sr.ht/~avery/crankshaft/config"
 )
 
 func getSteamUiPath() string {
-	return path.Join(xdg.DataHome, "Steam", "steamui")
+	return path.Join(config.GetXdgDataHome(), "Steam", "steamui")
 }
 
 // Patch patches necessary Steam resources.
