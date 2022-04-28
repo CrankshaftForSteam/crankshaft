@@ -75,14 +75,17 @@ func run() error {
 		patcher.Patch(debugPort, serverPort)
 	}
 
-	reloadChannel := make(chan struct{})
-	go tray.StartTray(reloadChannel)
-	go func() {
-		for {
-			<-reloadChannel
-			waitAndPatch()
-		}
-	}()
+	if len(os.Getenv("DISPLAY")) != 0 {
+		log.Println("Starting system tray icon...")
+		reloadChannel := make(chan struct{})
+		go tray.StartTray(reloadChannel)
+		go func() {
+			for {
+				<-reloadChannel
+				waitAndPatch()
+			}
+		}()
+	}
 
 	// Patch and bundle in parallel
 	var wg sync.WaitGroup
