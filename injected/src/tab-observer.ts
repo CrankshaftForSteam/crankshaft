@@ -35,7 +35,7 @@ export const createTabObserver = (smm: SMM, mainLibraryEl: HTMLElement) => {
         const appId = new URL(storeUrl).pathname.split('/')[2];
 
         const appName = document.querySelector(
-          SHARED_SELECTORS.appDetailsName
+          DESKTOP_SELECTORS.selectedEntry
         )?.textContent;
         if (!appName) {
           return;

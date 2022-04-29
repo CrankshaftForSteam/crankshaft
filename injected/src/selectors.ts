@@ -7,6 +7,7 @@ export const SHARED_SELECTORS = {
 export const DESKTOP_SELECTORS = {
   collections: '[class*=allcollections_Container]',
   appDetailsStoreLink: 'a[class^=appdetailsprimarylinkssection]',
+  selectedEntry: '[class*=gamelistentry_Selected_]',
 };
 
 export const DECK_SELECTORS = {
