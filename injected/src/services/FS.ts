@@ -19,6 +19,16 @@ export class FS extends Service {
     return (await getRes()).contents;
   }
 
+  async mkDir(path: string, parents: boolean = false) {
+    info('mkDir', path, parents);
+
+    const { getRes } = rpcRequest<{ path: string; parents: boolean }, {}>(
+      'FSService.MkDir',
+      { path, parents }
+    );
+    return getRes();
+  }
+
   async readFile(path: string) {
     info('readFile', path);
 

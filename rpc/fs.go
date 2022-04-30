@@ -44,6 +44,22 @@ func (service *FSService) ListDir(r *http.Request, req *ListDirArgs, res *ListDi
 	return nil
 }
 
+type MakeDirArgs struct {
+	Path    string `json:"path"`
+	Parents bool   `json:"parents"`
+}
+
+type MakeDirReply struct{}
+
+func (service *FSService) MkDir(r *http.Request, req *MakeDirArgs, res *MakeDirReply) error {
+	path := pathutil.SubstituteHomeDir(req.Path)
+	if req.Parents {
+		// TODO: allow specifying mode
+		return os.MkdirAll(path, 0755)
+	}
+	return os.Mkdir(path, 0755)
+}
+
 type ReadFileArgs struct {
 	Path string `json:"path"`
 }
