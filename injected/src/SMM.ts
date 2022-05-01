@@ -4,6 +4,7 @@ import { IPC } from './services/IPC';
 import { Network } from './services/Network';
 import { Plugins } from './services/Plugins';
 import { Toast } from './services/Toast';
+import { UI } from './services/ui';
 import { info } from './util';
 
 type PluginId = string;
@@ -22,6 +23,7 @@ export class SMM extends EventTarget {
   readonly FS: FS;
   readonly Plugins: Plugins;
   readonly IPC: IPC;
+  readonly UI: UI;
 
   readonly serverPort: string;
 
@@ -52,6 +54,7 @@ export class SMM extends EventTarget {
     this.FS = new FS(this);
     this.Plugins = new Plugins(this);
     this.IPC = new IPC(this);
+    this.UI = new UI(this);
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);
