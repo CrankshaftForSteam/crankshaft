@@ -21,9 +21,10 @@ type entrypoint struct {
 }
 
 type pluginConfig struct {
-	Name   string `json:"name"`
-	Link   string `json:"link"`
-	Source string `json:"source"`
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	Link    string `json:"link"`
+	Source  string `json:"source"`
 
 	Author authorInfo `json:"author"`
 

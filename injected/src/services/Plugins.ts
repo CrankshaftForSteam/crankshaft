@@ -11,6 +11,7 @@ export interface Plugin {
   dir: string;
   config: {
     name: string;
+    version: string;
     link: string;
     source: string;
 
