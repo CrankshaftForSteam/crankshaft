@@ -1,0 +1,7 @@
+[data-smm-menu-page] a {
+  color: var(--cs-col-primary);
+}
+
+[data-smm-menu-page] p {
+  margin: 8px 0;
+}

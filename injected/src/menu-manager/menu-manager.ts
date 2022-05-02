@@ -2,6 +2,7 @@ import { SMM } from '../SMM';
 import { info } from '../util';
 import { MenuInjectorDeck } from './menu-injector-deck';
 import { MenuInjectorDesktop } from './menu-injector-desktop';
+import styles from './styles.css';
 
 type MenuItemRender = (smm: SMM, root: HTMLElement) => void | Promise<void>;
 
@@ -36,6 +37,15 @@ export class MenuManager {
       info('Injecting MenuManager for Deck menu');
       this.injector = new MenuInjectorDeck(this.smm, this);
     }
+
+    (async () => {
+      const stylesheet = new CSSStyleSheet() as any;
+      await stylesheet.replace(styles);
+      (document as any).adoptedStyleSheets = [
+        ...(document as any).adoptedStyleSheets,
+        stylesheet,
+      ];
+    })();
   }
 
   reload() {

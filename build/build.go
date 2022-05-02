@@ -36,6 +36,8 @@ func BundleScripts() error {
 		Inject:      []string{"injected/preact-shim.js"},
 		Loader: map[string]api.Loader{
 			".svg": api.LoaderDataURL,
+			// CSS will be loaded directly from javascript
+			".css": api.LoaderText,
 		},
 		Define: map[string]string{
 			"process": `{"env":{"NODE_ENV":"development"}}`,

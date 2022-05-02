@@ -145,7 +145,6 @@ export class MenuInjectorDesktop implements MenuInjector {
           .smm-menu-item-button:focus-visible {
             outline: auto 1px white;
           }
-
         `}</style>
       )
     );
