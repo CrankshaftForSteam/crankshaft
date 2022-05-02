@@ -32,6 +32,11 @@ const buttonStyles = `
 		background-color: white;
 		color: black;
 	}
+
+	.cs-button:disabled {
+		background-color: var(--cs-col-secondary);
+		cursor: auto;
+	}
 `;
 
 export type ButtonProps = JSX.HTMLAttributes<HTMLButtonElement>;
