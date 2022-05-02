@@ -24,7 +24,10 @@ export class Toast extends Service {
 
     deleteAll('[data-smm-toasts]');
 
-    render(<ToastsContainer toastEvents={this.toastEvents} />, document.body);
+    render(
+      <ToastsContainer toastEvents={this.toastEvents} />,
+      document.body.appendChild(document.createElement('div'))
+    );
   }
 
   addToast(message: string, level: ToastLevel = 'error') {
