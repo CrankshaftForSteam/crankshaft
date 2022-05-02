@@ -52,7 +52,7 @@ const Button: FunctionComponent<ButtonProps> = (props) => (
 );
 
 export default (css: CSSStyleSheet) => {
-  register(Button, 'cs-button', [], {
+  register(Button, 'cs-button', ['disabled'], {
     shadow: true,
     adoptedStyleSheets: [css],
   });

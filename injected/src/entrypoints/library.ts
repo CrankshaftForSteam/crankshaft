@@ -1,4 +1,8 @@
-import { loadCrankshaftSettings, loadPluginManager } from '../internal-plugins';
+import {
+  loadCrankshaftSettings,
+  loadPluginBrowser,
+  loadPluginManager,
+} from '../internal-plugins';
 import { getSelectorByMode } from '../selectors';
 import { SMM } from '../SMM';
 import { createTabObserver } from '../tab-observer';
@@ -46,6 +50,7 @@ const main = async () => {
 
   loadCrankshaftSettings(smm);
   loadPluginManager(smm);
+  loadPluginBrowser(smm);
 
   await smm.loadPlugins();
 
