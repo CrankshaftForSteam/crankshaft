@@ -8,11 +8,12 @@ type ToastLevel = 'error' | 'info' | 'success';
 interface AddToastInfo {
   message: string;
   level: ToastLevel;
+  timeout?: number;
 }
 
 type AddToastEvent = CustomEvent<AddToastInfo>;
 
-const TOAST_TIMEOUT = 3000;
+const DEFAULT_TOAST_TIMEOUT = 3000;
 
 export class Toast extends Service {
   private readonly toastEvents: EventTarget;
@@ -30,9 +31,15 @@ export class Toast extends Service {
     );
   }
 
-  addToast(message: string, level: ToastLevel = 'error') {
+  addToast(
+    message: string,
+    level: ToastLevel = 'error',
+    options?: { timeout?: number }
+  ) {
     this.toastEvents.dispatchEvent(
-      new CustomEvent<AddToastInfo>('addToast', { detail: { message, level } })
+      new CustomEvent<AddToastInfo>('addToast', {
+        detail: { message, level, timeout: options?.timeout },
+      })
     );
   }
 }
@@ -44,8 +51,8 @@ const ToastsContainer: FunctionComponent<{ toastEvents: EventTarget }> = ({
 
   useEffect(() => {
     toastEvents.addEventListener('addToast', (e: Event) => {
-      const { message, level } = (e as AddToastEvent).detail;
-      setToasts((prev) => [...prev, { id: uuidv4(), message, level }]);
+      const { message, level, timeout } = (e as AddToastEvent).detail;
+      setToasts((prev) => [...prev, { id: uuidv4(), message, level, timeout }]);
     });
   }, [toastEvents, setToasts]);
 
@@ -87,7 +94,7 @@ const ToastsContainer: FunctionComponent<{ toastEvents: EventTarget }> = ({
 const ToastItem: FunctionComponent<{
   toast: AddToastInfo;
   onRemove: () => void;
-}> = ({ toast: { message, level }, onRemove }) => {
+}> = ({ toast: { message, level, timeout }, onRemove }) => {
   const toastEl = useRef<HTMLLIElement>(null);
 
   const removeToast = useCallback(async () => {
@@ -109,14 +116,14 @@ const ToastItem: FunctionComponent<{
         return;
       }
 
-      setTimeout(removeToast, TOAST_TIMEOUT);
+      setTimeout(removeToast, timeout ?? DEFAULT_TOAST_TIMEOUT);
 
       await toastEl.current.animate([{ opacity: 1 }], {
         duration: 300,
         fill: 'forwards',
       }).finished;
     })();
-  }, [toastEl, removeToast]);
+  }, [toastEl, removeToast, timeout]);
 
   return (
     <li
