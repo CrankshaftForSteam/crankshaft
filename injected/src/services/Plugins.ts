@@ -55,4 +55,12 @@ export class Plugins extends Service {
     await this.smm.unloadPlugin(pluginName);
     await this.setEnabled(pluginName, false);
   }
+
+  async injectPlugin(pluginId: string) {
+    const { getRes } = rpcRequest<{ pluginId: string }, {}>(
+      'InjectService.InjectPlugin',
+      { pluginId }
+    );
+    return getRes();
+  }
 }

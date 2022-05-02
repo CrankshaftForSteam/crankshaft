@@ -103,3 +103,10 @@ func (p *Plugins) SetEnabled(pluginId string, enabled bool) error {
 
 	return nil
 }
+
+func (p *Plugins) Reload() error {
+	log.Println("Reloading plugins...")
+	newPlugins, err := NewPlugins(p.crksftConfig, p.pluginsDir)
+	*p = *newPlugins
+	return err
+}

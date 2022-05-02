@@ -72,20 +72,9 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 	time.Sleep(1 * time.Second)
 
 	for _, plugin := range service.plugins.PluginMap {
-		entrypoints := plugin.Config.Entrypoints[steamClient.UiMode]
-
-		if entrypoints.Library {
-			if err := steamClient.RunScriptInLibrary(plugin.Script); err != nil {
-				log.Println(err)
-				return fmt.Errorf(`Error injecting plugin "%s" into library: %v`, plugin.Config.Name, err)
-			}
-		}
-
-		if entrypoints.Menu {
-			if err := steamClient.RunScriptInMenu(plugin.Script); err != nil {
-				log.Println(err)
-				return fmt.Errorf(`Error injecting plugin "%s" into menu: %v`, plugin.Config.Name, err)
-			}
+		if err := injectPlugin(steamClient, plugin); err != nil {
+			log.Println(err)
+			return err
 		}
 	}
 
