@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>space.crankshaft.Crankshaft</id>
+
   <metadata_license>FSFAP</metadata_license>
   <project_license>GPL-3.0</project_license>
+
+  <content_rating type="oars-1.1" />
+
   <name>Crankshaft</name>
   <summary>Steam client plugin manager and framework</summary>
 
@@ -21,18 +25,28 @@
 
   <screenshots>
     <screenshot type="default">
-      <caption>The built-in plugin browser, where you can install new plugins with one click.</caption>
+      <caption>The built-in plugin browser, where you can install new plugins with one click</caption>
       <image>https://crankshaft.space/appstream-screenshots/desktop.png</image>
     </screenshot>
     <screenshot>
-      <caption>Compatibility Tools Manager plugin running in Steam Deck mode.</caption>
+      <caption>Compatibility Tools Manager plugin running in Steam Deck mode</caption>
       <image>https://crankshaft.space/appstream-screenshots/deck-compatibility-tools.png</image>
     </screenshot>
     <screenshot>
-      <caption>ProtonDB Indicator plugin running in Steam Deck mode.</caption>
+      <caption>ProtonDB Indicator plugin running in Steam Deck mode</caption>
       <image>https://crankshaft.space/appstream-screenshots/deck-protondb-indicator.png</image>
     </screenshot>
   </screenshots>
 
   <url type="homepage">https://crankshaft.space/</url>
+
+  <releases>
+    <release version="0.1.0" date="2021-05-11">
+      <description>
+        <p>Initial release.</p>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.0</url>
+    </release>
+  </releases>
 </component>
