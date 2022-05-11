@@ -31,7 +31,7 @@ type DownloadReply struct {
 }
 
 func (service *NetworkService) Download(r *http.Request, req *DownloadArgs, res *DownloadReply) error {
-	path := pathutil.SubstituteHomeDir(req.Path)
+	path := pathutil.SubstituteHomeAndXdg(req.Path)
 
 	out, err := os.Create(path)
 	log.Println("Created file", path)

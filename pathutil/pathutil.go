@@ -8,6 +8,8 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"github.com/adrg/xdg"
 )
 
 var getCurrentUser = user.Current
@@ -20,6 +22,17 @@ func SubstituteHomeDir(path string) string {
 	if strings.HasPrefix(path, "~") {
 		return filepath.Join(homeDir, path[2:])
 	}
+	return path
+}
+
+// SubstituteHomeDir takes a path that might be prefixed with `~`, or may
+// contain XDG variables, and substitutes them with the appropriate path.
+func SubstituteHomeAndXdg(path string) string {
+	path = SubstituteHomeDir(path)
+	path = strings.ReplaceAll(path, "$XDG_CACHE", xdg.CacheHome)
+	path = strings.ReplaceAll(path, "$XDG_CONFIG", xdg.ConfigHome)
+	path = strings.ReplaceAll(path, "$XDG_DATA", xdg.DataHome)
+	path = strings.ReplaceAll(path, "$XDG_STATE", xdg.StateHome)
 	return path
 }
 

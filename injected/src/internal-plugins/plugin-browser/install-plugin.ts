@@ -7,7 +7,7 @@ import {
 } from '../../services/Network';
 import { SMM } from '../../SMM';
 
-const PLUGINS_DIR = '~/.local/share/crankshaft/plugins';
+const PLUGINS_DIR = '$XDG_DATA/crankshaft/plugins';
 
 export const useInstallPlugin = (
   smm: SMM,

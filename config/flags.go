@@ -4,31 +4,15 @@ import (
 	"flag"
 	"path"
 
-	"git.sr.ht/~avery/crankshaft/pathutil"
 	"github.com/adrg/xdg"
 )
 
 func GetXdgDataHome() string {
-	if !flatpak {
-		return xdg.DataHome
-	}
-
-	/*
-		When running in Flatpak sandbox we want to use the host's XDG directories,
-		not the sandbox directories.
-
-		Potential future enhancement is to try getting the environment variable
-		value from host with flatpak-spawn, but this should be good enough.
-	*/
-	return pathutil.SubstituteHomeDir("~/.local/share")
+	return xdg.DataHome
 }
 
 func GetXdgStateHome() string {
-	if !flatpak {
-		return xdg.StateHome
-	}
-
-	return pathutil.SubstituteHomeDir("~/.local/state")
+	return xdg.StateHome
 }
 
 func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataDir string, pluginsDir string, logsDir string) {
