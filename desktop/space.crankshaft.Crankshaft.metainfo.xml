@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>space.crankshaft.Crankshaft</id>
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <name>Crankshaft</name>
+  <summary>Steam client plugin manager and framework</summary>
+
+  <description>
+  	<p>
+  		Crankshaft lets you install and create plugins to add more functionality
+  		to your Steam client.
+  	</p>
+  	<p>
+  		Further setup is required after installing this program. Please see
+  		https://crankshaft.space for full installation instructions.
+  	</p>
+  </description>
+
+  <launchable type="desktop-id">space.crankshaft.Crankshaft.desktop</launchable>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>The built-in plugin browser, where you can install new plugins with one click.</caption>
+      <image>https://crankshaft.space/appstream-screenshots/desktop.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Compatibility Tools Manager plugin running in Steam Deck mode.</caption>
+      <image>https://crankshaft.space/appstream-screenshots/deck-compatibility-tools.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>ProtonDB Indicator plugin running in Steam Deck mode.</caption>
+      <image>https://crankshaft.space/appstream-screenshots/deck-protondb-indicator.png</image>
+    </screenshot>
+  </screenshots>
+
+  <url type="homepage">https://crankshaft.space/</url>
+</component>
