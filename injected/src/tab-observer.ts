@@ -14,6 +14,16 @@ export const createTabObserver = (smm: SMM, mainLibraryEl: HTMLElement) => {
   }
 
   const observer = new MutationObserver((_mutationsList) => {
+    if (window.smmUIMode === 'deck') {
+      if (document.querySelector(DECK_SELECTORS.lockScreenContainer)) {
+        if (!smm.onLockScreen) {
+          smm.lockScreenOpened();
+        }
+      } else if (smm.onLockScreen) {
+        smm.lockScreenClosed();
+      }
+    }
+
     // Shared
     if (document.querySelector(getSelectorByMode('home'))) {
       smm.switchToHome();
@@ -74,6 +84,6 @@ export const createTabObserver = (smm: SMM, mainLibraryEl: HTMLElement) => {
     smm.switchToUnknownPage();
   });
 
-  observer.observe(mainLibraryEl, { subtree: true, childList: true });
+  observer.observe(document.body, { subtree: true, childList: true });
   window.smmTabObserver = observer;
 };

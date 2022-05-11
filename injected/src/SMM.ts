@@ -15,6 +15,7 @@ export class SMM extends EventTarget {
   private _currentTab?: 'home' | 'collections' | 'appDetails';
   private _currentAppId?: string;
   private _currentAppName?: string;
+  private _onLockScreen: boolean;
 
   readonly Network: Network;
   readonly Toast: Toast;
@@ -48,6 +49,7 @@ export class SMM extends EventTarget {
     this._currentTab = undefined;
     this._currentAppId = undefined;
     this._currentAppName = undefined;
+    this._onLockScreen = false;
 
     this.Network = new Network(this);
     this.Toast = new Toast(this);
@@ -71,6 +73,10 @@ export class SMM extends EventTarget {
 
   get currentAppId() {
     return this._currentAppId;
+  }
+
+  get onLockScreen() {
+    return this._onLockScreen;
   }
 
   switchToUnknownPage() {
@@ -118,6 +124,26 @@ export class SMM extends EventTarget {
     this.dispatchEvent(
       new CustomEvent('switchToAppDetails', { detail: { appId, appName } })
     );
+  }
+
+  lockScreenOpened() {
+    if (this._onLockScreen) {
+      return;
+    }
+
+    info('Lock screen opened');
+    this._onLockScreen = true;
+    this.dispatchEvent(new CustomEvent('lockScreenOpened'));
+  }
+
+  lockScreenClosed() {
+    if (!this._onLockScreen) {
+      return;
+    }
+
+    info('Lock screen closed');
+    this._onLockScreen = false;
+    this.dispatchEvent(new CustomEvent('lockScreenClosed'));
   }
 
   async loadPlugins() {
