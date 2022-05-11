@@ -42,6 +42,8 @@ declare global {
       handler: (buttonCode: number) => void | boolean;
     }[];
 
+    // Internal Steam stuff
+
     SteamClient: {
       Settings: {
         SetCefRemoteDebuggingEnabled: (value: boolean) => void;
@@ -52,6 +54,26 @@ declare global {
       m_Settings: {
         bCefRemoteDebuggingEnabled: boolean;
       };
+    };
+
+    securitystore: {
+      // Show the lock screen
+      SetActiveLockScreenProps: (args: {
+        onSuccess?: (args: [pin: string]) => void;
+      }) => void;
+    };
+
+    SystemPowerStore: {
+      m_bHasBattery: boolean;
+      m_bSayFull: boolean;
+      m_bShowingConnectedSlowDetails: boolean;
+      m_bShutdownRequested: boolean;
+      m_bShuttingDown: boolean;
+      m_eACState: number;
+      m_eBatteryState: number;
+      m_eBatteryTimeConfidence: number;
+      m_flBatteryLevel: number;
+      m_nBatterySecondsRemaining: number;
     };
   }
 }
