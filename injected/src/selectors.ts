@@ -24,7 +24,7 @@ const createModeSelectors = <
 const MODE_SELECTORS = createModeSelectors({
   mainLibrary: {
     desktop: '[class^=library_AppDetailsMain]',
-    deck: '[class^="basiclibrary_TopLevelTransitionSwitch"]',
+    deck: '[class*="basiclibrary_AppDetailsMain_"]',
   },
   home: {
     desktop: '[class*=libraryhome_Container]',
