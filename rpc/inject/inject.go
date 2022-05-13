@@ -16,10 +16,11 @@ type InjectService struct {
 	serverPort string
 	plugins    *plugins.Plugins
 	devMode    bool
+	steamPath  string
 }
 
-func NewInjectService(debugPort, serverPort string, plugins *plugins.Plugins, devMode bool) *InjectService {
-	return &InjectService{debugPort, serverPort, plugins, devMode}
+func NewInjectService(debugPort, serverPort string, plugins *plugins.Plugins, devMode bool, steamPath string) *InjectService {
+	return &InjectService{debugPort, serverPort, plugins, devMode, steamPath}
 }
 
 type InjectArgs struct{}
@@ -82,9 +83,9 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 
 	var libraryEvalScript string
 	if service.devMode {
-		libraryEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/library.js")
+		libraryEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/library.js", service.steamPath)
 	} else {
-		libraryEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, libraryScript)
+		libraryEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, libraryScript, service.steamPath)
 	}
 	if err != nil {
 		log.Println(err)
@@ -101,9 +102,9 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 	if steamClient.UiMode == cdp.UIModeDeck {
 		var menuEvalScript string
 		if service.devMode {
-			menuEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/menu.js")
+			menuEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/menu.js", service.steamPath)
 		} else {
-			menuEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, menuScript)
+			menuEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, menuScript, service.steamPath)
 		}
 		if err != nil {
 			log.Println(err)

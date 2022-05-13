@@ -89,7 +89,7 @@ func BundleSharedScripts() (string, error) {
 var evalScriptTemplate string
 
 // BuildEvalScriptFromFile gets a script from a file and builds an eval script with it.
-func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath string) (string, error) {
+func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath string, steamPath string) (string, error) {
 	scriptBytes, err := ioutil.ReadFile(scriptPath)
 	if err != nil {
 		return "", fmt.Errorf(`Failed to read injected script at "%s": %w`, scriptPath, err)
@@ -97,11 +97,11 @@ func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath st
 
 	script := string(scriptBytes)
 
-	return BuildEvalScript(serverPort, uiMode, script)
+	return BuildEvalScript(serverPort, uiMode, script, steamPath)
 }
 
 // BuildEvalScript builds a script to be evaluated in the Steam target context.
-func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (string, error) {
+func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string, steamPath string) (string, error) {
 	evalTmpl := template.Must(template.New("eval").Parse(evalScriptTemplate))
 	var evalScript bytes.Buffer
 	if err := evalTmpl.Execute(&evalScript, struct {
@@ -109,11 +109,13 @@ func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script string) (strin
 		InjectedScript string
 		ServerPort     string
 		UIMode         cdp.UIMode
+		SteamDir       string
 	}{
 		Version:        VERSION,
 		InjectedScript: script,
 		ServerPort:     serverPort,
 		UIMode:         uiMode,
+		SteamDir:       steamPath,
 	}); err != nil {
 		return "", fmt.Errorf("Failed to execute eval script template: %w", err)
 	}

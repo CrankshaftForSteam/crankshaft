@@ -30,7 +30,7 @@ func main() {
 }
 
 func run() error {
-	debugPort, serverPort, skipPatching, dataDir, pluginsDir, logsDir := config.ParseFlags()
+	debugPort, serverPort, skipPatching, dataDir, pluginsDir, logsDir, steamPath := config.ParseFlags()
 
 	// Ensure data directory exists
 	if err := os.MkdirAll(dataDir, 0700); err != nil {
@@ -72,7 +72,7 @@ func run() error {
 	waitAndPatch := func() {
 		cdp.WaitForConnection(debugPort)
 		cdp.WaitForLibraryEl(debugPort)
-		patcher.Patch(debugPort, serverPort)
+		patcher.Patch(debugPort, serverPort, steamPath)
 	}
 
 	if len(os.Getenv("DISPLAY")) != 0 {
@@ -119,7 +119,7 @@ func run() error {
 			ws.ServeWs(hub, w, r)
 		})
 
-		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, devmode.DevMode, hub)
+		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, devmode.DevMode, hub, steamPath)
 
 		http.Handle("/rpc", handlers.CORS(
 			handlers.AllowedHeaders([]string{"Content-Type"}),
