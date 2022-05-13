@@ -214,6 +214,7 @@ export class MenuInjectorDesktop implements MenuInjector {
           backgroundColor: '#23262e',
           color: '#b8bcbf',
           padding: '4px 12px',
+          overflow: 'scroll',
         }}
         data-smm-menu-page
       />

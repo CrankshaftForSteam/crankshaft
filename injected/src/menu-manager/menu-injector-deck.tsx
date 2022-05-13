@@ -57,6 +57,8 @@ export class MenuInjectorDeck implements MenuInjector {
             bottom: 'auto',
             zIndex: 999,
             opacity: 1,
+            overflow: 'scroll',
+            backgroundColor: '#23262e',
           }}
           data-smm-menu-page
         >
