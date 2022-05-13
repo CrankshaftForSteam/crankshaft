@@ -1,3 +1,3 @@
 package config
 
-var flatpak = false
+var Flatpak = false

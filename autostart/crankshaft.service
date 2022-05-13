@@ -1,0 +1,9 @@
+[Unit]
+Description=Crankshaft Plugin Manager
+
+[Service]
+ExecStart=/usr/bin/flatpak run space.crankshaft.Crankshaft
+Restart=always
+
+[Install]
+WantedBy=default.target

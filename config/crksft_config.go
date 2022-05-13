@@ -16,33 +16,35 @@ type CrksftConfigPlugin struct {
 }
 
 type CrksftConfig struct {
-	filePath string
-	Plugins  map[string]CrksftConfigPlugin `toml:"plugins"`
+	filePath           string
+	InstalledAutostart bool
+	Plugins            map[string]CrksftConfigPlugin `toml:"plugins"`
 }
 
-func NewCrksftConfig(dataDir string) (*CrksftConfig, error) {
+func NewCrksftConfig(dataDir string) (*CrksftConfig, bool, error) {
 	config := CrksftConfig{
 		filePath: path.Join(
 			dataDir, "config.toml",
 		),
-		Plugins: make(map[string]CrksftConfigPlugin),
+		InstalledAutostart: false,
+		Plugins:            make(map[string]CrksftConfigPlugin),
 	}
 
 	data, err := os.ReadFile(config.filePath)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			// Return empty config, the file will be created once there's something to save
-			return &config, nil
+			return &config, false, nil
 		} else {
-			return &config, err
+			return &config, false, err
 		}
 	}
 
 	if _, err := toml.Decode(string(data), &config); err != nil {
-		return &config, fmt.Errorf("Error decoding Crankshaft config: %v", err)
+		return &config, true, fmt.Errorf("Error decoding Crankshaft config: %v", err)
 	}
 
-	return &config, nil
+	return &config, true, nil
 }
 
 func (c *CrksftConfig) Write() error {

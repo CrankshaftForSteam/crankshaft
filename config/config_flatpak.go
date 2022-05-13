@@ -3,5 +3,5 @@
 package config
 
 func init() {
-	flatpak = true
+	Flatpak = true
 }

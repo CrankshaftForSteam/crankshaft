@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"git.sr.ht/~avery/crankshaft/autostart"
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
 	devmode "git.sr.ht/~avery/crankshaft/cmd/crankshaft/dev_mode"
@@ -59,9 +60,28 @@ func run() error {
 	logWriter := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(logWriter)
 
-	crksftConfig, err := config.NewCrksftConfig(dataDir)
+	crksftConfig, found, err := config.NewCrksftConfig(dataDir)
 	if err != nil {
 		return err
+	}
+
+	if config.Flatpak && (!found || !crksftConfig.InstalledAutostart) {
+		// First launch, install autostart service
+		if autostart.HostHasSystemd() {
+			log.Println("Installing autostart service...")
+			err = autostart.InstallService(dataDir)
+			if err != nil {
+				return fmt.Errorf("Error installing autostart service: %v", err)
+			}
+
+			crksftConfig.InstalledAutostart = true
+			err = crksftConfig.Write()
+			if err != nil {
+				return fmt.Errorf("Error writing config: %v", err)
+			}
+		} else {
+			log.Println("Not running systemd, skipping autostart service installation")
+		}
 	}
 
 	plugins, err := plugins.NewPlugins(crksftConfig, pluginsDir)
