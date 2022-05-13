@@ -41,6 +41,29 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.1.2" date="2021-05-12">
+      <description>
+        <p>
+          - Fix missing scrollbar in plugin browser
+        </p>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.2</url>
+    </release>
+    
+    <release version="0.1.1" date="2021-05-12">
+      <description>
+        <p>
+          - Allow passing path to Steam files to Crankshaft, and expose it to plugins
+          - Fix loading on latest Steam Deck update
+          - Add lock screen events
+          - Add lock screen and battery Steam types
+        </p>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.1</url>
+    </release>
+
     <release version="0.1.0" date="2021-05-11">
       <description>
         <p>Initial release.</p>
