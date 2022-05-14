@@ -41,6 +41,19 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.1.3" date="2021-05-14">
+      <description>
+        <p>
+          - Automatically install autostart service on first launch
+          - Add RPC service and UI for enabling/disabling autostart service
+          - Show Crankshaft version in settings menu
+          - Show plugin version in plugin manager
+        </p>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.3</url>
+    </release>
+
     <release version="0.1.2" date="2021-05-12">
       <description>
         <p>
