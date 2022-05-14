@@ -89,7 +89,11 @@ const Plugin: FunctionComponent<{
       }}
     >
       <h2 style={{ margin: 0 }}>{plugin.config.name}</h2>
-      <p>{plugin.enabled ? 'Loaded' : 'Disabled'}</p>
+      <p>
+        Version {plugin.config.version}
+        <br />
+        {plugin.enabled ? 'Loaded' : 'Disabled'}
+      </p>
       {plugin.enabled ? (
         <cs-button onClick={onUnload}>Unload</cs-button>
       ) : (
