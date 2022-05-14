@@ -4,6 +4,8 @@
 
 Crankshaft lets you install and create plugins to add more functionality to your Steam client.
 
+[![builds.sr.ht status](https://builds.sr.ht/~avery/crankshaft.svg)](https://builds.sr.ht/~avery/crankshaft?)
+
 ## Usage
 
 See installation instructions at [crankshaft.space](https://crankshaft.space/).
