@@ -2,6 +2,11 @@
 configure-git-hooks:
 	git config core.hooksPath .githooks
 
+.PHONY: install-js-deps
+install-js-deps:
+	cd injected && \
+	yarn
+
 .PHONY: clean
 clean:
 	rm -rf .build
