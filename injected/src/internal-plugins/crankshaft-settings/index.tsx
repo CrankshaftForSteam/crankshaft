@@ -1,5 +1,6 @@
 import { FunctionComponent, render } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
+import { rpcRequest } from '../../rpc';
 import { SMM } from '../../SMM';
 
 export const load = (smm: SMM) => {
@@ -23,6 +24,7 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => (
         padding: 0,
       }}
     >
+      <Autostart smm={smm} />
       <Devtools smm={smm} />
       <CefDebugToggle />
     </ul>
@@ -51,6 +53,116 @@ const Setting: FunctionComponent<{ name: string }> = ({ name, children }) => (
     </div>
   </li>
 );
+
+const Autostart: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
+  const [hasSystemd, setHasSystemd] = useState<boolean | undefined>(undefined);
+  const [serviceInstalled, setServiceInstalled] = useState<boolean | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    (async () => {
+      const { getRes } = rpcRequest<{}, { hasSystemd: boolean }>(
+        'AutostartService.HostHasSystemd',
+        {}
+      );
+      try {
+        const { hasSystemd } = await getRes();
+        setHasSystemd(hasSystemd);
+      } catch (err) {
+        smm.Toast.addToast('Error checking if host has Systemd.', 'error');
+      }
+    })();
+  }, [setHasSystemd]);
+
+  useEffect(() => {
+    (async () => {
+      if (
+        typeof hasSystemd === 'undefined' ||
+        typeof serviceInstalled !== 'undefined'
+      ) {
+        return;
+      }
+
+      const { getRes } = rpcRequest<{}, { serviceInstalled: boolean }>(
+        'AutostartService.ServiceInstalled',
+        {}
+      );
+      try {
+        const { serviceInstalled } = await getRes();
+        setServiceInstalled(serviceInstalled);
+      } catch (err) {
+        smm.Toast.addToast(
+          'Error checking if autostart service is installed.',
+          'error'
+        );
+      }
+    })();
+  }, [hasSystemd, serviceInstalled, setServiceInstalled]);
+
+  const setAutostartEnabled = useCallback(
+    async (enabled: boolean) => {
+      const { getRes } = rpcRequest<{}, {}>(
+        enabled
+          ? 'AutostartService.InstallService'
+          : 'AutostartService.DisableService',
+        {}
+      );
+      try {
+        await getRes();
+        setServiceInstalled(enabled);
+      } catch (err) {
+        smm.Toast.addToast(
+          `Error ${enabled ? 'enabling' : 'disabling'} autostart service.`,
+          'error'
+        );
+      }
+    },
+    [hasSystemd, setServiceInstalled]
+  );
+
+  const text = [
+    'Crankshaft can be configured to start automatically with your system.',
+    <br />,
+  ];
+  let toggleBtn: JSX.Element | null = null;
+
+  if (
+    typeof hasSystemd === 'undefined' ||
+    typeof serviceInstalled === 'undefined'
+  ) {
+    text.push('Loading...');
+  } else {
+    if (serviceInstalled) {
+      text.push(
+        <>
+          The autostart service is currently <b>enabled</b>.
+        </>
+      );
+      toggleBtn = (
+        <cs-button onClick={() => setAutostartEnabled(false)}>
+          Disable
+        </cs-button>
+      );
+    } else {
+      text.push(
+        <>
+          The autostart service is currently <b>disabled</b>.
+        </>
+      );
+      toggleBtn = (
+        <cs-button onClick={() => setAutostartEnabled(true)}>Enable</cs-button>
+      );
+    }
+  }
+
+  return (
+    <Setting name="Autostart">
+      <p style={{ margin: '4px 0 4px' }}>{text}</p>
+      {toggleBtn}
+    </Setting>
+  );
+};
 
 const Devtools: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
   const [devtoolsFrontendUrl, setDevtoolsFrontendUrl] = useState<
