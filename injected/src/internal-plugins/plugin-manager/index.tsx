@@ -89,7 +89,7 @@ const Plugin: FunctionComponent<{
       }}
     >
       <h2 style={{ margin: 0 }}>{plugin.config.name}</h2>
-      <p>
+      <p style={{ marginTop: 0 }}>
         Version {plugin.config.version}
         <br />
         {plugin.enabled ? 'Loaded' : 'Disabled'}
