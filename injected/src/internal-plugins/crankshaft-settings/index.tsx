@@ -24,6 +24,7 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => (
         padding: 0,
       }}
     >
+      <Info />
       <Autostart smm={smm} />
       <Devtools smm={smm} />
       <CefDebugToggle />
@@ -52,6 +53,17 @@ const Setting: FunctionComponent<{ name: string }> = ({ name, children }) => (
       {children}
     </div>
   </li>
+);
+
+const Info = () => (
+  <Setting name="Info">
+    <p style={{ margin: '4px 0 0' }}>
+      Crankshaft version: {window.csVersion}
+      <br />
+      Find documentation, source code, and more at{' '}
+      <a href="https://crankshaft.space/">crankshaft.space</a>.
+    </p>
+  </Setting>
 );
 
 const Autostart: FunctionComponent<{ smm: SMM }> = ({ smm }) => {

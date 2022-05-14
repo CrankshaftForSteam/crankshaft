@@ -12,7 +12,7 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-const VERSION = "0.1.0"
+const VERSION = "0.1.2"
 
 func BundleScripts() error {
 	log.Println("Bundling scripts to inject...")

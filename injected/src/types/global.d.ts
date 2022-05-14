@@ -6,6 +6,7 @@ declare global {
     smmTabObserver?: MutationObserver;
     smmServerPort: string;
     smmUIMode: 'desktop' | 'deck';
+    csVersion: string;
     smmPlugins: Record<
       string,
       {
