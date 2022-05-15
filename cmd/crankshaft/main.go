@@ -79,6 +79,13 @@ func run() error {
 			if err != nil {
 				return fmt.Errorf("Error writing config: %v", err)
 			}
+
+			log.Println("Starting Crankshaft with Systemd and killing this instance, goodbye!")
+			err = autostart.StartService()
+			if err != nil {
+				return fmt.Errorf("Error starting Crankshaft service: %v", err)
+			}
+			os.Exit(0)
 		} else {
 			log.Println("Not running systemd, skipping autostart service installation")
 		}

@@ -49,3 +49,9 @@ func DisableService() error {
 	cmd := executil.Command("systemctl", "--user", "disable", "crankshaft.service")
 	return cmd.Run()
 }
+
+// StartService starts Crankshaft through the autostart service
+func StartService() error {
+	cmd := executil.Command("systemctl", "--user", "start", "crankshaft.service")
+	return cmd.Run()
+}
