@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path"
 	"sync"
+	"syscall"
 	"time"
 
 	"git.sr.ht/~avery/crankshaft/autostart"
@@ -31,7 +33,16 @@ func main() {
 }
 
 func run() error {
-	debugPort, serverPort, skipPatching, dataDir, pluginsDir, logsDir, steamPath := config.ParseFlags()
+	debugPort, serverPort, skipPatching, dataDir, pluginsDir, logsDir, steamPath, cleanup := config.ParseFlags()
+
+	if cleanup {
+		log.Println("Cleaning up patched files and exiting")
+		err := patcher.Cleanup(steamPath)
+		if err != nil {
+			log.Println("Error cleaning up", err)
+		}
+		os.Exit(0)
+	}
 
 	// Ensure data directory exists
 	if err := os.MkdirAll(dataDir, 0700); err != nil {
@@ -160,9 +171,26 @@ func run() error {
 
 	wg.Wait()
 
+	// When Crankshaft exits, clean up patched JS
+	sigs := make(chan os.Signal)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		log.Println("Cleaning up patched scripts before exiting")
+		<-sigs
+		err := patcher.Cleanup(steamPath)
+		if err != nil {
+			log.Println("Error cleaning up", err)
+		}
+		os.Exit(0)
+	}()
+
 	// If Steam was already running and we patched it earlier, wait for Steam to stop first
 	if alreadyPatched {
 		ps.WaitForSteamProcessToStop()
+		err := patcher.Cleanup(steamPath)
+		if err != nil {
+			log.Println("Error cleaning up", err)
+		}
 	}
 
 	// Repatch Steam as it starts and stops
@@ -173,5 +201,11 @@ func run() error {
 		waitAndPatch()
 
 		ps.WaitForSteamProcessToStop()
+
+		log.Println("Steam stopped, cleaning up patched files...")
+		err := patcher.Cleanup(steamPath)
+		if err != nil {
+			log.Println("Error cleaning up", err)
+		}
 	}
 }

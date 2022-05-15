@@ -15,7 +15,7 @@ func GetXdgStateHome() string {
 	return xdg.StateHome
 }
 
-func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataDir string, pluginsDir string, logsDir string, steamPath string) {
+func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataDir string, pluginsDir string, logsDir string, steamPath string, cleanup bool) {
 	dataHome := GetXdgDataHome()
 	stateHome := GetXdgStateHome()
 
@@ -26,6 +26,7 @@ func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataD
 	fPluginsDir := flag.String("plugins-dir", path.Join(dataHome, "crankshaft", "plugins"), "Directory to load plugins from")
 	fLogsDir := flag.String("logs-dir", path.Join(stateHome, "crankshaft", "logs"), "Directory to write logs to")
 	fSteamPath := flag.String("steam-path", path.Join(dataHome, "Steam"), "Path to Steam files")
+	fCleanup := flag.Bool("cleanup", false, "Cleanup patched files and exit")
 
 	flag.Parse()
 
@@ -36,6 +37,7 @@ func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataD
 	pluginsDir = *fPluginsDir
 	logsDir = *fLogsDir
 	steamPath = *fSteamPath
+	cleanup = *fCleanup
 
 	return
 }

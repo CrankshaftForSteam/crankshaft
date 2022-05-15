@@ -2,6 +2,7 @@ package patcher
 
 import (
 	"bufio"
+	"errors"
 	"log"
 	"os"
 	"os/exec"
@@ -18,14 +19,14 @@ const libraryRootSP = "libraryroot~sp.js"
 const sp = "sp.js"
 
 /*
-PatchJS patches Steam client scripts and reloads the client.
+patchJS patches Steam client scripts and reloads the client.
 
 The Steam client overwrites any modified resources at startup, so this must be
 run every time Crankshaft starts (if not already patched).
 
 At the moment this only patches libraryroot~sp.js.
 */
-func PatchJS(steamuiPath string, debugPort string, serverPort string) error {
+func patchJS(steamuiPath string, debugPort string, serverPort string) error {
 	if err := patchLibraryRootSP(path.Join(steamuiPath, libraryRootSP), serverPort); err != nil {
 		return err
 	}
@@ -36,6 +37,35 @@ func PatchJS(steamuiPath string, debugPort string, serverPort string) error {
 
 	if err := reloadClient(debugPort); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+/*
+cleanupJS cleans up patched Steam files and returns them to their original
+state. This is necessary after Crankshaft exists. If we don't clean up clean up
+these scripts, Steam will go through a >30 second update process next time it
+launches.
+*/
+func cleanupJS(steamuiPath string) error {
+	log.Println("Cleaning up patched JS")
+
+	files := []string{libraryRootSP, sp}
+	for _, filename := range files {
+		path := path.Join(steamuiPath, filename)
+
+		// Check if original file exists
+		origPath := pathutil.AddExtPrefix(path, ".orig")
+		if _, err := os.Stat(origPath); err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			return err
+		}
+
+		log.Println("Writing original", filename)
+		pathutil.Copy(origPath, path)
 	}
 
 	return nil

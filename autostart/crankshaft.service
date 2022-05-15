@@ -3,7 +3,8 @@ Description=Crankshaft Plugin Manager
 
 [Service]
 ExecStart=/usr/bin/flatpak run space.crankshaft.Crankshaft
-ExecStop=/usr/bin/flatpak kill space.crankshaft.Crankshaft
+ExecStop=/usr/bin/pkill -x crankshaft
+ExecStopPost=/usr/bin/flatpak run space.crankshaft.Crankshaft -cleanup
 Restart=always
 
 [Install]
