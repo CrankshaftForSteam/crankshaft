@@ -41,6 +41,21 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.1.4" date="2021-05-15">
+      <description>
+        <p>
+          <ul>
+            <li>Wait for main menu context to appear before injecting menu scripts</li>
+            <li>Clean up patched Steam files before exiting</li>
+            <li>Start Crankshaft service immediately after installing it</li>
+            <li>Fix flag parsing</li>
+          </ul>
+        </p>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.4</url>
+    </release>
+
     <release version="0.1.3" date="2021-05-14">
       <description>
         <p>
