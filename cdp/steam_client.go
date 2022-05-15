@@ -3,6 +3,7 @@ package cdp
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -70,6 +71,32 @@ func IsLibraryTarget(target *target.Info) bool {
 
 func IsMenuTarget(target *target.Info) bool {
 	return target.Title == MenuTarget
+}
+
+// WaitForTarget waits for the given target to be found.
+func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
+	log.Println("Waiting for target", steamTarget)
+
+	isTarget := IsLibraryTarget
+	if steamTarget == MenuTarget {
+		isTarget = IsMenuTarget
+	}
+
+	for {
+		targets, err := sc.getTargets()
+		if err != nil {
+			return err
+		}
+
+		for _, target := range targets {
+			if isTarget(target) {
+				log.Println("Found target", steamTarget)
+				return nil
+			}
+		}
+
+		time.Sleep(1 * time.Second)
+	}
 }
 
 // Maximum number of times to retry getting a target

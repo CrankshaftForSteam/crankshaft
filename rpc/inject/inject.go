@@ -59,7 +59,10 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 
 	err = steamClient.RunScriptInLibrary(sharedScript)
 	if steamClient.UiMode == cdp.UIModeDeck {
-		err = steamClient.RunScriptInMenu(sharedScript)
+		err = steamClient.WaitForTarget(cdp.MenuTarget)
+		if err == nil {
+			err = steamClient.RunScriptInMenu(sharedScript)
+		}
 	}
 	if err != nil {
 		log.Println(err)
