@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"git.sr.ht/~avery/crankshaft/config"
@@ -39,13 +40,28 @@ func NewPlugins(crksftConfig *config.CrksftConfig, pluginsDir string) (*Plugins,
 	if err != nil {
 		return nil, fmt.Errorf(`Error reading plugins directory "%s": %v`, pluginsDir, err)
 	}
+
 	for _, entry := range d {
-		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
+		fi, err := entry.Info()
+		if err != nil {
+			return nil, err
+		}
+
+		isSymLink := fi.Mode()&os.ModeSymlink == os.ModeSymlink
+
+		if !(entry.IsDir() || isSymLink) || strings.HasPrefix(entry.Name(), ".") {
 			continue
 		}
 
 		pluginName := entry.Name()
 		pluginDir := path.Join(pluginsDir, pluginName)
+
+		if isSymLink {
+			pluginDir, err = filepath.EvalSymlinks(pluginDir)
+			if err != nil {
+				return nil, err
+			}
+		}
 
 		config, err := NewPluginConfig(pluginDir)
 		if err != nil {
