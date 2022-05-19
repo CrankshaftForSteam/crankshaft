@@ -107,10 +107,14 @@ func run() error {
 		return err
 	}
 
-	waitAndPatch := func() {
+	waitAndPatch := func() error {
 		cdp.WaitForConnection(debugPort)
 		cdp.WaitForLibraryEl(debugPort)
-		patcher.Patch(debugPort, serverPort, steamPath)
+		err = patcher.Patch(debugPort, serverPort, steamPath)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	if len(os.Getenv("DISPLAY")) != 0 {
@@ -120,7 +124,9 @@ func run() error {
 		go func() {
 			for {
 				<-reloadChannel
-				waitAndPatch()
+				if err := waitAndPatch(); err != nil {
+					log.Println(err)
+				}
 			}
 		}()
 	}
@@ -144,7 +150,9 @@ func run() error {
 
 		go func() {
 			defer wg.Done()
-			waitAndPatch()
+			if err := waitAndPatch(); err != nil {
+				log.Println(err)
+			}
 		}()
 	}
 
@@ -198,7 +206,9 @@ func run() error {
 		log.Println("Waiting for Steam to start...")
 		ps.WaitForSteamProcess()
 
-		waitAndPatch()
+		if err := waitAndPatch(); err != nil {
+			return err
+		}
 
 		ps.WaitForSteamProcessToStop()
 

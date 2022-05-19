@@ -59,8 +59,9 @@ func (sc *SteamClient) getTargets() ([]*target.Info, error) {
 type SteamTarget string
 
 const (
-	LibraryTarget SteamTarget = "SP"
-	MenuTarget                = "MainMenu"
+	LibraryTarget     SteamTarget = "SP"
+	MenuTarget                    = "MainMenu"
+	QuickAccessTarget             = "QuickAccess"
 )
 
 type targetFilterFunc func(target *target.Info) bool
@@ -73,13 +74,22 @@ func IsMenuTarget(target *target.Info) bool {
 	return target.Title == MenuTarget
 }
 
+func IsQuickAccessTarget(target *target.Info) bool {
+	return target.Title == QuickAccessTarget
+}
+
 // WaitForTarget waits for the given target to be found.
 func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
 	log.Println("Waiting for target", steamTarget)
 
-	isTarget := IsLibraryTarget
-	if steamTarget == MenuTarget {
+	var isTarget targetFilterFunc
+	switch steamTarget {
+	case LibraryTarget:
+		isTarget = IsLibraryTarget
+	case MenuTarget:
 		isTarget = IsMenuTarget
+	case QuickAccessTarget:
+		isTarget = IsQuickAccessTarget
 	}
 
 	for {
@@ -149,6 +159,14 @@ func (sc *SteamClient) RunScriptInMenu(script string) error {
 	}
 
 	return sc.runScriptInTarget(IsMenuTarget, script)
+}
+
+func (sc *SteamClient) RunScriptInQuickAccess(script string) error {
+	if sc.UiMode != UIModeDeck {
+		return fmt.Errorf("Running in desktop mode, unable to inject script into Deck quick access menu")
+	}
+
+	return sc.runScriptInTarget(IsQuickAccessTarget, script)
 }
 
 func (sc *SteamClient) runScriptInTargetWithOutput(isTarget targetFilterFunc, script string) (string, error) {

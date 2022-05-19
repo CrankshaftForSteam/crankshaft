@@ -13,6 +13,7 @@ export const DESKTOP_SELECTORS = {
 export const DECK_SELECTORS = {
   appDetailsHeaderImg: '[class^="sharedappdetailsheader_ImgSrc"]',
   lockScreenContainer: '[class*=lockscreen_Container]',
+  quickAccessContainer: '[class*=quickaccessmenu_Container_]',
 };
 
 const createModeSelectors = <

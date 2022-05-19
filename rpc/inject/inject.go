@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"git.sr.ht/~avery/crankshaft/build"
@@ -59,10 +60,29 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 
 	err = steamClient.RunScriptInLibrary(sharedScript)
 	if steamClient.UiMode == cdp.UIModeDeck {
-		err = steamClient.WaitForTarget(cdp.MenuTarget)
-		if err == nil {
-			err = steamClient.RunScriptInMenu(sharedScript)
-		}
+		// Menu and quick access contexts can be undefined, wait for them to exist
+		// before injecting shared scripts
+
+		var wg sync.WaitGroup
+		wg.Add(2)
+
+		go func() {
+			defer wg.Done()
+			err = steamClient.WaitForTarget(cdp.MenuTarget)
+			if err == nil {
+				err = steamClient.RunScriptInMenu(sharedScript)
+			}
+		}()
+
+		go func() {
+			defer wg.Done()
+			err = steamClient.WaitForTarget(cdp.QuickAccessTarget)
+			if err == nil {
+				err = steamClient.RunScriptInQuickAccess(sharedScript)
+			}
+		}()
+
+		wg.Wait()
 	}
 	if err != nil {
 		log.Println(err)
@@ -100,7 +120,7 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 		return fmt.Errorf("Error injecting library script: %w", err)
 	}
 
-	// Inject menu script
+	// Inject Deck scripts
 
 	if steamClient.UiMode == cdp.UIModeDeck {
 		var menuEvalScript string
@@ -117,6 +137,22 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 		if err := steamClient.RunScriptInMenu(menuEvalScript); err != nil {
 			log.Println(err)
 			return fmt.Errorf("Error injecting menu script: %w", err)
+		}
+
+		var quickAccessEvalScript string
+		if service.devMode {
+			quickAccessEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/quick-access.js", service.steamPath)
+		} else {
+			quickAccessEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, quickAccessScript, service.steamPath)
+		}
+		if err != nil {
+			log.Println(err)
+			return fmt.Errorf("Failed to build quick access eval script: %w", err)
+		}
+
+		if err := steamClient.RunScriptInQuickAccess(quickAccessEvalScript); err != nil {
+			log.Println(err)
+			return fmt.Errorf("Error injecting quick access script: %w", err)
 		}
 	}
 

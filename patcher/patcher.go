@@ -6,8 +6,8 @@ import (
 )
 
 // Patch patches necessary Steam resources.
-func Patch(debugPort string, serverPort string, steamPath string) {
-	patchJS(path.Join(steamPath, "steamui"), debugPort, serverPort)
+func Patch(debugPort string, serverPort string, steamPath string) error {
+	return patchJS(path.Join(steamPath, "steamui"), debugPort, serverPort)
 }
 
 // Cleanup cleans up patched Steam resources.

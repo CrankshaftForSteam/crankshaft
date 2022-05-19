@@ -25,7 +25,33 @@ func patchSP(scriptPath string) error {
 		return err
 	}
 
-	if err := patchMenuItems(unminFilePath, scriptPath); err != nil {
+	fileLines, err := pathutil.FileLines(unminFilePath)
+	if err != nil {
+		return err
+	}
+
+	fileLines, react, err := patchMenuItems(fileLines)
+	if err != nil {
+		return err
+	}
+
+	fileLines, err = patchQuickAccessItems(fileLines, react)
+	if err != nil {
+		return err
+	}
+
+	fileLines[0] = "// file patched by crankshaft\n" + fileLines[0]
+
+	log.Printf("Writing patched file to %s\n", scriptPath)
+
+	f, err := os.OpenFile(scriptPath, os.O_WRONLY|os.O_TRUNC, 0755)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.WriteString(strings.Join(fileLines, "\n"))
+	if err != nil {
 		return err
 	}
 
@@ -36,13 +62,8 @@ func patchSP(scriptPath string) error {
 patchMenuItems patches the Steam Deck UI to support loading arbitrary main menu
 items.
 */
-func patchMenuItems(unminPath, origPath string) error {
-	log.Printf("Patching main menu in %s\n", unminPath)
-
-	fileLines, err := pathutil.FileLines(unminPath)
-	if err != nil {
-		return err
-	}
+func patchMenuItems(fileLines []string) ([]string, string, error) {
+	log.Println("Patching main menu...")
 
 	// Find settings tab, menu items will be added below it
 	mainTabsHomeExp := regexp.MustCompile(`label:.*"#MainTabsSettings"`)
@@ -56,7 +77,7 @@ func patchMenuItems(unminPath, origPath string) error {
 		}
 	}
 	if !found {
-		return errors.New("Didn't find MainTabsSettings")
+		return nil, "", errors.New("Didn't find MainTabsSettings")
 	}
 
 	// Find power menu item
@@ -69,7 +90,7 @@ func patchMenuItems(unminPath, origPath string) error {
 		}
 	}
 	if powerLineNum == -1 {
-		return errors.New("Didn't find Power")
+		return nil, "", errors.New("Didn't find Power")
 	}
 
 	// Find createElement for power menu item
@@ -107,7 +128,7 @@ func patchMenuItems(unminPath, origPath string) error {
 		}
 	}
 	if !found {
-		return errors.New("Menu items location not found")
+		return nil, "", errors.New("Menu items location not found")
 	}
 
 	returnExp := regexp.MustCompile(`return.*(\w+\.\w+)\.createElement`)
@@ -122,7 +143,7 @@ func patchMenuItems(unminPath, origPath string) error {
 		}
 	}
 	if returnLineNum == -1 {
-		return errors.New("React not found")
+		return nil, "", errors.New("React not found")
 	}
 
 	// Add a callback to force this component to rerender the main menu
@@ -144,7 +165,7 @@ func patchMenuItems(unminPath, origPath string) error {
 		}
 	}
 	if activePropLineNum == -1 {
-		return errors.New("route prop not found")
+		return nil, "", errors.New("route prop not found")
 	}
 
 	found = false
@@ -156,21 +177,73 @@ func patchMenuItems(unminPath, origPath string) error {
 		}
 	}
 	if !found {
-		return errors.New("active not found")
+		return nil, "", errors.New("active not found")
 	}
 
-	fileLines[0] = "// file patched by crankshaft\n" + fileLines[0]
+	return fileLines, react, nil
+}
 
-	f, err := os.OpenFile(origPath, os.O_WRONLY|os.O_TRUNC, 0755)
-	if err != nil {
-		return err
+/*
+patchQuickAccessItems patches the Steam Deck UI to support loading arbitrary
+quick access menu items.
+*/
+func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
+	log.Println("Patching quick access...")
+
+	settingsLineNum := 0
+	for _, line := range fileLines {
+		settingsLineNum++
+		if strings.Contains(line, "#QuickAccess_Tab_Settings_Title") {
+			break
+		}
 	}
-	defer f.Close()
-
-	_, err = f.WriteString(strings.Join(fileLines, "\n"))
-	if err != nil {
-		return err
+	if !(settingsLineNum > 0) {
+		return nil, errors.New("Settings tab not found")
 	}
 
-	return nil
+	fmt.Println("settingsLineNum", settingsLineNum)
+
+	settingsTabComponentExp := regexp.MustCompile(`^\s*tab: .*createElement\((.+), .+\)`)
+	var settingsTabComponent string
+	for i := settingsLineNum; i < settingsLineNum+4; i++ {
+		line := fileLines[i]
+		matches := settingsTabComponentExp.FindStringSubmatch(line)
+		if len(matches) > 0 {
+			settingsTabComponent = matches[1]
+		}
+	}
+	if settingsTabComponent == "" {
+		return nil, errors.New("settingsTabComponent not found")
+	}
+
+	fmt.Println("settingsTabComponent", settingsTabComponent)
+
+	// Find end of tabs array
+	for i := settingsLineNum + 5; i < settingsLineNum+40; i++ {
+		line := strings.TrimSpace(fileLines[i])
+		if strings.HasPrefix(line, "}].filter") {
+			fileLines[i] = `}, ...(
+				(window.csQuickAccessItems || []).map((item) => ({
+					key: item.id,
+					title: ` + react + `.createElement(` + react + `.Fragment, null),
+					tab: ` + react + `.createElement(` + settingsTabComponent + `, null),
+					panel: ` + react + `.createElement(
+						'div',
+						{
+							'data-cs-quick-access-item': item.id,
+						},
+					),
+				}))
+			)` + strings.TrimPrefix(line, "}") + `
+				const [, updateState] = ` + react + `.useState();
+				window.csQuickAccessUpdate = ` + react + `.useCallback(() => {
+					updateState({});
+				}, [updateState]);
+			`
+
+			break
+		}
+	}
+
+	return fileLines, nil
 }

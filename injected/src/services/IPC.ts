@@ -1,11 +1,11 @@
 import { rpcRequest } from '../rpc';
 import { Service } from './Service';
 
-type Handler = <T extends any>(event: { name: string; data: T }) => void;
+type Handler<T extends any> = (event: { name: string; data: T }) => void;
 
 export class IPC extends Service {
   private readonly ws: WebSocket;
-  private listeners: Record<string, Handler[]>;
+  private listeners: Record<string, Handler<any>[]>;
 
   constructor(...args: ConstructorParameters<typeof Service>) {
     super(...args);
@@ -33,7 +33,7 @@ export class IPC extends Service {
     return getRes();
   }
 
-  on(name: string, handler: Handler) {
+  on<Data extends any>(name: string, handler: Handler<Data>) {
     if (!this.listeners[name]) {
       this.listeners[name] = [];
     }

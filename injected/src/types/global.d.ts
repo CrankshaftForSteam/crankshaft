@@ -38,6 +38,13 @@ declare global {
     // Active custom menu item ID
     csMenuActiveItem?: string;
 
+    // Custom quick access items
+    csQuickAccessItems?: {
+      id: string;
+    }[];
+    // Force the quick access menu to re-render
+    csQuickAccessUpdate?: () => void;
+
     csButtonInterceptors?: {
       id: string;
       handler: (buttonCode: number) => void | boolean;

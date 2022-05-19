@@ -8,3 +8,4 @@ package inject
 var sharedScript string
 var libraryScript string
 var menuScript string
+var quickAccessScript string

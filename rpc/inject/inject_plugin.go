@@ -52,5 +52,11 @@ func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin) error {
 		}
 	}
 
+	if entrypoints.QuickAccess {
+		if err := steamClient.RunScriptInQuickAccess(plugin.Script); err != nil {
+			return fmt.Errorf(`Error injecting plugin "%s" into quick access: %v`, plugin.Config.Name, err)
+		}
+	}
+
 	return nil
 }

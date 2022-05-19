@@ -16,8 +16,9 @@ type authorInfo struct {
 }
 
 type entrypoint struct {
-	Library bool `json:"library"`
-	Menu    bool `json:"menu"`
+	Library     bool `json:"library"`
+	Menu        bool `json:"menu"`
+	QuickAccess bool `json:"quickAccess" toml:"quick-access"`
 }
 
 type pluginConfig struct {

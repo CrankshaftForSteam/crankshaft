@@ -1,3 +1,4 @@
+import { InGameMenu } from './in-game-menu';
 import { MenuManager } from './menu-manager';
 import { FS } from './services/FS';
 import { IPC } from './services/IPC';
@@ -11,7 +12,11 @@ type PluginId = string;
 
 type AddEventListenerArgs = Parameters<EventTarget['addEventListener']>;
 
+type Entry = 'library' | 'menu' | 'quickAccess';
+
 export class SMM extends EventTarget {
+  readonly entry: Entry;
+
   private _currentTab?: 'home' | 'collections' | 'appDetails';
   private _currentAppId?: string;
   private _currentAppName?: string;
@@ -21,6 +26,7 @@ export class SMM extends EventTarget {
   readonly Toast: Toast;
   // TODO: improve types for running in context without menu
   readonly MenuManager!: MenuManager;
+  readonly InGameMenu!: InGameMenu;
   readonly FS: FS;
   readonly Plugins: Plugins;
   readonly IPC: IPC;
@@ -43,8 +49,10 @@ export class SMM extends EventTarget {
     }[]
   >;
 
-  constructor(entry: 'library' | 'menu') {
+  constructor(entry: Entry) {
     super();
+
+    this.entry = entry;
 
     this._currentTab = undefined;
     this._currentAppId = undefined;
@@ -60,6 +68,10 @@ export class SMM extends EventTarget {
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);
+    }
+
+    if (entry === 'library' || entry === 'quickAccess') {
+      this.InGameMenu = new InGameMenu(this);
     }
 
     this.serverPort = window.smmServerPort;
