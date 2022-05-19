@@ -18,5 +18,5 @@ var libraryScript string
 //go:embed scripts/menu.js
 var menuScript string
 
-//go:embed scripts/quickAccessScript.js
+//go:embed scripts/quick-access.js
 var quickAccessScript string
