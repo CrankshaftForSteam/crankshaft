@@ -22,3 +22,7 @@ tasks:
       make release
       mv .dist "crankshaft-$(git rev-parse --short HEAD)"
       tar -czvf crankshaft.tar.gz "crankshaft-$(git rev-parse --short HEAD)"
+triggers:
+  - action: email
+    condition: failure
+    to: builds.sr.ht@avery.cafe
