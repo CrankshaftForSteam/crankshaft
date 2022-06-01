@@ -115,7 +115,7 @@ func patchCoolClass(fileLines []string, origPath string, serverPort string) ([]s
 // on.
 func findCoolClassConstructor(fileLines []string) (int, error) {
 	// First we find a method in the class
-	methodExp := regexp.MustCompile(`OpenQuickAccessMenu\(.*\) \{`)
+	methodExp := regexp.MustCompile(`ExcludedTitlesForPlatform\(.*\) \{`)
 	lineNum := 0
 	for _, line := range fileLines {
 		lineNum++
