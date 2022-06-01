@@ -18,5 +18,6 @@ func HandleRpc(debugPort, serverPort string, plugins *plugins.Plugins, devMode b
 	server.RegisterService(NewPluginsService(plugins), "PluginsService")
 	server.RegisterService(NewIPCService(hub), "IPCService")
 	server.RegisterService(NewAutostartService(dataDir), "AutostartService")
+	server.RegisterService(NewExecService(), "ExecService")
 	return server
 }
