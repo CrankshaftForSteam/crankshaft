@@ -50,4 +50,12 @@ export class FS extends Service {
       { tarPath, destPath }
     );
   }
+
+  async getPluginsPath() {
+    const { getRes } = rpcRequest<{}, { path: string }>(
+      'FSService.GetPluginsPath',
+      {}
+    );
+    return (await getRes()).path;
+  }
 }

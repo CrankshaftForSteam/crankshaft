@@ -165,7 +165,7 @@ func run() error {
 			ws.ServeWs(hub, w, r)
 		})
 
-		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, devmode.DevMode, hub, steamPath, dataDir)
+		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, devmode.DevMode, hub, steamPath, dataDir, pluginsDir)
 
 		http.Handle("/rpc", handlers.CORS(
 			handlers.AllowedHeaders([]string{"Content-Type"}),

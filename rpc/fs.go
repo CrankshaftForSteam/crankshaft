@@ -9,7 +9,13 @@ import (
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
-type FSService struct{}
+type FSService struct {
+	pluginsDir string
+}
+
+func NewFSService(pluginsDir string) *FSService {
+	return &FSService{pluginsDir}
+}
 
 type ListDirArgs struct {
 	Path string `json:"path"`
@@ -115,6 +121,18 @@ func (service *FSService) Untar(r *http.Request, req *UntarArgs, res *UntarReply
 			return err
 		}
 	*/
+
+	return nil
+}
+
+type GetPluginsPathArgs struct{}
+
+type GetPluginsPathReply struct {
+	Path string `json:"path"`
+}
+
+func (service *FSService) GetPluginsPath(r *http.Request, req *GetPluginsPathArgs, res *GetPluginsPathReply) error {
+	res.Path = service.pluginsDir
 
 	return nil
 }
