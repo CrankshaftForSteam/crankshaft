@@ -1,5 +1,6 @@
 import { InGameMenu } from './in-game-menu';
 import { MenuManager } from './menu-manager';
+import { Exec } from './services/Exec';
 import { FS } from './services/FS';
 import { IPC } from './services/IPC';
 import { Network } from './services/Network';
@@ -31,6 +32,7 @@ export class SMM extends EventTarget {
   readonly Plugins: Plugins;
   readonly IPC: IPC;
   readonly UI: UI;
+  readonly Exec: Exec;
 
   readonly serverPort: string;
 
@@ -65,6 +67,7 @@ export class SMM extends EventTarget {
     this.Plugins = new Plugins(this);
     this.IPC = new IPC(this);
     this.UI = new UI(this);
+    this.Exec = new Exec(this);
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);
