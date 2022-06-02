@@ -9,6 +9,39 @@ import (
 	"git.sr.ht/~avery/crankshaft/plugins"
 )
 
+type InjectPluginsArgs struct{}
+
+type InjectPluginsReply struct{}
+
+func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsArgs, res *InjectPluginsReply) error {
+	log.Println("Injecting plugins...")
+
+	steamClient, err := cdp.NewSteamClient(service.debugPort)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer steamClient.Cancel()
+
+	for _, plugin := range service.plugins.PluginMap {
+		if !plugin.Enabled {
+			continue
+		}
+
+		if err := injectPlugin(steamClient, plugin); err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+
+	// Tell the client that plugins are loaded
+	steamClient.RunScriptInLibrary("window.csPluginsLoaded()")
+	steamClient.RunScriptInMenu("window.csPluginsLoaded()")
+	steamClient.RunScriptInQuickAccess("window.csPluginsLoaded()")
+
+	return nil
+}
+
 type InjectPluginArgs struct {
 	PluginId string `json:"pluginId"`
 }

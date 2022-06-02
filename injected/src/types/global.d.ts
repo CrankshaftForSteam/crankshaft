@@ -15,6 +15,8 @@ declare global {
       }
     >;
 
+    csPluginsLoaded?: () => void;
+
     coolClass: {
       OpenQuickAccessMenu: (tab?: number) => void;
 

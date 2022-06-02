@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"sync"
-	"time"
 
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -87,19 +86,6 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 	if err != nil {
 		log.Println(err)
 		return fmt.Errorf("Error injecting shared script: %v", err)
-	}
-
-	// Inject plugins
-
-	// TODO: Sleeping briefly here seems to fix plugins sometimes not loading in
-	// desktop mode. Need to investigate further
-	time.Sleep(1 * time.Second)
-
-	for _, plugin := range service.plugins.PluginMap {
-		if err := injectPlugin(steamClient, plugin); err != nil {
-			log.Println(err)
-			return err
-		}
 	}
 
 	// Inject library script

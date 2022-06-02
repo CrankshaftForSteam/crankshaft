@@ -37,6 +37,11 @@ export class Plugins extends Service {
     return (await getRes()).plugins;
   }
 
+  async injectPlugins() {
+    const { getRes } = rpcRequest<{}, {}>('InjectService.InjectPlugins', {});
+    return getRes();
+  }
+
   async setEnabled(id: string, enabled: boolean) {
     console.info('setEnabled', id, enabled);
     const { getRes } = rpcRequest<{ id: string; enabled: boolean }, {}>(

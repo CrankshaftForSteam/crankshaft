@@ -159,6 +159,25 @@ export class SMM extends EventTarget {
   }
 
   async loadPlugins() {
+    info('Loading plugins...');
+
+    // Inject plugins
+    // TODO: this will inject plugins into all contexts, but we don't know if
+    // other contexts have loaded yet
+    try {
+      await new Promise<void>((resolve) => {
+        // This will be called once the server has loaded plugins
+        window.csPluginsLoaded = resolve;
+
+        if (this.entry === 'library') {
+          info('Calling InjectService.InjectPlugins...');
+          this.Plugins.injectPlugins();
+        }
+      });
+    } catch (err) {
+      this.Toast.addToast(`Error injecting plugins: ${err}`, 'error');
+    }
+
     const plugins = await this.Plugins.list();
 
     info('loadPlugins: ', { plugins, smmPlugins: window.smmPlugins });
