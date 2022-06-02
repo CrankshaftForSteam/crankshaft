@@ -4,7 +4,8 @@ import { FunctionComponent, JSX } from 'preact';
 
 const buttonStyles = `
 	.cs-button {
-		width: auto;
+		display: inline-block;
+		width: fit-content;
 		padding: 6px 12px;
 
 		background-color: var(--cs-col-primary);
