@@ -74,18 +74,21 @@ func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin) error {
 	entrypoints := plugin.Config.Entrypoints[steamClient.UiMode]
 
 	if entrypoints.Library {
+		log.Println("Injecting", plugin.Id, "into library")
 		if err := steamClient.RunScriptInLibrary(plugin.Script); err != nil {
 			return fmt.Errorf(`Error injecting plugin "%s" into library: %v`, plugin.Config.Name, err)
 		}
 	}
 
 	if entrypoints.Menu {
+		log.Println("Injecting", plugin.Id, "into menu")
 		if err := steamClient.RunScriptInMenu(plugin.Script); err != nil {
 			return fmt.Errorf(`Error injecting plugin "%s" into menu: %v`, plugin.Config.Name, err)
 		}
 	}
 
 	if entrypoints.QuickAccess {
+		log.Println("Injecting", plugin.Id, "into quick access")
 		if err := steamClient.RunScriptInQuickAccess(plugin.Script); err != nil {
 			return fmt.Errorf(`Error injecting plugin "%s" into quick access: %v`, plugin.Config.Name, err)
 		}
