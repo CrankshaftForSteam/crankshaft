@@ -41,16 +41,31 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.1.5" date="2021-06-04">
+      <description>
+        <ul>
+          <li>Initial support for quick access plugins</li>
+          <li>Refactor how scripts and plugins are loaded, which should fix issues with plugins not loading</li>
+          <li>Show a loading indicator while Crankshaft is starting</li>
+          <li>Loading indicator can be double clicked/tapped to stop loading Crankshaft</li>
+          <li>Add exeec service for plugins to run commands</li>
+          <li>Support loading symlinked plugins</li>
+          <li>Fix some functionality not getting properly patched on Steam beta</li>
+          <li>Fix plugin browser version display</li>
+        </ul>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.5</url>
+    </release>
+
     <release version="0.1.4" date="2021-05-15">
       <description>
-        <p>
-          <ul>
-            <li>Wait for main menu context to appear before injecting menu scripts</li>
-            <li>Clean up patched Steam files before exiting</li>
-            <li>Start Crankshaft service immediately after installing it</li>
-            <li>Fix flag parsing</li>
-          </ul>
-        </p>
+        <ul>
+          <li>Wait for main menu context to appear before injecting menu scripts</li>
+          <li>Clean up patched Steam files before exiting</li>
+          <li>Start Crankshaft service immediately after installing it</li>
+          <li>Fix flag parsing</li>
+        </ul>
       </description>
 
       <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.4</url>
