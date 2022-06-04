@@ -60,8 +60,8 @@ type SteamTarget string
 
 const (
 	LibraryTarget     SteamTarget = "SP"
-	MenuTarget                    = "MainMenu"
-	QuickAccessTarget             = "QuickAccess"
+	MenuTarget        SteamTarget = "MainMenu"
+	QuickAccessTarget SteamTarget = "QuickAccess"
 )
 
 type targetFilterFunc func(target *target.Info) bool
@@ -71,11 +71,11 @@ func IsLibraryTarget(target *target.Info) bool {
 }
 
 func IsMenuTarget(target *target.Info) bool {
-	return target.Title == MenuTarget
+	return target.Title == string(MenuTarget)
 }
 
 func IsQuickAccessTarget(target *target.Info) bool {
-	return target.Title == QuickAccessTarget
+	return target.Title == string(QuickAccessTarget)
 }
 
 // WaitForTarget waits for the given target to be found.

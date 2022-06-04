@@ -21,13 +21,17 @@ type ListReply struct {
 }
 
 func (service *PluginsService) List(r *http.Request, req *ListArgs, res *ListReply) error {
-	res.Plugins = service.plugins.PluginMap
-	for id, plugin := range res.Plugins {
-		p := plugin
-		// Remove script (it's large and not needed here since we're not loading
-		// the plugin, just getting info about it)
-		p.Script = ""
-		res.Plugins[id] = p
+	res.Plugins = make(map[string]plugins.Plugin)
+	for id, plugin := range service.plugins.PluginMap {
+		// We don't include the script here. It's large and not necessary since
+		// we're just getting info about the plugin, not loading it, so we don't
+		// need to send it over.
+		res.Plugins[id] = plugins.Plugin{
+			Id:      plugin.Id,
+			Dir:     plugin.Dir,
+			Config:  plugin.Config,
+			Enabled: plugin.Enabled,
+		}
 	}
 	return nil
 }

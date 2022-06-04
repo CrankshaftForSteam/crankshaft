@@ -13,7 +13,7 @@ type PluginId = string;
 
 type AddEventListenerArgs = Parameters<EventTarget['addEventListener']>;
 
-type Entry = 'library' | 'menu' | 'quickAccess';
+export type Entry = 'library' | 'menu' | 'quickAccess';
 
 export class SMM extends EventTarget {
   readonly entry: Entry;
@@ -172,10 +172,8 @@ export class SMM extends EventTarget {
         // This will be called once the server has loaded plugins
         window.csPluginsLoaded = resolve;
 
-        if (this.entry === 'library') {
-          info('Calling InjectService.InjectPlugins...');
-          this.Plugins.injectPlugins();
-        }
+        info('Calling InjectService.InjectPlugins...');
+        this.Plugins.injectPlugins(this.entry);
       });
     } catch (err) {
       this.Toast.addToast(`Error injecting plugins: ${err}`, 'error');

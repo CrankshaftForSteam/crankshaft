@@ -1,4 +1,5 @@
 import { rpcRequest } from '../rpc';
+import { Entry } from '../SMM';
 import { Service } from './Service';
 
 interface Entrypoint {
@@ -37,8 +38,11 @@ export class Plugins extends Service {
     return (await getRes()).plugins;
   }
 
-  async injectPlugins() {
-    const { getRes } = rpcRequest<{}, {}>('InjectService.InjectPlugins', {});
+  async injectPlugins(entry: Entry) {
+    const { getRes } = rpcRequest<{ entryPoint: Entry }, {}>(
+      'InjectService.InjectPlugins',
+      { entryPoint: entry }
+    );
     return getRes();
   }
 

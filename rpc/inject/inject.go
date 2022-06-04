@@ -1,10 +1,10 @@
 package inject
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -27,8 +27,8 @@ type InjectArgs struct{}
 
 type InjectReply struct{}
 
-func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *InjectReply) error {
-	log.Println("Injecting scripts...")
+func (service *InjectService) InjectLibrary(r *http.Request, req *InjectArgs, res *InjectReply) error {
+	log.Println("Injecting library scripts...")
 
 	err := cdp.WaitForLibraryEl(service.debugPort)
 	if err != nil {
@@ -45,8 +45,6 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 
 	log.Println("Client mode:", steamClient.UiMode)
 
-	// TODO: this code is awful and terrible aaaaaaaaaaaaaaaaaaaaa
-
 	// Inject shared script
 
 	if service.devMode {
@@ -58,31 +56,6 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 	}
 
 	err = steamClient.RunScriptInLibrary(sharedScript)
-	if steamClient.UiMode == cdp.UIModeDeck {
-		// Menu and quick access contexts can be undefined, wait for them to exist
-		// before injecting shared scripts
-
-		var wg sync.WaitGroup
-		wg.Add(2)
-
-		go func() {
-			defer wg.Done()
-			err = steamClient.WaitForTarget(cdp.MenuTarget)
-			if err == nil {
-				err = steamClient.RunScriptInMenu(sharedScript)
-			}
-		}()
-
-		go func() {
-			defer wg.Done()
-			err = steamClient.WaitForTarget(cdp.QuickAccessTarget)
-			if err == nil {
-				err = steamClient.RunScriptInQuickAccess(sharedScript)
-			}
-		}()
-
-		wg.Wait()
-	}
 	if err != nil {
 		log.Println(err)
 		return fmt.Errorf("Error injecting shared script: %v", err)
@@ -106,40 +79,106 @@ func (service *InjectService) Inject(r *http.Request, req *InjectArgs, res *Inje
 		return fmt.Errorf("Error injecting library script: %w", err)
 	}
 
-	// Inject Deck scripts
+	return nil
+}
 
-	if steamClient.UiMode == cdp.UIModeDeck {
-		var menuEvalScript string
-		if service.devMode {
-			menuEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/menu.js", service.steamPath)
-		} else {
-			menuEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, menuScript, service.steamPath)
-		}
+func (service *InjectService) InjectMenu(r *http.Request, req *InjectArgs, res *InjectReply) error {
+	log.Println("Injecting menu scripts...")
+
+	steamClient, err := cdp.NewSteamClient(service.debugPort)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer steamClient.Cancel()
+
+	if steamClient.UiMode != cdp.UIModeDeck {
+		return errors.New("Not running in Deck mode, but got request to inject menu scripts")
+	}
+
+	// Shared script
+
+	if service.devMode {
+		sharedScript, err = build.BundleSharedScripts()
 		if err != nil {
 			log.Println(err)
-			return fmt.Errorf("Failed to build menu eval script: %w", err)
+			return fmt.Errorf("Failed to build shared scripts: %v", err)
 		}
+	}
 
-		if err := steamClient.RunScriptInMenu(menuEvalScript); err != nil {
-			log.Println(err)
-			return fmt.Errorf("Error injecting menu script: %w", err)
-		}
+	err = steamClient.RunScriptInMenu(sharedScript)
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Error injecting shared script: %v", err)
+	}
 
-		var quickAccessEvalScript string
-		if service.devMode {
-			quickAccessEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/quick-access.js", service.steamPath)
-		} else {
-			quickAccessEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, quickAccessScript, service.steamPath)
-		}
+	// Menu script
+
+	var menuEvalScript string
+	if service.devMode {
+		menuEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/menu.js", service.steamPath)
+	} else {
+		menuEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, menuScript, service.steamPath)
+	}
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Failed to build menu eval script: %w", err)
+	}
+
+	if err := steamClient.RunScriptInMenu(menuEvalScript); err != nil {
+		log.Println(err)
+		return fmt.Errorf("Error injecting menu script: %w", err)
+	}
+
+	return nil
+}
+
+func (service *InjectService) InjectQuickAccess(r *http.Request, req *InjectArgs, res *InjectReply) error {
+	log.Println("Injecting quick access scripts...")
+
+	steamClient, err := cdp.NewSteamClient(service.debugPort)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer steamClient.Cancel()
+
+	if steamClient.UiMode != cdp.UIModeDeck {
+		return errors.New("Not running in Deck mode, but got request to inject quick access scripts")
+	}
+
+	// Shared script
+
+	if service.devMode {
+		sharedScript, err = build.BundleSharedScripts()
 		if err != nil {
 			log.Println(err)
-			return fmt.Errorf("Failed to build quick access eval script: %w", err)
+			return fmt.Errorf("Failed to build shared scripts: %v", err)
 		}
+	}
 
-		if err := steamClient.RunScriptInQuickAccess(quickAccessEvalScript); err != nil {
-			log.Println(err)
-			return fmt.Errorf("Error injecting quick access script: %w", err)
-		}
+	err = steamClient.RunScriptInQuickAccess(sharedScript)
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Error injecting shared script: %v", err)
+	}
+
+	// Quick access script
+
+	var quickAccessEvalScript string
+	if service.devMode {
+		quickAccessEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/quick-access.js", service.steamPath)
+	} else {
+		quickAccessEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, quickAccessScript, service.steamPath)
+	}
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Failed to build quick access eval script: %w", err)
+	}
+
+	if err := steamClient.RunScriptInQuickAccess(quickAccessEvalScript); err != nil {
+		log.Println(err)
+		return fmt.Errorf("Error injecting quick access script: %w", err)
 	}
 
 	return nil

@@ -153,6 +153,21 @@ func patchMenuItems(fileLines []string) ([]string, string, error) {
 			updateState({});
 		}, [updateState]);
 
+		%[1]s.useEffect(() => {
+			console.log('Making request to inject service...');
+			fetch('http://localhost:8085/rpc', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					id: String(new Date().getTime()),
+					method: 'InjectService.InjectMenu',
+					params: [{}],
+				}),
+			});
+		}, []);
+
 	`, react) + fileLines[returnLineNum]
 
 	// Patch active menu items
@@ -239,6 +254,21 @@ func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
 				window.csQuickAccessUpdate = ` + react + `.useCallback(() => {
 					updateState({});
 				}, [updateState]);
+
+				` + react + `.useEffect(() => {
+					console.log('Making request to inject service...');
+					fetch('http://localhost:8085/rpc', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							id: String(new Date().getTime()),
+							method: 'InjectService.InjectQuickAccess',
+							params: [{}],
+						}),
+					});
+				}, []);
 			`
 
 			break

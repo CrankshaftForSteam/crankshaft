@@ -9,12 +9,38 @@ import (
 	"git.sr.ht/~avery/crankshaft/plugins"
 )
 
-type InjectPluginsArgs struct{}
+type entry string
+
+const (
+	LibraryEntry     entry = "library"
+	MenuEntry        entry = "menu"
+	QuickAccessEntry entry = "quickAccess"
+)
+
+// To make the API nicer, the client will pass it's entrypoint, and we convert
+// it to a target on the server.
+func (e entry) target() cdp.SteamTarget {
+	switch e {
+	case LibraryEntry:
+		return cdp.LibraryTarget
+	case MenuEntry:
+		return cdp.MenuTarget
+	case QuickAccessEntry:
+		return cdp.QuickAccessTarget
+	}
+
+	// This should never be reached
+	return cdp.LibraryTarget
+}
+
+type InjectPluginsArgs struct {
+	Entrypoint entry `json:"entrypoint"`
+}
 
 type InjectPluginsReply struct{}
 
 func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsArgs, res *InjectPluginsReply) error {
-	log.Println("Injecting plugins...")
+	log.Printf("Injecting plugins into %s...\n", req.Entrypoint)
 
 	steamClient, err := cdp.NewSteamClient(service.debugPort)
 	if err != nil {
@@ -28,16 +54,21 @@ func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsA
 			continue
 		}
 
-		if err := injectPlugin(steamClient, plugin); err != nil {
+		if err := injectPlugin(steamClient, plugin, req.Entrypoint.target()); err != nil {
 			log.Println(err)
 			return err
 		}
 	}
 
 	// Tell the client that plugins are loaded
-	steamClient.RunScriptInLibrary("window.csPluginsLoaded()")
-	steamClient.RunScriptInMenu("window.csPluginsLoaded()")
-	steamClient.RunScriptInQuickAccess("window.csPluginsLoaded()")
+	switch req.Entrypoint {
+	case LibraryEntry:
+		steamClient.RunScriptInLibrary("window.csPluginsLoaded()")
+	case MenuEntry:
+		steamClient.RunScriptInMenu("window.csPluginsLoaded()")
+	case QuickAccessEntry:
+		steamClient.RunScriptInQuickAccess("window.csPluginsLoaded()")
+	}
 
 	return nil
 }
@@ -67,29 +98,36 @@ func (service *InjectService) InjectPlugin(r *http.Request, req *InjectPluginArg
 	}
 	defer steamClient.Cancel()
 
-	return injectPlugin(steamClient, plugin)
+	for _, entrypoint := range []cdp.SteamTarget{cdp.LibraryTarget, cdp.MenuTarget, cdp.QuickAccessTarget} {
+		if err := injectPlugin(steamClient, plugin, entrypoint); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin) error {
-	entrypoints := plugin.Config.Entrypoints[steamClient.UiMode]
+func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin, entrypoint cdp.SteamTarget) error {
+	pluginEntrypoints := plugin.Config.Entrypoints[steamClient.UiMode]
 
-	if entrypoints.Library {
+	if entrypoint == cdp.LibraryTarget && pluginEntrypoints.Library {
 		log.Println("Injecting", plugin.Id, "into library")
 		if err := steamClient.RunScriptInLibrary(plugin.Script); err != nil {
 			return fmt.Errorf(`Error injecting plugin "%s" into library: %v`, plugin.Config.Name, err)
 		}
 	}
 
-	if entrypoints.Menu {
+	if entrypoint == cdp.MenuTarget && pluginEntrypoints.Menu {
 		log.Println("Injecting", plugin.Id, "into menu")
 		if err := steamClient.RunScriptInMenu(plugin.Script); err != nil {
 			return fmt.Errorf(`Error injecting plugin "%s" into menu: %v`, plugin.Config.Name, err)
 		}
 	}
 
-	if entrypoints.QuickAccess {
+	if entrypoint == cdp.QuickAccessTarget && pluginEntrypoints.QuickAccess {
 		log.Println("Injecting", plugin.Id, "into quick access")
 		if err := steamClient.RunScriptInQuickAccess(plugin.Script); err != nil {
+			log.Println(err)
 			return fmt.Errorf(`Error injecting plugin "%s" into quick access: %v`, plugin.Config.Name, err)
 		}
 	}
