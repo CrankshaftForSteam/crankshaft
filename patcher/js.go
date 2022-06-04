@@ -31,7 +31,7 @@ func patchJS(steamuiPath string, debugPort string, serverPort string) error {
 		return err
 	}
 
-	if err := patchSP(path.Join(steamuiPath, "sp.js")); err != nil {
+	if err := patchSP(path.Join(steamuiPath, "sp.js"), serverPort); err != nil {
 		return err
 	}
 

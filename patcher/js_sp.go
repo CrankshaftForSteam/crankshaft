@@ -11,7 +11,7 @@ import (
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
-func patchSP(scriptPath string) error {
+func patchSP(scriptPath string, serverPort string) error {
 	log.Printf("Patching %s...\n", scriptPath)
 
 	checkForOriginal(scriptPath)
@@ -30,12 +30,12 @@ func patchSP(scriptPath string) error {
 		return err
 	}
 
-	fileLines, react, err := patchMenuItems(fileLines)
+	fileLines, react, err := patchMenuItems(fileLines, serverPort)
 	if err != nil {
 		return err
 	}
 
-	fileLines, err = patchQuickAccessItems(fileLines, react)
+	fileLines, err = patchQuickAccessItems(fileLines, react, serverPort)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func patchSP(scriptPath string) error {
 patchMenuItems patches the Steam Deck UI to support loading arbitrary main menu
 items.
 */
-func patchMenuItems(fileLines []string) ([]string, string, error) {
+func patchMenuItems(fileLines []string, serverPort string) ([]string, string, error) {
 	log.Println("Patching main menu...")
 
 	// Find settings tab, menu items will be added below it
@@ -155,7 +155,7 @@ func patchMenuItems(fileLines []string) ([]string, string, error) {
 
 		%[1]s.useEffect(() => {
 			console.log('Making request to inject service...');
-			fetch('http://localhost:8085/rpc', {
+			fetch('http://localhost:%[2]s/rpc', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ func patchMenuItems(fileLines []string) ([]string, string, error) {
 			});
 		}, []);
 
-	`, react) + fileLines[returnLineNum]
+	`, react, serverPort) + fileLines[returnLineNum]
 
 	// Patch active menu items
 	activePropExp := regexp.MustCompile(`\[.*"route".*\]`)
@@ -202,7 +202,7 @@ func patchMenuItems(fileLines []string) ([]string, string, error) {
 patchQuickAccessItems patches the Steam Deck UI to support loading arbitrary
 quick access menu items.
 */
-func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
+func patchQuickAccessItems(fileLines []string, react string, serverPort string) ([]string, error) {
 	log.Println("Patching quick access...")
 
 	settingsLineNum := 0
@@ -249,7 +249,7 @@ func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
 						},
 					),
 				}))
-			)%[03]s
+			)%[3]s
 				const [, updateState] = %[1]s.useState();
 				window.csQuickAccessUpdate = %[1]s.useCallback(() => {
 					updateState({});
@@ -257,7 +257,7 @@ func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
 
 				%[1]s.useEffect(() => {
 					console.log('Making request to inject service...');
-					fetch('http://localhost:8085/rpc', {
+					fetch('http://localhost:%[4]s/rpc', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
@@ -269,7 +269,7 @@ func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
 						}),
 					});
 				}, []);
-			`, react, settingsTabComponent, strings.TrimPrefix(line, "}"))
+			`, react, settingsTabComponent, strings.TrimPrefix(line, "}"), serverPort)
 			break
 		}
 	}
