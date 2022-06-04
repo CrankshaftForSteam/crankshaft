@@ -161,7 +161,7 @@ func patchMenuItems(fileLines []string) ([]string, string, error) {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					id: String(new Date().getTime()),
+					id: String(new Date().getTime() + Math.random()),
 					method: 'InjectService.InjectMenu',
 					params: [{}],
 				}),
@@ -263,7 +263,7 @@ func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify({
-							id: String(new Date().getTime()),
+							id: String(new Date().getTime() + Math.random()),
 							method: 'InjectService.InjectQuickAccess',
 							params: [{}],
 						}),
