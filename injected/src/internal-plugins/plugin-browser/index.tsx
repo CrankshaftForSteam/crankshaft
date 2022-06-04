@@ -115,11 +115,9 @@ const Plugin: FunctionComponent<
           <br />
           <a href={plugin.source}>Source code</a>
           <br />
-          {installedPlugin ? (
-            <>Currently installed version: {installedPlugin.config.version}</>
-          ) : (
-            <>Available version: ${plugin.version}</>
-          )}
+          {installedPlugin && canUpdate ? (
+            <>Latest version: {plugin.version}</>
+          ) : null}
         </p>
         {installedPlugin ? (
           canUpdate ? (
