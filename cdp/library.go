@@ -72,6 +72,7 @@ func ShowLoadingIndicator(debugPort, serverPort string) error {
 			    padding: 8px 12px;
 			    background-color: #23262e;
 			    color: white;
+			    cursor: pointer;
 			    user-select: none;
 			    transition: opacity 3s;
 
