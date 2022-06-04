@@ -237,25 +237,25 @@ func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
 	for i := settingsLineNum + 5; i < settingsLineNum+40; i++ {
 		line := strings.TrimSpace(fileLines[i])
 		if strings.HasPrefix(line, "}].filter") {
-			fileLines[i] = `}, ...(
+			fileLines[i] = fmt.Sprintf(`}, ...(
 				(window.csQuickAccessItems || []).map((item) => ({
 					key: item.id,
-					title: ` + react + `.createElement(` + react + `.Fragment, null),
-					tab: ` + react + `.createElement(` + settingsTabComponent + `, null),
-					panel: ` + react + `.createElement(
+					title: %[1]s.createElement(%[1]s.Fragment, null),
+					tab: %[1]s.createElement(%[2]s, null),
+					panel: %[1]s.createElement(
 						'div',
 						{
 							'data-cs-quick-access-item': item.id,
 						},
 					),
 				}))
-			)` + strings.TrimPrefix(line, "}") + `
-				const [, updateState] = ` + react + `.useState();
-				window.csQuickAccessUpdate = ` + react + `.useCallback(() => {
+			)%[03]s
+				const [, updateState] = %[1]s.useState();
+				window.csQuickAccessUpdate = %[1]s.useCallback(() => {
 					updateState({});
 				}, [updateState]);
 
-				` + react + `.useEffect(() => {
+				%[1]s.useEffect(() => {
 					console.log('Making request to inject service...');
 					fetch('http://localhost:8085/rpc', {
 						method: 'POST',
@@ -269,8 +269,7 @@ func patchQuickAccessItems(fileLines []string, react string) ([]string, error) {
 						}),
 					});
 				}, []);
-			`
-
+			`, react, settingsTabComponent, strings.TrimPrefix(line, "}"))
 			break
 		}
 	}
