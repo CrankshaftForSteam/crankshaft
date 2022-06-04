@@ -15,7 +15,7 @@ clean:
 
 .PHONY: run
 run: clean
-	go run -tags=dev cmd/crankshaft/main.go $(ARGS)
+	go run -tags=dev cmd/crankshaft/crankshaft.go $(ARGS)
 
 .PHONY: test
 test:
@@ -51,7 +51,7 @@ release: clean bundle-scripts
 	mkdir rpc/inject/scripts
 	cp .build/* rpc/inject/scripts
 	mkdir .dist
-	go build -o .dist/crankshaft cmd/crankshaft/main.go
+	go build -o .dist/crankshaft cmd/crankshaft/crankshaft.go
 	# Get js-beautify binary
 	# See source and build manifest at: https://builds.sr.ht/~avery/job/741873
 	# TODO: this link expires in 90 days lol
@@ -63,4 +63,4 @@ flatpak: bundle-scripts
 	mkdir rpc/inject/scripts
 	cp .build/* rpc/inject/scripts
 	go run cmd/bundle-scripts/main.go
-	go build -o crankshaft cmd/crankshaft/main.go
+	go build -o crankshaft cmd/crankshaft/crankshaft.go
