@@ -110,6 +110,7 @@ func run() error {
 	waitAndPatch := func() error {
 		cdp.WaitForConnection(debugPort)
 		cdp.WaitForLibraryEl(debugPort)
+		cdp.ShowLoadingIndicator(debugPort)
 		err = patcher.Patch(debugPort, serverPort, steamPath)
 		if err != nil {
 			return err
