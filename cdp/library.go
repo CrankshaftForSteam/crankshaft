@@ -35,7 +35,7 @@ func WaitForLibraryEl(debugPort string) error {
 }
 
 // ShowLoadingIndicator shows a Crankshaft loading indicator in Steam.
-func ShowLoadingIndicator(debugPort string) error {
+func ShowLoadingIndicator(debugPort, serverPort string) error {
 	sc, err := NewSteamClient(debugPort)
 	if err != nil {
 		return err
@@ -57,13 +57,13 @@ func ShowLoadingIndicator(debugPort string) error {
 		`
 	}
 
-	sc.RunScriptInLibrary(`
+	sc.RunScriptInLibrary(fmt.Sprintf(`
     document.querySelectorAll('[data-cs-init-loading-indicator]').forEach((node) => node.remove());
 
     styles = document.createElement('style');
     styles.dataset.csInitLoadingIndicator = '';
     styles.type = 'text/css';
-    styles.appendChild(document.createTextNode(` + "`" + `
+    styles.appendChild(document.createTextNode(`+"`"+`
 			.cs-init-loading-indicator {
 			    position: absolute;
 			    z-index: 999;
@@ -72,8 +72,10 @@ func ShowLoadingIndicator(debugPort string) error {
 			    padding: 8px 12px;
 			    background-color: #23262e;
 			    color: white;
+			    user-select: none;
+			    transition: opacity 3s;
 
-			    ` + specificIndicatorStyles + `
+			    %[1]s
 			}
 
 			@keyframes cs-loading-indicator-spin {
@@ -88,11 +90,11 @@ func ShowLoadingIndicator(debugPort string) error {
 			    height: 16px;
 			    margin-right: 8px;
 			    border: solid 2.5px transparent;
-			    border-radius: 50%;
+			    border-radius: 50%%;
 			    border-right-color: #009aff;
 			    animation: cs-loading-indicator-spin 1s infinite linear;
 			}
-    ` + "`" + `));
+    `+"`"+`));
     document.head.appendChild(styles);
 
     loading = document.createElement('div');
@@ -106,7 +108,55 @@ func ShowLoadingIndicator(debugPort string) error {
     loading.appendChild(document.createTextNode('Loading Crankshaft...'));
 
     document.body.appendChild(loading);
-  `)
+
+    // Cancel loading on double click
+    loading.addEventListener('click', (event) => {
+    	if (event.detail === 2) {
+    		console.log('Loading indicator double clicked, stopping Crankshaft');
+
+    		// Stop Systemd service
+    		fetch('http://localhost:%[2]s/rpc', {
+    			method: 'POST',
+    			headers: {
+    				'Content-Type': 'application/json',
+    			},
+    			body: JSON.stringify({
+    				id: String(new Date().getTime() + Math.random()),
+    				method: 'ExecService.Run',
+    				params: [{
+    					command: 'systemctl',
+    					args: ['--user', 'stop', 'crankshaft.service'],
+    				}],
+    			}),
+    		});
+
+    		// Stop processes (will still be running if not using Systemd)
+    		fetch('http://localhost:%[2]s/rpc', {
+    			method: 'POST',
+    			headers: {
+    				'Content-Type': 'application/json',
+    			},
+    			body: JSON.stringify({
+    				id: String(new Date().getTime() + Math.random()),
+    				method: 'ExecService.Run',
+    				params: [{
+    					command: 'pkill',
+    					args: ['--signal', 'SIGINT', 'crankshaft'],
+    				}],
+    			}),
+    		});
+
+    		// Indicate to user
+    		loading.innerHTML = 'Loading Crankshaft cancelled.';
+    		loading.style.backgroundColor = 'rgb(209, 28, 28)';
+    		// Fade out
+    		setTimeout(() => {
+	    		loading.addEventListener('transitionend', () => loading.remove());
+	    		loading.style.opacity = '0';
+	    	}, 2000);
+    	}
+    });
+  `, specificIndicatorStyles, serverPort))
 
 	return nil
 }
