@@ -41,7 +41,7 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
-    <release version="0.1.5" date="2021-06-04">
+    <release version="0.1.5" date="2022-06-04">
       <description>
         <ul>
           <li>Initial support for quick access plugins</li>
@@ -58,7 +58,7 @@
       <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.5</url>
     </release>
 
-    <release version="0.1.4" date="2021-05-15">
+    <release version="0.1.4" date="2022-05-15">
       <description>
         <ul>
           <li>Wait for main menu context to appear before injecting menu scripts</li>
@@ -71,7 +71,7 @@
       <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.4</url>
     </release>
 
-    <release version="0.1.3" date="2021-05-14">
+    <release version="0.1.3" date="2022-05-14">
       <description>
         <p>
           - Automatically install autostart service on first launch
@@ -84,7 +84,7 @@
       <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.3</url>
     </release>
 
-    <release version="0.1.2" date="2021-05-12">
+    <release version="0.1.2" date="2022-05-12">
       <description>
         <p>
           - Fix missing scrollbar in plugin browser
@@ -94,7 +94,7 @@
       <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.2</url>
     </release>
     
-    <release version="0.1.1" date="2021-05-12">
+    <release version="0.1.1" date="2022-05-12">
       <description>
         <p>
           - Allow passing path to Steam files to Crankshaft, and expose it to plugins
@@ -107,7 +107,7 @@
       <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.1</url>
     </release>
 
-    <release version="0.1.0" date="2021-05-11">
+    <release version="0.1.0" date="2022-05-11">
       <description>
         <p>Initial release.</p>
       </description>
