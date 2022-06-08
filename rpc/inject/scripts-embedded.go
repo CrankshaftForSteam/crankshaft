@@ -20,3 +20,6 @@ var menuScript string
 
 //go:embed scripts/quick-access.js
 var quickAccessScript string
+
+//go:embed scripts/app-properties.js
+var appPropertiesScript string

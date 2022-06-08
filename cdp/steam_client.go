@@ -59,9 +59,10 @@ func (sc *SteamClient) getTargets() ([]*target.Info, error) {
 type SteamTarget string
 
 const (
-	LibraryTarget     SteamTarget = "SP"
-	MenuTarget        SteamTarget = "MainMenu"
-	QuickAccessTarget SteamTarget = "QuickAccess"
+	LibraryTarget       SteamTarget = "SP"
+	MenuTarget          SteamTarget = "MainMenu"
+	QuickAccessTarget   SteamTarget = "QuickAccess"
+	AppPropertiesTarget SteamTarget = "AppProperties"
 )
 
 type targetFilterFunc func(target *target.Info) bool
@@ -78,6 +79,10 @@ func IsQuickAccessTarget(target *target.Info) bool {
 	return target.Title == string(QuickAccessTarget)
 }
 
+func IsAppPropertiesTarget(target *target.Info) bool {
+	return strings.HasPrefix(target.Title, "Properties - ")
+}
+
 // WaitForTarget waits for the given target to be found.
 func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
 	log.Println("Waiting for target", steamTarget)
@@ -90,6 +95,8 @@ func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
 		isTarget = IsMenuTarget
 	case QuickAccessTarget:
 		isTarget = IsQuickAccessTarget
+	case AppPropertiesTarget:
+		isTarget = IsAppPropertiesTarget
 	}
 
 	for {
@@ -167,6 +174,14 @@ func (sc *SteamClient) RunScriptInQuickAccess(script string) error {
 	}
 
 	return sc.runScriptInTarget(IsQuickAccessTarget, script)
+}
+
+func (sc *SteamClient) RunScriptInAppProperties(script string) error {
+	if sc.UiMode != UIModeDesktop {
+		return fmt.Errorf("Scripts can only be run in app properties context in desktop mode")
+	}
+
+	return sc.runScriptInTarget(IsAppPropertiesTarget, script)
 }
 
 func (sc *SteamClient) runScriptInTargetWithOutput(isTarget targetFilterFunc, script string) (string, error) {

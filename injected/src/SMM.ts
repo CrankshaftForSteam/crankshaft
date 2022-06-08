@@ -2,6 +2,7 @@ import { InGameMenu } from './in-game-menu';
 import { MenuManager } from './menu-manager';
 import { Exec } from './services/Exec';
 import { FS } from './services/FS';
+import { Inject } from './services/Inject';
 import { IPC } from './services/IPC';
 import { Network } from './services/Network';
 import { Plugins } from './services/Plugins';
@@ -13,7 +14,7 @@ type PluginId = string;
 
 type AddEventListenerArgs = Parameters<EventTarget['addEventListener']>;
 
-export type Entry = 'library' | 'menu' | 'quickAccess';
+export type Entry = 'library' | 'menu' | 'quickAccess' | 'appProperties';
 
 export class SMM extends EventTarget {
   readonly entry: Entry;
@@ -33,6 +34,7 @@ export class SMM extends EventTarget {
   readonly IPC: IPC;
   readonly UI: UI;
   readonly Exec: Exec;
+  readonly Inject: Inject;
 
   readonly serverPort: string;
 
@@ -68,6 +70,7 @@ export class SMM extends EventTarget {
     this.IPC = new IPC(this);
     this.UI = new UI(this);
     this.Exec = new Exec(this);
+    this.Inject = new Inject(this);
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);

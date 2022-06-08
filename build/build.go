@@ -29,6 +29,7 @@ func BundleScripts() error {
 			"injected/src/entrypoints/library.ts",
 			"injected/src/entrypoints/menu.ts",
 			"injected/src/entrypoints/quick-access.ts",
+			"injected/src/entrypoints/app-properties.ts",
 		},
 		Bundle:      true,
 		Format:      api.FormatIIFE,
