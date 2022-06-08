@@ -14,6 +14,51 @@ type PluginId = string;
 
 type AddEventListenerArgs = Parameters<EventTarget['addEventListener']>;
 
+type SMMEvent =
+  | EventSwitchToUnknownPage
+  | EventSwitchToHome
+  | EventSwitchToCollections
+  | EventSwitchToAppDetails
+  | EventLockScreenOpened
+  | EventLockScreenClosed;
+
+class EventSwitchToUnknownPage extends CustomEvent<void> {
+  constructor() {
+    super('switchToUnknownPage');
+  }
+}
+
+class EventSwitchToHome extends CustomEvent<void> {
+  constructor() {
+    super('switchToHome');
+  }
+}
+
+class EventSwitchToCollections extends CustomEvent<void> {
+  constructor() {
+    super('switchToCollections');
+  }
+}
+
+type eventDetailsSwitchToAppDetails = { appId: string; appName: string };
+class EventSwitchToAppDetails extends CustomEvent<eventDetailsSwitchToAppDetails> {
+  constructor(detail: eventDetailsSwitchToAppDetails) {
+    super('switchToAppDetails', { detail });
+  }
+}
+
+class EventLockScreenOpened extends CustomEvent<void> {
+  constructor() {
+    super('lockScreenOpened');
+  }
+}
+
+class EventLockScreenClosed extends CustomEvent<void> {
+  constructor() {
+    super('lockScreenClosed');
+  }
+}
+
 export type Entry = 'library' | 'menu' | 'quickAccess' | 'appProperties';
 
 export class SMM extends EventTarget {
@@ -105,7 +150,7 @@ export class SMM extends EventTarget {
     info('Switched to unknown page');
     this._currentTab = undefined;
     this._currentAppId = undefined;
-    this.dispatchEvent(new CustomEvent('switchToUnknownPage'));
+    this.dispatchEvent(new EventSwitchToUnknownPage());
   }
 
   switchToHome() {
@@ -116,7 +161,7 @@ export class SMM extends EventTarget {
     info('Switched to home');
     this._currentTab = 'home';
     this._currentAppId = undefined;
-    this.dispatchEvent(new CustomEvent('switchToHome'));
+    this.dispatchEvent(new EventSwitchToHome());
   }
 
   switchToCollections() {
@@ -127,7 +172,7 @@ export class SMM extends EventTarget {
     info('Switched to collections');
     this._currentTab = 'collections';
     this._currentAppId = undefined;
-    this.dispatchEvent(new CustomEvent('switchToCollections'));
+    this.dispatchEvent(new EventSwitchToCollections());
   }
 
   switchToAppDetails(appId: string, appName: string) {
@@ -139,9 +184,12 @@ export class SMM extends EventTarget {
     this._currentTab = 'appDetails';
     this._currentAppId = appId;
     this._currentAppName = appName;
-    this.dispatchEvent(
-      new CustomEvent('switchToAppDetails', { detail: { appId, appName } })
-    );
+    this.dispatchEvent(new EventSwitchToAppDetails({ appId, appName }));
+  }
+
+  switchToAppProperties(appId: string, appName: string) {
+    info('Switched to app properties for app', appId);
+    this.dispatchEvent(new EventSwitchToAppProperties({ appId, appName }));
   }
 
   lockScreenOpened() {
@@ -151,7 +199,7 @@ export class SMM extends EventTarget {
 
     info('Lock screen opened');
     this._onLockScreen = true;
-    this.dispatchEvent(new CustomEvent('lockScreenOpened'));
+    this.dispatchEvent(new EventLockScreenOpened());
   }
 
   lockScreenClosed() {
@@ -161,7 +209,7 @@ export class SMM extends EventTarget {
 
     info('Lock screen closed');
     this._onLockScreen = false;
-    this.dispatchEvent(new CustomEvent('lockScreenClosed'));
+    this.dispatchEvent(new EventLockScreenClosed());
   }
 
   async loadPlugins() {
@@ -241,5 +289,9 @@ export class SMM extends EventTarget {
 
     this.attachedEvents[this.currentPlugin].push({ type, callback, options });
     super.addEventListener(type, callback, options);
+  }
+
+  dispatchEvent(event: SMMEvent): boolean {
+    return super.dispatchEvent(event);
   }
 }
