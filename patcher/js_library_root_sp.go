@@ -1,6 +1,7 @@
 package patcher
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -45,6 +46,11 @@ func patchLibraryRootSP(scriptPath, serverPort string) error {
 	}
 
 	fileLines, err = addButtonInterceptor(fileLines)
+	if err != nil {
+		return err
+	}
+
+	fileLines, err = appPropertiesEvent(fileLines)
 	if err != nil {
 		return err
 	}
@@ -161,6 +167,42 @@ func addButtonInterceptor(fileLines []string) ([]string, error) {
 	}
 	if !found {
 		log.Println("Didn't find OnButtonDown")
+	}
+
+	return fileLines, nil
+}
+
+func appPropertiesEvent(fileLines []string) ([]string, error) {
+	titleLine := -1
+	for i, line := range fileLines {
+		if strings.Contains(line, "#AppProperties_Title") {
+			titleLine = i
+			break
+		}
+	}
+
+	if titleLine < 0 {
+		return nil, errors.New("Didn't find app properties title line")
+	}
+
+	navToAppPropsLine := regexp.MustCompile(`NavigateToAppProperties\((.+),.*\);$`)
+
+	found := false
+	for i := titleLine - 1; i >= titleLine-10; i-- {
+		line := fileLines[i]
+
+		matches := navToAppPropsLine.FindStringSubmatch(line)
+		if len(matches) >= 2 {
+			found = true
+
+			appId := matches[1]
+			fileLines[i] = fmt.Sprintf("console.log('app properties opened for appid', %s);\n", appId) + line
+			break
+		}
+	}
+
+	if !found {
+		return nil, errors.New("Didn't find NavigateToAppProperties")
 	}
 
 	return fileLines, nil
