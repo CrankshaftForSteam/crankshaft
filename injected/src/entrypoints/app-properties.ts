@@ -1,5 +1,6 @@
+import { SHARED_SELECTORS } from '../selectors';
 import { SMM } from '../SMM';
-import { info } from '../util';
+import { info, waitForElement } from '../util';
 
 const main = async () => {
   info('Successfully injected app properties script');
@@ -7,6 +8,8 @@ const main = async () => {
   if (window.smmUIMode !== 'desktop') {
     return;
   }
+
+  waitForElement(SHARED_SELECTORS.appProperties);
 
   const smm = new SMM('appProperties');
   if (window.smm) {
