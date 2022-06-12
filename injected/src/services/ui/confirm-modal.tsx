@@ -2,26 +2,22 @@
 
 import { dcCreateElement } from '../../dom-chef';
 
-export const confirm = async ({
-  onConfirm,
-  onCancel,
-  ...props
-}: Parameters<typeof createConfirmModal>[0]) =>
+export const confirm = async (
+  args: Omit<Parameters<typeof createConfirmModal>[0], 'onConfirm' | 'onCancel'>
+) =>
   new Promise<void>((resolve, reject) => {
     const handleConfirm = () => {
-      onConfirm();
       modal.remove();
       resolve();
     };
 
     const handleCancel = () => {
-      onCancel();
       modal.remove();
       reject();
     };
 
     const modal = createConfirmModal({
-      ...props,
+      ...args,
       onConfirm: handleConfirm,
       onCancel: handleCancel,
     });
