@@ -1,5 +1,6 @@
 import { InGameMenu } from './in-game-menu';
 import { MenuManager } from './menu-manager';
+import { Apps } from './services/Apps';
 import { Exec } from './services/Exec';
 import { FS } from './services/FS';
 import { Inject } from './services/Inject';
@@ -88,6 +89,8 @@ export class SMM extends EventTarget {
   readonly UI: UI;
   readonly Exec: Exec;
   readonly Inject: Inject;
+  // TODO: related to types for specific context above, use inherited classes
+  readonly Apps?: Apps;
 
   readonly serverPort: string;
 
@@ -127,6 +130,7 @@ export class SMM extends EventTarget {
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);
+      this.Apps = new Apps(this);
     }
 
     if (entry === 'library' || entry === 'quickAccess') {

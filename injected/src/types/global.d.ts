@@ -60,6 +60,77 @@ declare global {
       };
     };
 
+    appDetailsStore: {
+      m_mapAppData: {
+        _data: Map<
+          number,
+          {
+            key: number;
+            value: {
+              details: {
+                // TODO: finish documenting this
+                achievements: {
+                  // TODO: finish documenting this
+                  nAchieved: number;
+                  nTotal: number;
+                  // Achieved
+                  vecHighlight: {
+                    bAchieved: boolean;
+                    strID: string;
+                    strName: string;
+                    strDescription: string;
+                    strImage: string;
+                    rtUnlocked: number;
+                  }[];
+                };
+                bOverlayEnabled: boolean;
+                eAutoUpdateValue: number;
+                eBackgroundDownloads: number;
+                eCloudSync: number;
+                lDiskUsageBytes: number;
+                nBuildID: number;
+                nPlaytimeForever: number;
+                nScreenshots: number;
+                rtLastTimePlayed: number;
+                rtLastUpdated: number;
+                strCompatToolDisplayName: string;
+                strCompatToolName: string;
+                strDeveloperName: string;
+                strDeveloperURL: string;
+                strDisplayName: string;
+                strFlatpakAppID: string;
+                strHomepageURL: string;
+                strLaunchOptions: string;
+                strOwnerSteamID: string;
+                unAppID: number;
+                vecDeckCompatTestResults: {
+                  test_result: number;
+                  test_loc_token: string;
+                }[];
+                vecLanguages: {
+                  strDisplayName: string;
+                  strShortName: string;
+                }[];
+                vecPlatforms: string[];
+                vecScreenShots: {
+                  bSpoilers: boolean;
+                  bUploaded: boolean;
+                  ePrivacy: number;
+                  hHandle: number;
+                  nAppID: number;
+                  nCreated: number;
+                  nHeight: number;
+                  nWidth: number;
+                  strCaption: string;
+                  strUrl: string;
+                }[];
+              };
+            };
+          }
+        >;
+      };
+    };
+
     settingsStore: {
       m_Settings: {
         bCefRemoteDebuggingEnabled: boolean;
