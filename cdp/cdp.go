@@ -41,12 +41,15 @@ func WaitForConnection(debugPort string) {
 
 		targets, err := chromedp.Targets(steamCtx)
 		if err != nil {
+			log.Println("Error getting targets", err)
 			time.Sleep(1 * time.Second)
 			continue
 		}
+		log.Println("TARGETS: ", targets)
 
 		foundSp := false
 		for _, target := range targets {
+			log.Println("check target", target.Title)
 			if IsLibraryTarget(target) {
 				foundSp = true
 			}
