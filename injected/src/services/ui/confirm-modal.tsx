@@ -39,8 +39,8 @@ export const createConfirmModal = ({
   onCancel,
 }: {
   message: string;
-  confirmText: string;
-  cancelText: string;
+  confirmText?: string;
+  cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }) => {
