@@ -1,16 +1,29 @@
 package inject
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"text/template"
 
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
 )
 
-func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectArgs, res *InjectReply) error {
+type InjectAppPropertiesArgs struct {
+	AppId int
+}
+
+type InjectAppPropertiesReply struct{}
+
+var appPropertiesScriptTemplate = template.Must(template.New("app-properties").Parse(`
+	window.appPropertiesAppId = {{ .AppId }};
+	{{ .Script }}
+`))
+
+func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAppPropertiesArgs, res *InjectAppPropertiesReply) error {
 	log.Println("Injecting app properties scripts...")
 
 	steamClient, err := cdp.NewSteamClient(service.debugPort)
@@ -50,7 +63,18 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAr
 		return fmt.Errorf("Failed to build app properties eval script: %w", err)
 	}
 
-	if err := steamClient.RunScriptInAppProperties(appPropertiesEvalScript); err != nil {
+	var scriptBytes bytes.Buffer
+	if err := appPropertiesScriptTemplate.Execute(&scriptBytes, struct {
+		AppId  int
+		Script string
+	}{
+		AppId:  req.AppId,
+		Script: appPropertiesEvalScript,
+	}); err != nil {
+		return err
+	}
+
+	if err := steamClient.RunScriptInAppProperties(scriptBytes.String()); err != nil {
 		log.Println(err)
 		return fmt.Errorf("Error injecting app properties script: %w", err)
 	}

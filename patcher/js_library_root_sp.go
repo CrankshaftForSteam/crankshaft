@@ -196,7 +196,7 @@ func appPropertiesEvent(fileLines []string) ([]string, error) {
 			found = true
 
 			appId := matches[1]
-			fileLines[i] = fmt.Sprintf("smm.Inject.injectAppProperties(%s);\n", appId) + line
+			fileLines[i] = fmt.Sprintf("smm.switchToAppProperties(%s);\n", appId) + line
 			break
 		}
 	}

@@ -18,6 +18,14 @@ const main = async () => {
   window.smm = smm;
 
   await smm.loadPlugins();
+
+  const appPropertiesAppId: number | undefined = (window as any)
+    .appPropertiesAppId;
+  if (appPropertiesAppId) {
+    smm.switchToAppProperties(appPropertiesAppId);
+  } else {
+    console.error('App ID for app properties context not found.');
+  }
 };
 
 main();

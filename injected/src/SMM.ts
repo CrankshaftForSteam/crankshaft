@@ -19,6 +19,7 @@ type SMMEvent =
   | EventSwitchToHome
   | EventSwitchToCollections
   | EventSwitchToAppDetails
+  | EventSwitchToAppProperties
   | EventLockScreenOpened
   | EventLockScreenClosed;
 
@@ -44,6 +45,13 @@ type eventDetailsSwitchToAppDetails = { appId: string; appName: string };
 class EventSwitchToAppDetails extends CustomEvent<eventDetailsSwitchToAppDetails> {
   constructor(detail: eventDetailsSwitchToAppDetails) {
     super('switchToAppDetails', { detail });
+  }
+}
+
+type eventDetailsSwitchToAppProperties = { appId: number };
+class EventSwitchToAppProperties extends CustomEvent<eventDetailsSwitchToAppProperties> {
+  constructor(detail: eventDetailsSwitchToAppProperties) {
+    super('switchToAppProperties', { detail });
   }
 }
 
@@ -187,9 +195,23 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventSwitchToAppDetails({ appId, appName }));
   }
 
-  switchToAppProperties(appId: string, appName: string) {
+  switchToAppProperties(appId: number) {
     info('Switched to app properties for app', appId);
-    this.dispatchEvent(new EventSwitchToAppProperties({ appId, appName }));
+
+    /*
+      In desktop mode, the app properties dialog is in a different context, so
+      we inject Crankshaft into it and dispatch the event from that instance.
+
+      In Deck mode, the app properties menu is in the same context, so we
+      dispatch the event here directly.
+    */
+
+    if (window.smmUIMode === 'desktop' && this.entry !== 'appProperties') {
+      this.Inject.injectAppProperties(appId);
+      return;
+    }
+
+    this.dispatchEvent(new EventSwitchToAppProperties({ appId }));
   }
 
   lockScreenOpened() {
