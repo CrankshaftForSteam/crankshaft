@@ -15,6 +15,8 @@ export const createProgressModal = ({
   progress: boolean;
   title: string;
 }) => {
+  const uiMode = window.smmUIMode;
+
   deleteAll('[data-smm-proton-updater-progress-modal]');
 
   const progressText = dcCreateElement<HTMLHeadingElement>(
@@ -75,7 +77,7 @@ export const createProgressModal = ({
         zIndex: 9999,
 
         height: 'min-content',
-        maxWidth: '40%',
+        maxWidth: uiMode === 'deck' ? '60%' : '40%',
 
         display: 'flex !important',
         flexDirection: 'column',
