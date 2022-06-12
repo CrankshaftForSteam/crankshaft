@@ -105,6 +105,19 @@ func (p *Plugins) addPlugin(plugin Plugin) {
 	p.PluginMap[plugin.Id] = plugin
 }
 
+func (p *Plugins) RemovePlugin(pluginId string) error {
+	plugin, ok := p.PluginMap[pluginId]
+	if !ok {
+		return errors.New("Plugin not found: " + pluginId)
+	}
+
+	if err := os.RemoveAll(plugin.Dir); err != nil {
+		return fmt.Errorf("Error deleting plugin directory for '%s': %v", pluginId, err)
+	}
+
+	return p.Reload()
+}
+
 func (p *Plugins) SetEnabled(pluginId string, enabled bool) error {
 	plugin, ok := p.PluginMap[pluginId]
 	if !ok {

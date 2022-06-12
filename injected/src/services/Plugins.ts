@@ -55,14 +55,22 @@ export class Plugins extends Service {
     return getRes();
   }
 
-  async load(pluginName: string) {
-    await this.smm.loadPlugin(pluginName);
-    await this.setEnabled(pluginName, true);
+  async remove(pluginId: string) {
+    this.unload(pluginId);
+    const { getRes } = rpcRequest<{ id: string }, {}>('PluginsService.Remove', {
+      id: pluginId,
+    });
+    return getRes();
   }
 
-  async unload(pluginName: string) {
-    await this.smm.unloadPlugin(pluginName);
-    await this.setEnabled(pluginName, false);
+  async load(pluginId: string) {
+    await this.smm.loadPlugin(pluginId);
+    await this.setEnabled(pluginId, true);
+  }
+
+  async unload(pluginId: string) {
+    await this.smm.unloadPlugin(pluginId);
+    await this.setEnabled(pluginId, false);
   }
 
   async injectPlugin(pluginId: string) {

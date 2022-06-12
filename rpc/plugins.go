@@ -47,3 +47,13 @@ func (service *PluginsService) SetEnabled(r *http.Request, req *SetEnabledArgs, 
 	err := service.plugins.SetEnabled(req.Id, req.Enabled)
 	return err
 }
+
+type RemoveArgs struct {
+	Id string `json:"id"`
+}
+
+type RemoveReply struct{}
+
+func (service *PluginsService) Remove(r *http.Request, req *RemoveArgs, res *RemoveReply) error {
+	return service.plugins.RemovePlugin(req.Id)
+}
