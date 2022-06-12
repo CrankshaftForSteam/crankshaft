@@ -69,6 +69,7 @@ export const createConfirmModal = ({
         color: '#b8bcbf',
         padding: 20,
       }}
+      data-smm-modal
     >
       <span>{message}</span>
       <div
