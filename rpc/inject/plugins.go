@@ -12,9 +12,10 @@ import (
 type entry string
 
 const (
-	LibraryEntry     entry = "library"
-	MenuEntry        entry = "menu"
-	QuickAccessEntry entry = "quickAccess"
+	LibraryEntry       entry = "library"
+	MenuEntry          entry = "menu"
+	QuickAccessEntry   entry = "quickAccess"
+	AppPropertiesEntry entry = "appProperties"
 )
 
 // To make the API nicer, the client will pass it's entrypoint, and we convert
@@ -27,6 +28,8 @@ func (e entry) target() cdp.SteamTarget {
 		return cdp.MenuTarget
 	case QuickAccessEntry:
 		return cdp.QuickAccessTarget
+	case AppPropertiesEntry:
+		return cdp.AppPropertiesTarget
 	}
 
 	// This should never be reached
@@ -68,6 +71,8 @@ func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsA
 		steamClient.RunScriptInMenu("window.csPluginsLoaded()")
 	case QuickAccessEntry:
 		steamClient.RunScriptInQuickAccess("window.csPluginsLoaded()")
+	case AppPropertiesEntry:
+		steamClient.RunScriptInAppProperties("window.csPluginsLoaded()")
 	}
 
 	return nil
@@ -129,6 +134,14 @@ func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin, entrypoin
 		if err := steamClient.RunScriptInQuickAccess(plugin.Script); err != nil {
 			log.Println(err)
 			return fmt.Errorf(`Error injecting plugin "%s" into quick access: %v`, plugin.Config.Name, err)
+		}
+	}
+
+	if entrypoint == cdp.AppPropertiesTarget && pluginEntrypoints.AppProperties {
+		log.Println("Injecting", plugin.Id, "into app properties")
+		if err := steamClient.RunScriptInAppProperties(plugin.Script); err != nil {
+			log.Println(err)
+			return fmt.Errorf(`Error injecting plugin "%s" into app properties: %v`, plugin.Config.Name, err)
 		}
 	}
 
