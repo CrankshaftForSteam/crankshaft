@@ -3,6 +3,7 @@ import {
   loadPluginBrowser,
   loadPluginManager,
 } from '../internal-plugins';
+import { MENU_DESKTOP_SELECTORS } from '../menu-manager/selectors';
 import { getSelectorByMode } from '../selectors';
 import { SMM } from '../SMM';
 import { createTabObserver } from '../tab-observer';
@@ -42,6 +43,10 @@ const main = async () => {
   const mainLibraryEl = await waitForElement<HTMLDivElement>(
     getSelectorByMode('mainLibrary')
   );
+
+  if (window.smmUIMode === 'desktop') {
+    await waitForElement(MENU_DESKTOP_SELECTORS.collectionsButton);
+  }
 
   createTabObserver(smm, mainLibraryEl);
 
