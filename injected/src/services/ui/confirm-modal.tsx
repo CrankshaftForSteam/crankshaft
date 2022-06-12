@@ -2,6 +2,12 @@
 
 import { dcCreateElement } from '../../dom-chef';
 
+export class ConfirmModalCancelledError extends Error {
+  constructor() {
+    super('User pressed cancel');
+  }
+}
+
 export const confirm = async (
   args: Omit<Parameters<typeof createConfirmModal>[0], 'onConfirm' | 'onCancel'>
 ) =>
@@ -13,7 +19,7 @@ export const confirm = async (
 
     const handleCancel = () => {
       modal.remove();
-      reject();
+      reject(new ConfirmModalCancelledError());
     };
 
     const modal = createConfirmModal({
