@@ -253,16 +253,17 @@ export class MenuInjectorDesktop implements MenuInjector {
     const showMenuPage = () => {
       menuContainer.style.display = 'flex';
 
+      // If user clicked inside one of these, don't close the menu page
+      const csCloseSelectors = [
+        '[data-smm-menu-page-container]',
+        '[data-smm-menu-button]',
+        '[data-smm-modal]',
+        '[data-smm-toasts]',
+      ];
+
       const closeHandler = (event: MouseEvent) => {
         const target = event.target as HTMLElement | undefined;
-        if (
-          !(
-            target?.closest('[data-smm-menu-page-container]') ||
-            target?.closest('[data-smm-menu-button]') ||
-            target?.closest('[data-smm-modal]') ||
-            target?.closest('[data-smm-toasts]')
-          )
-        ) {
+        if (!csCloseSelectors.some((selector) => target?.closest(selector))) {
           menuContainer.style.display = 'none';
           document.removeEventListener('click', closeHandler);
         }
