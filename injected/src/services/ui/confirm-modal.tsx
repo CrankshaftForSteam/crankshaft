@@ -34,12 +34,14 @@ export const confirm = async (
 export const createConfirmModal = ({
   message,
   confirmText = 'Confirm',
+  confirmBackgroundColour,
   cancelText = 'Cancel',
   onConfirm,
   onCancel,
 }: {
   message: string;
   confirmText?: string;
+  confirmBackgroundColour?: string;
   cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
@@ -82,7 +84,7 @@ export const createConfirmModal = ({
         <button
           className="cs-button"
           onClick={onConfirm}
-          style={{ width: '50%' }}
+          style={{ width: '50%', backgroundColor: confirmBackgroundColour }}
         >
           {confirmText}
         </button>
