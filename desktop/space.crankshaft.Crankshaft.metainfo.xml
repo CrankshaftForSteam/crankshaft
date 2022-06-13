@@ -41,6 +41,22 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.1.6" date="2022-06-13">
+      <description>
+        <ul>
+          <li>Initial support for plugins in the app properties page/popup</li>
+          <li>Plugins can specify a minimum required Crankshaft version to allow them to be installed/updated</li>
+          <li>Plugin manager: Add button to remove a plugin</li>
+          <li>Plugin manager: Add a button to rebuild and reload a plugin</li>
+          <li>Plugin API: add confirmation dialog</li>
+          <li>Some changes to load more reliably</li>
+          <li>Minor gamepad mode UI improvements</li>
+        </ul>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.6</url>
+    </release>
+
     <release version="0.1.5" date="2022-06-04">
       <description>
         <ul>
