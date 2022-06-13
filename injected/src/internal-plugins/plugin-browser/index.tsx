@@ -17,6 +17,7 @@ export interface Plugin {
   name: string;
   version: string;
   author: string;
+  minCrankshaftVersion?: string;
   source: string;
   archive: string;
   sha256: string;
@@ -90,6 +91,51 @@ const Plugin: FunctionComponent<
     [installedPlugin, plugin]
   );
 
+  const installButton = useMemo(() => {
+    if (canUpdate) {
+      if (
+        plugin.minCrankshaftVersion &&
+        plugin.minCrankshaftVersion > window.csVersion
+      ) {
+        return (
+          <button className="cs-button" disabled>
+            Update Crankshaft to update this plugin
+          </button>
+        );
+      }
+      return (
+        <button className="cs-button" onClick={handleInstall}>
+          Update
+        </button>
+      );
+    }
+
+    if (Boolean(installedPlugin)) {
+      return (
+        <button className="cs-button" disabled>
+          Already installed
+        </button>
+      );
+    }
+
+    if (
+      plugin.minCrankshaftVersion &&
+      plugin.minCrankshaftVersion > window.csVersion
+    ) {
+      return (
+        <button className="cs-button" disabled>
+          Update Crankshaft to install this plugin
+        </button>
+      );
+    }
+
+    return (
+      <button className="cs-button" onClick={handleInstall}>
+        Install
+      </button>
+    );
+  }, [installedPlugin, plugin, canUpdate]);
+
   return (
     <li
       style={{
@@ -119,15 +165,7 @@ const Plugin: FunctionComponent<
             <>Latest version: {plugin.version}</>
           ) : null}
         </p>
-        {installedPlugin ? (
-          canUpdate ? (
-            <cs-button onClick={handleInstall}>Update</cs-button>
-          ) : (
-            <cs-button disabled>Already Installed</cs-button>
-          )
-        ) : (
-          <cs-button onClick={handleInstall}>Install</cs-button>
-        )}
+        {installButton}{' '}
       </div>
     </li>
   );
