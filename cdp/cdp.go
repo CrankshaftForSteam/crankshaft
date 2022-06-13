@@ -19,7 +19,7 @@ const (
 
 // GetSteamCtx returns the CDP context for the running Steam client.
 func GetSteamCtx(debugPort string) (ctx context.Context, cancel func(), err error) {
-	allocatorCtx, cancel1 := chromedp.NewRemoteAllocator(context.Background(), "http://localhost:"+debugPort)
+	allocatorCtx, cancel1 := chromedp.NewRemoteAllocator(context.Background(), "http://127.0.0.1:"+debugPort)
 
 	ctx, cancel2 := chromedp.NewContext(allocatorCtx)
 
