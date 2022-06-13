@@ -1,8 +1,8 @@
 import { FunctionComponent, render } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import { Plugin } from '../../services/Plugins';
-import { ConfirmModalCancelledError } from '../../services/ui/confirm-modal';
 import { SMM } from '../../SMM';
+import { usePluginActions } from './plugin-actions';
 
 export const load = (smm: SMM) => {
   smm.MenuManager.addMenuItem({
@@ -24,22 +24,6 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
     setPlugins(await smm.Plugins.list());
   }, [setPlugins]);
 
-  const handleLoad = useCallback(
-    async (pluginId: string) => {
-      await smm.Plugins.load(pluginId);
-      reloadPlugins();
-    },
-    [reloadPlugins, smm]
-  );
-
-  const handleUnload = useCallback(
-    async (pluginId: string) => {
-      await smm.Plugins.unload(pluginId);
-      reloadPlugins();
-    },
-    [reloadPlugins, smm]
-  );
-
   return (
     <>
       <h1 style={{ fontSize: 24, margin: 'unset', marginBottom: 16 }}>
@@ -54,13 +38,7 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
       >
         {typeof plugins !== 'undefined' ? (
           Object.values(plugins).map((plugin) => (
-            <Plugin
-              plugin={plugin}
-              onLoad={() => handleLoad(plugin.id)}
-              onUnload={() => handleUnload(plugin.id)}
-              reloadPlugins={reloadPlugins}
-              smm={smm}
-            />
+            <Plugin plugin={plugin} reloadPlugins={reloadPlugins} smm={smm} />
           ))
         ) : (
           <p>Loading...</p>
@@ -72,43 +50,15 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
 
 const Plugin: FunctionComponent<{
   plugin: Plugin;
-  onLoad: () => void;
-  onUnload: () => void;
   reloadPlugins: () => Promise<void>;
   smm: SMM;
-}> = ({ plugin, onLoad, onUnload, reloadPlugins, smm }) => {
-  const handleRemove = useCallback(async () => {
-    try {
-      await smm.UI.confirm({
-        message: `Are you sure you want to remove the plugin ${plugin.config.name}?`,
-        confirmText: 'Remove plugin',
-        confirmBackgroundColour: 'rgb(209, 28, 28)',
-      });
-      await smm.Plugins.remove(plugin.id);
-      smm.Toast.addToast(`Plugin ${plugin.config.name} removed`, 'success');
-    } catch (err) {
-      if (err instanceof ConfirmModalCancelledError) {
-        return;
-      }
-
-      console.error(err);
-      smm.Toast.addToast('Error removing plugin.', 'error');
-    } finally {
-      reloadPlugins();
-    }
-  }, [plugin, reloadPlugins, smm]);
-
-  const handleReload = useCallback(async () => {
-    try {
-      await smm.Plugins.reloadPlugin(plugin.id);
-      smm.Toast.addToast(`${plugin.config.name} reloaded!`, 'success');
-    } catch (err) {
-      console.error(err);
-      smm.Toast.addToast('Error reloading plugin.', 'error');
-    } finally {
-      reloadPlugins();
-    }
-  }, [plugin, reloadPlugins, smm]);
+}> = ({ plugin, reloadPlugins, smm }) => {
+  const { handleLoad, handleUnload, handleReload, handleRemove } =
+    usePluginActions({
+      plugin,
+      reloadPlugins,
+      smm,
+    });
 
   return (
     <li
@@ -136,11 +86,11 @@ const Plugin: FunctionComponent<{
 
         <div style={{ display: 'flex', gap: 8 }}>
           {plugin.enabled ? (
-            <button className="cs-button" onClick={onUnload}>
+            <button className="cs-button" onClick={handleUnload}>
               Unload
             </button>
           ) : (
-            <button className="cs-button" onClick={onLoad}>
+            <button className="cs-button" onClick={handleLoad}>
               Load
             </button>
           )}
