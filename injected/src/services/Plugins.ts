@@ -80,4 +80,16 @@ export class Plugins extends Service {
     );
     return getRes();
   }
+
+  async reloadPlugin(pluginId: string) {
+    const { getRes: rebuildGetRes } = rpcRequest<{ id: string }, {}>(
+      'InjectService.Rebuild',
+      { id: pluginId }
+    );
+
+    await this.smm.unloadPlugin(pluginId);
+    await rebuildGetRes;
+    await this.injectPlugin(pluginId);
+    await this.smm.loadPlugin(pluginId);
+  }
 }

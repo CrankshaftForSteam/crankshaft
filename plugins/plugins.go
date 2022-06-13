@@ -3,7 +3,6 @@ package plugins
 import (
 	"errors"
 	"fmt"
-	"io/fs"
 	"log"
 	"os"
 	"path"
@@ -68,17 +67,9 @@ func NewPlugins(crksftConfig *config.CrksftConfig, pluginsDir string) (*Plugins,
 			return nil, err
 		}
 
-		indexJsPath := path.Join(pluginDir, "dist", "index.js")
-		data, err := os.ReadFile(indexJsPath)
-		if err != nil && errors.Is(err, fs.ErrNotExist) {
-			if errors.Is(err, fs.ErrNotExist) {
-				return nil, fmt.Errorf(`[Plugin %s]: index.js not found at "%s" - %v`, pluginName, indexJsPath, err)
-			}
-			return nil, err
-		}
-
 		log.Printf("Building plugin script \"%s\"...\n", pluginName)
-		script, err := buildPluginScript(string(data), pluginName)
+
+		script, err := buildPluginScript(pluginName, pluginDir)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -116,6 +107,24 @@ func (p *Plugins) RemovePlugin(pluginId string) error {
 	}
 
 	return p.Reload()
+}
+
+func (p *Plugins) RebuildPlugin(pluginId string) error {
+	plugin, ok := p.PluginMap[pluginId]
+	if !ok {
+		return errors.New("Plugin not found: " + pluginId)
+	}
+
+	script, err := buildPluginScript(plugin.Id, plugin.Dir)
+	if err != nil {
+		return err
+	}
+
+	plugin.Script = script
+
+	p.PluginMap[pluginId] = plugin
+
+	return nil
 }
 
 func (p *Plugins) SetEnabled(pluginId string, enabled bool) error {

@@ -36,6 +36,16 @@ func (service *PluginsService) List(r *http.Request, req *ListArgs, res *ListRep
 	return nil
 }
 
+type RebuildArgs struct {
+	Id string `json:"id"`
+}
+
+type RebuildReply struct{}
+
+func (service *PluginsService) Rebuild(r *http.Request, req *RebuildArgs, res *RebuildReply) error {
+	return service.plugins.RebuildPlugin(req.Id)
+}
+
 type SetEnabledArgs struct {
 	Id      string `json:"id"`
 	Enabled bool   `json:"enabled"`

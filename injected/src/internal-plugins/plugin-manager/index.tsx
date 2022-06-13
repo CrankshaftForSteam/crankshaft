@@ -96,7 +96,19 @@ const Plugin: FunctionComponent<{
     } finally {
       reloadPlugins();
     }
-  }, [smm]);
+  }, [plugin, reloadPlugins, smm]);
+
+  const handleReload = useCallback(async () => {
+    try {
+      await smm.Plugins.reloadPlugin(plugin.id);
+      smm.Toast.addToast(`${plugin.config.name} reloaded!`, 'success');
+    } catch (err) {
+      console.error(err);
+      smm.Toast.addToast('Error reloading plugin.', 'error');
+    } finally {
+      reloadPlugins();
+    }
+  }, [plugin, reloadPlugins, smm]);
 
   return (
     <li
@@ -132,6 +144,10 @@ const Plugin: FunctionComponent<{
               Load
             </button>
           )}
+
+          <button className="cs-button" onClick={handleReload}>
+            Reload
+          </button>
 
           <button
             className="cs-button"
