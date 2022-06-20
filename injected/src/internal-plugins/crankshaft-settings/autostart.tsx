@@ -128,7 +128,7 @@ const RestartSection: FunctionComponent<{
   }
 
   return (
-    <Setting name="Restart">
+    <Setting name="Restart" gpGroupName="restart">
       <p style={{ margin: '0 0 8px 0' }}>
         You can try restarting Crankshaft if you have issues like plugins not
         loading.
@@ -137,6 +137,8 @@ const RestartSection: FunctionComponent<{
         className="cs-button"
         onClick={handleRestart}
         disabled={restarting}
+        data-cs-gp-in-group="restart"
+        data-cs-gp-item="restart__restart-btn"
       >
         {restarting ? 'Restarting Crankshaft...' : 'Restart Crankshaft'}
       </button>
@@ -171,6 +173,8 @@ const AutostartSection: FunctionComponent<{
         <button
           className="cs-button"
           onClick={() => setAutostartEnabled(false)}
+          data-cs-gp-in-group="autostart"
+          data-cs-gp-item="autostart__autostart-btn"
         >
           Disable
         </button>
@@ -182,7 +186,12 @@ const AutostartSection: FunctionComponent<{
         </>
       );
       toggleBtn = (
-        <button className="cs-button" onClick={() => setAutostartEnabled(true)}>
+        <button
+          className="cs-button"
+          onClick={() => setAutostartEnabled(true)}
+          data-cs-gp-in-group="autostart"
+          data-cs-gp-item="autostart__autostart-btn"
+        >
           Enable
         </button>
       );
@@ -190,7 +199,7 @@ const AutostartSection: FunctionComponent<{
   }
 
   return (
-    <Setting name="Autostart">
+    <Setting name="Autostart" gpGroupName="autostart">
       <p style={{ margin: '0 0 8px 0' }}>{text}</p>
       {toggleBtn}
     </Setting>

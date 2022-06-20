@@ -32,10 +32,11 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => (
   </>
 );
 
-export const Setting: FunctionComponent<{ name: string }> = ({
-  name,
-  children,
-}) => (
+export const Setting: FunctionComponent<{
+  name: string;
+  first?: boolean;
+  gpGroupName: string;
+}> = ({ children, first = false, name, gpGroupName }) => (
   <li
     style={{
       display: 'block',
@@ -44,6 +45,9 @@ export const Setting: FunctionComponent<{ name: string }> = ({
       padding: '8px 0',
       marginBottom: 12,
     }}
+    data-cs-gp-in-group="root"
+    data-cs-gp-group={gpGroupName}
+    data-cs-gp-init-focus={first || undefined}
   >
     <div
       style={{
@@ -59,12 +63,19 @@ export const Setting: FunctionComponent<{ name: string }> = ({
 );
 
 const Info = () => (
-  <Setting name="Info">
+  <Setting name="Info" gpGroupName="info" first>
     <p style={{ margin: '4px 0 0' }}>
       Crankshaft version: {window.csVersion}
       <br />
       Find documentation, source code, and more at{' '}
-      <a href="https://crankshaft.space/">crankshaft.space</a>.
+      <a
+        href="https://crankshaft.space/"
+        data-cs-gp-in-group="info"
+        data-cs-gp-item="info__link"
+      >
+        crankshaft.space
+      </a>
+      .
     </p>
   </Setting>
 );
@@ -97,7 +108,7 @@ const Devtools: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
   }, [setDevtoolsFrontendUrl, smm]);
 
   return (
-    <Setting name="Open Chrome devtools">
+    <Setting name="Open Chrome devtools" gpGroupName="devtools">
       <p style={{ margin: '4px 0 0 0' }}>
         Paste the below URL into a Chromium-based browser to open devtools for
         the Steam Client:
@@ -128,8 +139,10 @@ const CefDebugToggle: FunctionComponent = () => {
     setEnabled((prev) => !prev);
   }, [enabled, setEnabled]);
 
+  const GP_GROUP_NAME = 'cefDebug';
+
   return (
-    <Setting name="Steam Client CEF debugging">
+    <Setting name="Steam Client CEF debugging" gpGroupName={GP_GROUP_NAME}>
       <>
         <p style={{ margin: '0 0 8px 0' }}>
           <b>{enabled ? 'Enabled' : 'Disabled'}</b>
@@ -139,7 +152,12 @@ const CefDebugToggle: FunctionComponent = () => {
           </span>
           <i>Requires restarting the Steam client to take effect.</i>
         </p>
-        <button className="cs-button" onClick={handleToggle}>
+        <button
+          className="cs-button"
+          onClick={handleToggle}
+          data-cs-gp-in-group={GP_GROUP_NAME}
+          data-cs-gp-item={`${GP_GROUP_NAME}__toggle-debug`}
+        >
           {enabled ? 'Disable' : 'Enable'}
         </button>
       </>
