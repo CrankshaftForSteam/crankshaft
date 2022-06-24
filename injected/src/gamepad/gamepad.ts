@@ -1,5 +1,6 @@
+import { isOutsideContainer } from '../util';
 import { BTN_CODE } from './buttons';
-import { buildGamepadTree, GamepadTree } from './tree';
+import { buildGamepadTree, GamepadTree, siblings } from './tree';
 
 export class GamepadHandler {
   root: HTMLElement;
@@ -67,6 +68,19 @@ export class GamepadHandler {
 
         console.log('gamepad button pressed:', buttonCode);
 
+        this.recalculateTree();
+
+        switch (buttonCode) {
+          case BTN_CODE.UP:
+          case BTN_CODE.LEFT:
+            this.move('up');
+            break;
+          case BTN_CODE.DOWN:
+          case BTN_CODE.RIGHT:
+            this.move('down');
+            break;
+        }
+
         // Intercept button press
         return true;
       },
@@ -85,9 +99,25 @@ export class GamepadHandler {
     newFocusEl.classList.add('cs-gp-focus');
 
     this.focusPath = newFocusPath;
+
+    // Scroll newly focused element into view if needed
+    if (isOutsideContainer(newFocusEl, this.root)) {
+      newFocusEl.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   recalculateTree() {
     this.tree = buildGamepadTree(this.root);
+  }
+
+  move(direction: 'up' | 'down') {
+    const cur = this.tree[this.focusPath];
+    const sibling = Object.values(this.tree).filter(siblings(cur));
+    const next = sibling.find(
+      (s) => s.position === cur.position + (direction === 'up' ? -1 : 1)
+    );
+    if (next) {
+      this.updateFocused(next.name);
+    }
   }
 }

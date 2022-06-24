@@ -1,6 +1,6 @@
 export type GamepadTree = Record<string, GamepadTreeChild>;
 
-interface GamepadTreeChild {
+export interface GamepadTreeChild {
   type: 'group' | 'item';
   name: string;
   parentGroup: string;
