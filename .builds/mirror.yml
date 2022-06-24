@@ -7,4 +7,5 @@ tasks:
  - mirror: |
      ssh-keyscan github.com > "$HOME"/.ssh/known_hosts
      cd crankshaft
-     git push --mirror git@github.com:Crankshaft-for-Steam/crankshaft.git
+     git remote add github git@github.com:Crankshaft-for-Steam/crankshaft.git
+     git push --prune github +refs/remotes/origin/*:refs/heads/* +refs/tags/*:refs/tags/* main
