@@ -1,4 +1,5 @@
 import { isOutsideContainer } from '../util';
+import { attachBasicGamepadHandler } from './basic-handler';
 import { BTN_CODE } from './buttons';
 import { shouldAllowButtonPresses } from './overrides';
 import {
@@ -11,7 +12,7 @@ import {
 export class GamepadHandler {
   root: HTMLElement;
   tree: GamepadTree;
-  focusPath: string;
+  focusPath!: string;
   rootExitCallback?: () => void;
 
   constructor({
@@ -29,7 +30,12 @@ export class GamepadHandler {
       (child) => child.initialFocus
     );
     if (!initialFocusEl) {
-      throw new Error('Initial focus item not found!');
+      // TODO: make it more explicit if a page/plugin has gamepad support?
+      console.log(
+        'GamepadHandler - Initial focus item not found, using basic handler...'
+      );
+      attachBasicGamepadHandler(rootExitCallback);
+      return;
     }
     this.focusPath = initialFocusEl.name;
     this.updateFocused(this.focusPath);
