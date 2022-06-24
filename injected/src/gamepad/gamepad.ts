@@ -1,26 +1,28 @@
 import { isOutsideContainer } from '../util';
 import { BTN_CODE } from './buttons';
-import { buildGamepadTree, GamepadTree, siblings } from './tree';
+import { shouldAllowButtonPresses } from './overrides';
+import {
+  buildGamepadTree,
+  children as childrenFilter,
+  GamepadTree,
+  siblings as siblingsFilter,
+} from './tree';
 
 export class GamepadHandler {
   root: HTMLElement;
   tree: GamepadTree;
   focusPath: string;
-  customHandler?: (buttonCode: number) => void;
   rootExitCallback?: () => void;
 
   constructor({
     root,
-    customHandler,
     rootExitCallback,
   }: {
     root: HTMLElement;
-    customHandler?: GamepadHandler['customHandler'];
     rootExitCallback?: GamepadHandler['rootExitCallback'];
   }) {
     this.root = root;
     this.tree = buildGamepadTree(root);
-    this.customHandler = customHandler;
     this.rootExitCallback = rootExitCallback;
 
     const initialFocusEl = Object.values(this.tree).find(
@@ -37,53 +39,15 @@ export class GamepadHandler {
     window.csButtonInterceptors = window.csButtonInterceptors || [];
     window.csButtonInterceptors.push({
       id: 'gamepad-root',
-      handler: (buttonCode) => {
-        // Allow all button presses if a menu is open
-        if (
-          window.coolClass.m_eOpenSideMenu &&
-          window.coolClass.m_eOpenSideMenu !== 0
-        ) {
-          return false;
-        }
-
-        // Allow menu buttons
-        if (
-          buttonCode === BTN_CODE.MENU ||
-          buttonCode === BTN_CODE.QUICK_ACCESS
-        ) {
-          return false;
-        }
-
-        if (this.customHandler?.(buttonCode)) {
-          return true;
-        }
-
-        if (buttonCode === BTN_CODE.B) {
-          window.csButtonInterceptors = window.csButtonInterceptors?.filter(
-            (i) => i.id !== 'gamepad-root'
-          );
-          window.csGp = undefined;
-          this.rootExitCallback?.();
-        }
-
-        console.log('gamepad button pressed:', buttonCode);
-
-        this.recalculateTree();
-
-        switch (buttonCode) {
-          case BTN_CODE.UP:
-          case BTN_CODE.LEFT:
-            this.move('up');
-            break;
-          case BTN_CODE.DOWN:
-          case BTN_CODE.RIGHT:
-            this.move('down');
-            break;
-        }
-
-        // Intercept button press
-        return true;
-      },
+      handler: (buttonCode) =>
+        this.handleButtonPress({
+          buttonCode,
+          interceptorId: 'gamepad-root',
+          onExit: () => {
+            window.csGp = undefined;
+            this.rootExitCallback?.();
+          },
+        }),
     });
   }
 
@@ -91,7 +55,7 @@ export class GamepadHandler {
     window.csButtonInterceptors = [];
   }
 
-  updateFocused(newFocusPath: string) {
+  private updateFocused(newFocusPath: string) {
     const currentFocusEl = this.tree[this.focusPath].el;
     currentFocusEl.classList.remove('cs-gp-focus');
 
@@ -110,14 +74,93 @@ export class GamepadHandler {
     this.tree = buildGamepadTree(this.root);
   }
 
-  move(direction: 'up' | 'down') {
+  private move(direction: 'up' | 'down') {
     const cur = this.tree[this.focusPath];
-    const sibling = Object.values(this.tree).filter(siblings(cur));
-    const next = sibling.find(
+    const siblings = Object.values(this.tree).filter(siblingsFilter(cur));
+    const next = siblings.find(
       (s) => s.position === cur.position + (direction === 'up' ? -1 : 1)
     );
     if (next) {
       this.updateFocused(next.name);
     }
+  }
+
+  private enterGroup(groupName: string) {
+    const children = Object.values(this.tree).filter(childrenFilter(groupName));
+    if (!children[0]) {
+      return;
+    }
+
+    this.updateFocused(children[0].name);
+
+    const exitGroup = () => {
+      this.updateFocused(groupName);
+    };
+
+    const interceptorId = `gamepad-${groupName}`;
+    window.csButtonInterceptors = window.csButtonInterceptors || [];
+    window.csButtonInterceptors.push({
+      id: interceptorId,
+      handler: (buttonCode) =>
+        this.handleButtonPress({
+          buttonCode,
+          interceptorId,
+          onExit: exitGroup,
+        }),
+    });
+  }
+
+  private handleButtonPress({
+    buttonCode,
+    interceptorId,
+    onExit,
+  }: {
+    buttonCode: number;
+    interceptorId: string;
+    onExit?: () => void;
+  }): boolean {
+    // Allow button presses in some cases
+    if (shouldAllowButtonPresses()) {
+      return false;
+    }
+
+    this.recalculateTree();
+
+    switch (buttonCode) {
+      // Allow menu buttons
+      case BTN_CODE.MENU:
+      case BTN_CODE.QUICK_ACCESS:
+        return false;
+
+      case BTN_CODE.UP:
+      case BTN_CODE.LEFT:
+        this.move('up');
+        break;
+      case BTN_CODE.DOWN:
+      case BTN_CODE.RIGHT:
+        this.move('down');
+        break;
+
+      // Enter group or trigger action on item
+      case BTN_CODE.A:
+        const focused = this.tree[this.focusPath];
+        if (focused.type === 'group') {
+          this.enterGroup(focused.name);
+        }
+        if (focused.type === 'item') {
+          focused.el.dispatchEvent(new MouseEvent('click'));
+        }
+        break;
+
+      // Exit group
+      case BTN_CODE.B:
+        window.csButtonInterceptors = window.csButtonInterceptors?.filter(
+          (i) => i.id !== interceptorId
+        );
+        onExit?.();
+        break;
+    }
+
+    return true;
   }
 }
