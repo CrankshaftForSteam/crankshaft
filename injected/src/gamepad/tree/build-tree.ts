@@ -1,28 +1,5 @@
-export type GamepadTree = Record<string, GamepadTreeChild>;
-
-interface GamepadTreeChild {
-  type: 'group' | 'item';
-  name: string;
-  parentGroup: string;
-  el: HTMLElement;
-  position: number;
-  // If this item should get initial focus
-  initialFocus: boolean;
-}
-
-export interface GamepadGroup extends GamepadTreeChild {
-  type: 'group';
-}
-
-export interface GamepadItem extends GamepadTreeChild {
-  type: 'item';
-}
-
-// Selector for items in the specified group
-const selectInGroup = (groupName: string) =>
-  `[data-cs-gp-in-group="${groupName}"]`;
-// Select group element
-const selectGroup = (groupName: string) => `[data-cs-gp-group="${groupName}"]`;
+import { GamepadGroup, GamepadItem, GamepadTree } from '.';
+import { selectGroup, selectInGroup } from './utils';
 
 export const buildGamepadTree = (root: HTMLElement): GamepadTree => {
   const children = root.querySelectorAll<HTMLElement>(selectInGroup('root'));
