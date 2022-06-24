@@ -5,6 +5,13 @@ export const shouldAllowButtonPresses = () => {
     window.coolClass.m_eOpenSideMenu &&
     window.coolClass.m_eOpenSideMenu !== 0
   ) {
-    return false;
+    return true;
   }
+
+  // Web browser is open
+  if (window.uiStore.m_history.location.pathname.startsWith('/externalweb')) {
+    return true;
+  }
+
+  return false;
 };
