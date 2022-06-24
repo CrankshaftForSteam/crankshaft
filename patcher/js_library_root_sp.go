@@ -154,7 +154,7 @@ func addButtonInterceptor(fileLines []string) ([]string, error) {
 
 			fileLines[i] = line + `
 				if (window.csButtonInterceptors) {
-					for (const { handler } of window.csButtonInterceptors) {
+					for (const { handler } of [...window.csButtonInterceptors].reverse()) {
 						if (handler(` + eventCodeArg + `)) {
 							return;
 						}
