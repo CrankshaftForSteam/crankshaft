@@ -5,7 +5,14 @@ const registerComponentsFuncs = [registerButtons, registerColours];
 
 export const registerCustomElements = async () => {
   const stylesheet = new CSSStyleSheet();
-  let styleSheetContents = '';
+
+  // TODO: load these styles from a .css file
+  // Had an issue with esbuild loading the text from the file
+  let styleSheetContents = `
+.cs-gp-focus {
+  outline: solid 2px white;
+}
+  `;
 
   for (const r of registerComponentsFuncs) {
     styleSheetContents += r(stylesheet) ?? '';
@@ -14,6 +21,7 @@ export const registerCustomElements = async () => {
   // Typescript has bad types for constructable stylesheets, so we need some
   // custom types below
 
+  console.log({ styleSheetContents });
   await (stylesheet as any).replace(styleSheetContents);
 
   // im so sorry

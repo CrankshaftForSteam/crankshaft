@@ -42,3 +42,16 @@ export const waitForElement = <T extends HTMLElement>(selector: string) =>
     });
     observer.observe(document, { subtree: true, childList: true });
   });
+
+// Check if the element is at least partially outside of the container element
+export const isOutsideContainer = (
+  element: HTMLElement,
+  container: HTMLElement
+) => {
+  const containerRect = container.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+  return (
+    elementRect.top < containerRect.top ||
+    elementRect.bottom > containerRect.bottom
+  );
+};

@@ -79,7 +79,7 @@ export class MenuInjectorDeck implements MenuInjector {
       window.csMenuActiveItem = item.id;
 
       this.gamepad = new GamepadHandler({
-        root,
+        root: pageContainer,
         rootExitCallback: () => this.closePage(),
       });
     });
