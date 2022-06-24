@@ -1,6 +1,6 @@
 import { uuidv4 } from '../util';
 import { BTN_CODE } from './buttons';
-import { shouldAllowButtonPresses } from './overrides';
+import { shouldAllowButtonPress } from './overrides';
 
 // This is a handler for pages that haven't implemented gamepad support
 // All it does is intercept button presses and close the page when the B
@@ -13,14 +13,7 @@ export const attachBasicGamepadHandler = (onExit?: () => void) => {
   window.csButtonInterceptors.push({
     id: interceptorId,
     handler: (buttonCode) => {
-      if (shouldAllowButtonPresses()) {
-        return false;
-      }
-
-      if (
-        buttonCode === BTN_CODE.MENU ||
-        buttonCode === BTN_CODE.QUICK_ACCESS
-      ) {
+      if (shouldAllowButtonPress(buttonCode)) {
         return false;
       }
 
