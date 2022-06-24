@@ -160,5 +160,11 @@ declare global {
       m_flBatteryLevel: number;
       m_nBatterySecondsRemaining: number;
     };
+
+    uiStore: {
+      m_history: {
+        location: Location;
+      };
+    };
   }
 }
