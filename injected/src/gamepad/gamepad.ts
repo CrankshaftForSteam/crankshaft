@@ -1,7 +1,7 @@
 import { isOutsideContainer } from '../util';
 import { attachBasicGamepadHandler } from './basic-handler';
 import { BTN_CODE } from './buttons';
-import { shouldAllowButtonPresses } from './overrides';
+import { shouldAllowButtonPress } from './overrides';
 import {
   buildGamepadTree,
   children as childrenFilter,
@@ -126,18 +126,13 @@ export class GamepadHandler {
     onExit?: () => void;
   }): boolean {
     // Allow button presses in some cases
-    if (shouldAllowButtonPresses()) {
+    if (shouldAllowButtonPress(buttonCode)) {
       return false;
     }
 
     this.recalculateTree();
 
     switch (buttonCode) {
-      // Allow menu buttons
-      case BTN_CODE.MENU:
-      case BTN_CODE.QUICK_ACCESS:
-        return false;
-
       case BTN_CODE.UP:
       case BTN_CODE.LEFT:
         this.move('up');
