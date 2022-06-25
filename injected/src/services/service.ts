@@ -1,4 +1,4 @@
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 
 export class Service {
   smm: SMM;

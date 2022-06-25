@@ -5,7 +5,7 @@ import {
 } from '../internal-plugins';
 import { MENU_DESKTOP_SELECTORS } from '../menu-manager/selectors';
 import { getSelectorByMode } from '../selectors';
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 import { createTabObserver } from '../tab-observer';
 import { info, waitForElement } from '../util';
 

@@ -1,4 +1,4 @@
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 import { info } from '../util';
 import { InGameMenuInjectorDeck } from './in-game-menu-injector-deck';
 

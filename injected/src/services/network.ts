@@ -1,6 +1,6 @@
 import { rpcRequest, RpcRequestCancelledError } from '../rpc';
 import { info, uuidv4 } from '../util';
-import { Service } from './Service';
+import { Service } from './service';
 
 export class NetworkGetError extends Error {
   readonly status: number;

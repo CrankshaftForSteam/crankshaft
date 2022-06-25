@@ -1,6 +1,6 @@
 import { MenuManager } from '.';
 import { dcCreateElement } from '../dom-chef';
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 import { deleteAll, uuidv4 } from '../util';
 import { MenuInjector } from './menu-manager';
 

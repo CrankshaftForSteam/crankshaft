@@ -1,5 +1,5 @@
 import { rpcRequest } from '../rpc';
-import { Service } from './Service';
+import { Service } from './service';
 
 export class Store extends Service {
   async get(pluginId: string, key: string) {

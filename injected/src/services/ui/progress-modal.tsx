@@ -1,6 +1,6 @@
 import { dcCreateElement } from '../../dom-chef';
 import { deleteAll, formatBytes } from '../../util';
-import { DownloadProgress } from '../Network';
+import { DownloadProgress } from '../network';
 
 // @use-dom-chef
 

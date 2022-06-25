@@ -1,14 +1,14 @@
 import { InGameMenu } from './in-game-menu';
 import { MenuManager } from './menu-manager';
-import { Apps } from './services/Apps';
-import { Exec } from './services/Exec';
-import { FS } from './services/FS';
-import { Inject } from './services/Inject';
-import { IPC } from './services/IPC';
-import { Network } from './services/Network';
-import { Plugins } from './services/Plugins';
+import { Apps } from './services/apps';
+import { Exec } from './services/exec';
+import { FS } from './services/fs';
+import { Inject } from './services/inject';
+import { IPC } from './services/ipc';
+import { Network } from './services/network';
+import { Plugins } from './services/plugins';
 import { Store } from './services/store';
-import { Toast } from './services/Toast';
+import { Toast } from './services/toast';
 import { UI } from './services/ui';
 import { info } from './util';
 

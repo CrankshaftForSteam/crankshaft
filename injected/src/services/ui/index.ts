@@ -1,5 +1,5 @@
-import { SMM } from '../../SMM';
-import { Service } from '../Service';
+import { SMM } from '../../smm';
+import { Service } from '../service';
 import { confirm, createConfirmModal } from './confirm-modal';
 import { createProgressModal } from './progress-modal';
 

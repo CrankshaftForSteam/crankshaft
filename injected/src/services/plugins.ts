@@ -1,6 +1,6 @@
 import { rpcRequest } from '../rpc';
-import { Entry } from '../SMM';
-import { Service } from './Service';
+import { Entry } from '../smm';
+import { Service } from './service';
 
 interface Entrypoint {
   library: boolean;

@@ -1,5 +1,5 @@
 import { SHARED_SELECTORS } from '../selectors';
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 import { info, waitForElement } from '../util';
 
 const main = async () => {

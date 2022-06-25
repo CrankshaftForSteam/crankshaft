@@ -1,5 +1,5 @@
 import { rpcRequest } from '../rpc';
-import { Service } from './Service';
+import { Service } from './service';
 
 type Handler<T extends any> = (event: { name: string; data: T }) => void;
 

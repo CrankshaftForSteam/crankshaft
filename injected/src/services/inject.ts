@@ -1,5 +1,5 @@
 import { rpcRequest } from '../rpc';
-import { Service } from './Service';
+import { Service } from './service';
 
 export class Inject extends Service {
   async injectAppProperties(appId: number) {

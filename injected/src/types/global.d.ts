@@ -1,4 +1,4 @@
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 
 declare global {
   interface Window {

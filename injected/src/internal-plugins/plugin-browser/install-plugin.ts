@@ -4,8 +4,8 @@ import { Plugin } from '.';
 import {
   NetworkDownloadCancelledError,
   NetworkDownloadTimeoutError,
-} from '../../services/Network';
-import { SMM } from '../../SMM';
+} from '../../services/network';
+import { SMM } from '../../smm';
 
 const PLUGINS_DIR = '$XDG_DATA/crankshaft/plugins';
 

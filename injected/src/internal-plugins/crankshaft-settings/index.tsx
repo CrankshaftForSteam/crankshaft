@@ -1,6 +1,6 @@
 import { FunctionComponent, render } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import { SMM } from '../../SMM';
+import { SMM } from '../../smm';
 import { Autostart } from './autostart';
 
 export const load = (smm: SMM) => {

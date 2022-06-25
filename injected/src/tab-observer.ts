@@ -4,7 +4,7 @@ import {
   getSelectorByMode,
   SHARED_SELECTORS,
 } from './selectors';
-import { SMM } from './SMM';
+import { SMM } from './smm';
 
 export const createTabObserver = (smm: SMM, mainLibraryEl: HTMLElement) => {
   // Cleanup previous observer

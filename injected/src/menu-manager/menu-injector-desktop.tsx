@@ -1,6 +1,6 @@
 import { puzzleIcon } from '../assets/assets';
 import { dcCreateElement } from '../dom-chef';
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 import { deleteAll } from '../util';
 import { MenuInjector, MenuItem } from './menu-manager';
 import { MENU_DESKTOP_SELECTORS } from './selectors';

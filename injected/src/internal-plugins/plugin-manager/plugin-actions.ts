@@ -1,7 +1,7 @@
 import { useCallback } from 'preact/hooks';
-import { Plugin } from '../../services/Plugins';
+import { Plugin } from '../../services/plugins';
 import { ConfirmModalCancelledError } from '../../services/ui/confirm-modal';
-import { SMM } from '../../SMM';
+import { SMM } from '../../smm';
 
 export const usePluginActions = ({
   plugin,

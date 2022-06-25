@@ -1,5 +1,5 @@
 import { dcCreateElement } from '../dom-chef';
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 import { InGameMenu, InGameMenuInjector, InGameMenuItem } from './in-game-menu';
 
 // @use-dom-chef

@@ -1,6 +1,6 @@
 import { enableDeckMenuScroll } from '../menu-manager/deck-menu-enable-scroll';
 import { MENU_DECK_SELECTORS } from '../menu-manager/selectors';
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 import { info, waitForElement } from '../util';
 
 const main = async () => {

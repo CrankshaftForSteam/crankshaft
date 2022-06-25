@@ -1,7 +1,7 @@
 import { FunctionComponent, render } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { deleteAll, uuidv4 } from '../util';
-import { Service } from './Service';
+import { Service } from './service';
 
 type ToastLevel = 'error' | 'info' | 'success';
 

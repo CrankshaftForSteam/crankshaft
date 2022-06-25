@@ -1,6 +1,6 @@
 import { rpcRequest } from '../rpc';
 import { info } from '../util';
-import { Service } from './Service';
+import { Service } from './service';
 
 export class FS extends Service {
   async listDir(path: string) {

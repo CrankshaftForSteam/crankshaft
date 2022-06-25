@@ -2,7 +2,7 @@ import { FunctionComponent } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import { Setting } from '.';
 import { rpcRequest } from '../../rpc';
-import { SMM } from '../../SMM';
+import { SMM } from '../../smm';
 
 const useAutostart = (smm: SMM) => {
   const [hasSystemd, setHasSystemd] = useState<boolean | undefined>(undefined);

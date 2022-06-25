@@ -1,7 +1,7 @@
 import { FunctionComponent, render } from 'preact';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
-import { Plugin as InstalledPlugin } from '../../services/Plugins';
-import { SMM } from '../../SMM';
+import { Plugin as InstalledPlugin } from '../../services/plugins';
+import { SMM } from '../../smm';
 import { useInstallPlugin } from './install-plugin';
 
 export const load = (smm: SMM) => {
