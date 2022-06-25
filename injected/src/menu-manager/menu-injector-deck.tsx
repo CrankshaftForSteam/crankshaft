@@ -18,6 +18,7 @@ export class MenuInjectorDeck implements MenuInjector {
 
   private page!: HTMLDivElement;
   private pageContainer!: HTMLDivElement;
+  private interceptorId?: string;
 
   constructor(smm: SMM, menuManager: MenuManager) {
     this.smm = smm;
@@ -65,11 +66,13 @@ export class MenuInjectorDeck implements MenuInjector {
           {root}
         </div>
       );
+      this.pageContainer = pageContainer;
 
       item.render(this.smm, root);
       document.body.appendChild(pageContainer);
 
       const interceptorId = uuidv4();
+      this.interceptorId = interceptorId;
 
       window.csMenuActiveItem = item.id;
 
@@ -95,24 +98,7 @@ export class MenuInjectorDeck implements MenuInjector {
             return true;
           }
 
-          // Fade out the plugin page before removing it
-          (async () => {
-            await pageContainer.animate([{ opacity: 0 }], {
-              duration: 300,
-              fill: 'forwards',
-            }).finished;
-            pageContainer.remove();
-          })();
-
-          // Remove this interceptor
-          window.csButtonInterceptors = window.csButtonInterceptors?.filter(
-            (i) => i.id !== interceptorId
-          );
-
-          // Clear active item
-          window.csMenuActiveItem = undefined;
-
-          window.csMenuUpdate?.();
+          this.closePage();
 
           // Stop button input
           return true;
@@ -181,5 +167,26 @@ export class MenuInjectorDeck implements MenuInjector {
         {this.page}
       </div>
     );
+  }
+
+  closePage() {
+    // Fade out the plugin page before removing it
+    (async () => {
+      await this.pageContainer.animate([{ opacity: 0 }], {
+        duration: 300,
+        fill: 'forwards',
+      }).finished;
+      this.pageContainer.remove();
+    })();
+
+    // Remove this interceptor
+    window.csButtonInterceptors = window.csButtonInterceptors?.filter(
+      (i) => i.id !== this.interceptorId
+    );
+
+    // Clear active item
+    window.csMenuActiveItem = undefined;
+
+    window.csMenuUpdate?.();
   }
 }

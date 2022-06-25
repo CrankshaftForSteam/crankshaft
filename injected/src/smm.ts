@@ -323,4 +323,9 @@ export class SMM extends EventTarget {
   dispatchEvent(event: SMMEvent): boolean {
     return super.dispatchEvent(event);
   }
+
+  // Close plugin page if a page is open
+  closeActivePluginPage() {
+    this.MenuManager.closeActivePage();
+  }
 }
