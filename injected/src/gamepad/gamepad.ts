@@ -13,9 +13,10 @@ import {
 export class GamepadHandler {
   smm: SMM;
   root: HTMLElement;
-  tree: GamepadTree;
+  tree!: GamepadTree;
   focusPath!: string;
   rootExitCallback?: () => void;
+  basicHandlerId?: string;
 
   constructor({
     smm,
@@ -28,8 +29,15 @@ export class GamepadHandler {
   }) {
     this.smm = smm;
     this.root = root;
-    this.tree = buildGamepadTree(root);
     this.rootExitCallback = rootExitCallback;
+
+    this.setup();
+  }
+
+  private setup() {
+    this.tree = buildGamepadTree(this.root);
+
+    this.smm._setActiveGamepadHandler(this);
 
     const initialFocusEl = Object.values(this.tree).find(
       (child) => child.initialFocus
@@ -39,13 +47,14 @@ export class GamepadHandler {
       console.log(
         'GamepadHandler - Initial focus item not found, using basic handler...'
       );
-      attachBasicGamepadHandler(rootExitCallback);
+      this.basicHandlerId = attachBasicGamepadHandler(() => {
+        this.rootExitCallback?.();
+        this.smm._setActiveGamepadHandler(undefined);
+      });
       return;
     }
     this.focusPath = initialFocusEl.name;
     this.updateFocused(this.focusPath);
-
-    smm._setActiveGamepadHandler(this);
 
     window.csButtonInterceptors = window.csButtonInterceptors || [];
     window.csButtonInterceptors.push({
@@ -55,7 +64,7 @@ export class GamepadHandler {
           buttonCode,
           interceptorId: 'gamepad-root',
           onExit: () => {
-            smm._setActiveGamepadHandler(undefined);
+            this.smm._setActiveGamepadHandler(undefined);
             this.rootExitCallback?.();
           },
         }),
@@ -88,6 +97,17 @@ export class GamepadHandler {
   }
 
   recalculateTree() {
+    // If a basic handler is attached, redo setup to see if we can have proper
+    // gamepad support now
+    if (this.basicHandlerId) {
+      window.csButtonInterceptors = window.csButtonInterceptors?.filter(
+        ({ id }) => id !== this.basicHandlerId
+      );
+      this.basicHandlerId = undefined;
+      this.setup();
+      return;
+    }
+
     this.tree = buildGamepadTree(this.root);
 
     // If currently focused disappears, find initial focus again
