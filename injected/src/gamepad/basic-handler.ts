@@ -6,7 +6,7 @@ import { shouldAllowButtonPress } from './overrides';
 // All it does is intercept button presses and close the page when the B
 // button is pressed.
 //  TODO: maybe show an indicator to indicate lack of proper gamepad support
-export const attachBasicGamepadHandler = (onExit?: () => void) => {
+export const attachBasicGamepadHandler = (onExit?: () => void): string => {
   const interceptorId = uuidv4();
 
   window.csButtonInterceptors = window.csButtonInterceptors || [];
@@ -33,4 +33,6 @@ export const attachBasicGamepadHandler = (onExit?: () => void) => {
       return true;
     },
   });
+
+  return interceptorId;
 };
