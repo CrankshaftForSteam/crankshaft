@@ -48,12 +48,14 @@ func ShowLoadingIndicator(debugPort, serverPort string) error {
 			right: 0;
 			bottom: 40px;
 			border-top-left-radius: 8px;
+			box-shadow: -2px -2px 10px 2px rgb(0 0 0 / 20%);
 		`
 	} else {
 		specificIndicatorStyles = `
 			right: 0;
 			top: 0;
 			border-bottom-left-radius: 8px;
+			box-shadow: -2px 2px 10px 2px rgb(0 0 0 / 20%);
 		`
 	}
 
