@@ -7,6 +7,7 @@ import { Inject } from './services/Inject';
 import { IPC } from './services/IPC';
 import { Network } from './services/Network';
 import { Plugins } from './services/Plugins';
+import { Store } from './services/store';
 import { Toast } from './services/Toast';
 import { UI } from './services/ui';
 import { info } from './util';
@@ -89,6 +90,7 @@ export class SMM extends EventTarget {
   readonly UI: UI;
   readonly Exec: Exec;
   readonly Inject: Inject;
+  readonly Store: Store;
   // TODO: related to types for specific context above, use inherited classes
   readonly Apps?: Apps;
 
@@ -127,6 +129,7 @@ export class SMM extends EventTarget {
     this.UI = new UI(this);
     this.Exec = new Exec(this);
     this.Inject = new Inject(this);
+    this.Store = new Store(this);
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);
