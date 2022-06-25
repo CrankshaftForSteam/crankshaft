@@ -72,6 +72,10 @@ export class GamepadHandler {
       curFocus.el.classList.remove('cs-gp-focus');
     }
 
+    document
+      .querySelectorAll('.cs-gp-focus')
+      .forEach((node) => node.classList.remove('cs-gp-focus'));
+
     const newFocusEl = this.tree[newFocusPath].el;
     newFocusEl.classList.add('cs-gp-focus');
 
@@ -98,6 +102,10 @@ export class GamepadHandler {
       }
       this.focusPath = initialFocusEl.name;
       this.updateFocused(this.focusPath);
+
+      window.csButtonInterceptors = window.csButtonInterceptors?.filter(
+        ({ id }) => id === 'gamepad-root'
+      );
     }
   }
 
