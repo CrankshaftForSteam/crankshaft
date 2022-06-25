@@ -1,4 +1,3 @@
-import { GamepadHandler } from '../gamepad';
 import { SMM } from '../smm';
 
 declare global {
@@ -52,9 +51,6 @@ declare global {
       id: string;
       handler: (buttonCode: number) => void | boolean;
     }[];
-
-    // Active gamepad handler
-    csGp?: GamepadHandler;
 
     // Internal Steam stuff
 

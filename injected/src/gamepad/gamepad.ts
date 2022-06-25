@@ -1,3 +1,4 @@
+import { SMM } from '../SMM';
 import { isOutsideContainer } from '../util';
 import { attachBasicGamepadHandler } from './basic-handler';
 import { BTN_CODE } from './buttons';
@@ -10,18 +11,22 @@ import {
 } from './tree';
 
 export class GamepadHandler {
+  smm: SMM;
   root: HTMLElement;
   tree: GamepadTree;
   focusPath!: string;
   rootExitCallback?: () => void;
 
   constructor({
+    smm,
     root,
     rootExitCallback,
   }: {
+    smm: SMM;
     root: HTMLElement;
     rootExitCallback?: GamepadHandler['rootExitCallback'];
   }) {
+    this.smm = smm;
     this.root = root;
     this.tree = buildGamepadTree(root);
     this.rootExitCallback = rootExitCallback;
@@ -40,7 +45,7 @@ export class GamepadHandler {
     this.focusPath = initialFocusEl.name;
     this.updateFocused(this.focusPath);
 
-    window.csGp = this;
+    smm._setActiveGamepadHandler(this);
 
     window.csButtonInterceptors = window.csButtonInterceptors || [];
     window.csButtonInterceptors.push({
@@ -50,7 +55,7 @@ export class GamepadHandler {
           buttonCode,
           interceptorId: 'gamepad-root',
           onExit: () => {
-            window.csGp = undefined;
+            smm._setActiveGamepadHandler(undefined);
             this.rootExitCallback?.();
           },
         }),

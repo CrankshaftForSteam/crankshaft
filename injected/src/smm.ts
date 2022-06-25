@@ -1,3 +1,4 @@
+import { GamepadHandler } from './gamepad';
 import { InGameMenu } from './in-game-menu';
 import { MenuManager } from './menu-manager';
 import { Apps } from './services/apps';
@@ -327,5 +328,17 @@ export class SMM extends EventTarget {
   // Close plugin page if a page is open
   closeActivePluginPage() {
     this.MenuManager.closeActivePage();
+  }
+
+  // Currently active gamepad handler
+  // This should only be set by internal Crankshaft code
+  private _activeGamepadHandler?: GamepadHandler;
+
+  public get activeGamepadHandler() {
+    return this._activeGamepadHandler;
+  }
+
+  _setActiveGamepadHandler(gamepadHandler: GamepadHandler | undefined) {
+    this._activeGamepadHandler = gamepadHandler;
   }
 }
