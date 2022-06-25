@@ -1,6 +1,9 @@
-// @use-dom-chef
-
+import classNames from 'classnames';
 import { dcCreateElement } from '../../dom-chef';
+import { GP_FOCUS_CLASS } from '../../gamepad';
+import { BTN_CODE } from '../../gamepad/buttons';
+
+// @use-dom-chef
 
 export class ConfirmModalCancelledError extends Error {
   constructor() {
@@ -48,6 +51,43 @@ export const createConfirmModal = ({
 }) => {
   const uiMode = window.smmUIMode;
 
+  const gamepadEnabled = Boolean(window.smm?.activeGamepadHandler);
+
+  const confirmButton = dcCreateElement<HTMLButtonElement>(
+    <button
+      className="cs-button"
+      onClick={onConfirm}
+      style={{ width: '50%', backgroundColor: confirmBackgroundColour }}
+    >
+      {confirmText}
+    </button>
+  );
+
+  const cancelButton = dcCreateElement<HTMLButtonElement>(
+    <button
+      className={classNames('cs-button', {
+        [GP_FOCUS_CLASS]: gamepadEnabled,
+      })}
+      onClick={onCancel}
+      style={{ width: '50%', backgroundColor: 'var(--cs-col-secondary)' }}
+    >
+      {cancelText}
+    </button>
+  );
+
+  if (gamepadEnabled) {
+    window.csButtonInterceptors = window.csButtonInterceptors || [];
+    window.csButtonInterceptors.push({
+      id: 'confirm-modal',
+      handler: buttonInterceptor({
+        cancelButton,
+        confirmButton,
+        onCancel,
+        onConfirm,
+      }),
+    });
+  }
+
   const modal = dcCreateElement<HTMLDivElement>(
     <div
       style={{
@@ -81,23 +121,58 @@ export const createConfirmModal = ({
           marginTop: 16,
         }}
       >
-        <button
-          className="cs-button"
-          onClick={onConfirm}
-          style={{ width: '50%', backgroundColor: confirmBackgroundColour }}
-        >
-          {confirmText}
-        </button>
-        <button
-          className="cs-button"
-          onClick={onCancel}
-          style={{ width: '50%', backgroundColor: 'var(--cs-col-secondary)' }}
-        >
-          {cancelText}
-        </button>
+        {confirmButton}
+        {cancelButton}
       </div>
     </div>
   );
 
   return modal;
 };
+
+const buttonInterceptor =
+  ({
+    cancelButton,
+    confirmButton,
+    onCancel,
+    onConfirm,
+  }: {
+    cancelButton: HTMLButtonElement;
+    confirmButton: HTMLButtonElement;
+    onCancel: () => void;
+    onConfirm: () => void;
+  }) =>
+  (buttonCode: number) => {
+    const handleCancel = () => {
+      window.csButtonInterceptors = window.csButtonInterceptors?.filter(
+        (i) => i.id !== 'confirm-modal'
+      );
+      onCancel();
+    };
+
+    switch (buttonCode) {
+      case BTN_CODE.A:
+        if (confirmButton.classList.contains(GP_FOCUS_CLASS)) {
+          onConfirm();
+        } else {
+          handleCancel();
+        }
+        break;
+
+      case BTN_CODE.B:
+        handleCancel();
+        break;
+
+      case BTN_CODE.LEFT:
+        confirmButton.classList.add(GP_FOCUS_CLASS);
+        cancelButton.classList.remove(GP_FOCUS_CLASS);
+        break;
+
+      case BTN_CODE.RIGHT:
+        confirmButton.classList.remove(GP_FOCUS_CLASS);
+        cancelButton.classList.add(GP_FOCUS_CLASS);
+        break;
+    }
+
+    return true;
+  };
