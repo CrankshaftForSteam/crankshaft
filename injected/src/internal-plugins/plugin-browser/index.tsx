@@ -1,5 +1,11 @@
 import { FunctionComponent, render } from 'preact';
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'preact/hooks';
 import { Plugin as InstalledPlugin } from '../../services/plugins';
 import { SMM } from '../../smm';
 import { useInstallPlugin } from './install-plugin';
@@ -49,6 +55,10 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
     Promise.all([getPlugins(), getInstalledPlugins()]);
   }, [getPlugins, getInstalledPlugins]);
 
+  useLayoutEffect(() => {
+    smm.activeGamepadHandler?.recalculateTree();
+  }, [smm, plugins, installedPlugins]);
+
   return (
     <>
       <h1 style={{ fontSize: 24, margin: 'unset', marginBottom: 16 }}>
@@ -61,17 +71,26 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
           padding: 0,
         }}
       >
-        {plugins
-          ? plugins.map((plugin) => (
-              <Plugin
-                {...plugin}
-                installedPlugin={installedPlugins?.[plugin.id]}
-                smm={smm}
-                updatePlugins={updatePlugins}
-                key={plugin.id}
-              />
-            ))
-          : 'Loading...'}
+        {plugins ? (
+          plugins.map((plugin, index) => (
+            <Plugin
+              {...plugin}
+              first={index === 0}
+              installedPlugin={installedPlugins?.[plugin.id]}
+              smm={smm}
+              updatePlugins={updatePlugins}
+              key={plugin.id}
+            />
+          ))
+        ) : (
+          <div
+            data-cs-gp-in-group="root"
+            data-cs-gp-group="loading"
+            data-cs-gp-init-focus
+          >
+            Loading...
+          </div>
+        )}
       </ul>
     </>
   );
@@ -79,11 +98,12 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
 
 const Plugin: FunctionComponent<
   Plugin & {
+    first: boolean;
     smm: SMM;
     installedPlugin?: InstalledPlugin;
     updatePlugins: () => Promise<void>;
   }
-> = ({ smm, installedPlugin, updatePlugins, ...plugin }) => {
+> = ({ first, smm, installedPlugin, updatePlugins, ...plugin }) => {
   const handleInstall = useInstallPlugin(smm, plugin, updatePlugins);
 
   const canUpdate = useMemo(
@@ -104,7 +124,12 @@ const Plugin: FunctionComponent<
         );
       }
       return (
-        <button className="cs-button" onClick={handleInstall}>
+        <button
+          className="cs-button"
+          onClick={handleInstall}
+          data-cs-gp-in-group={plugin.id}
+          data-cs-gp-item={`${plugin.id}__install`}
+        >
           Update
         </button>
       );
@@ -130,7 +155,12 @@ const Plugin: FunctionComponent<
     }
 
     return (
-      <button className="cs-button" onClick={handleInstall}>
+      <button
+        className="cs-button"
+        onClick={handleInstall}
+        data-cs-gp-in-group={plugin.id}
+        data-cs-gp-item={`${plugin.id}__install`}
+      >
         Install
       </button>
     );
@@ -145,6 +175,9 @@ const Plugin: FunctionComponent<
         padding: '8px 0',
         marginBottom: 12,
       }}
+      data-cs-gp-init-focus={first}
+      data-cs-gp-in-group="root"
+      data-cs-gp-group={plugin.id}
     >
       <div
         style={{
@@ -159,7 +192,13 @@ const Plugin: FunctionComponent<
           <br />
           Version {plugin.version}
           <br />
-          <a href={plugin.source}>Source code</a>
+          <a
+            href={plugin.source}
+            data-cs-gp-in-group={plugin.id}
+            data-cs-gp-item={`${plugin.id}__source-code`}
+          >
+            Source code
+          </a>
           <br />
           {installedPlugin && canUpdate ? (
             <>Latest version: {plugin.version}</>
