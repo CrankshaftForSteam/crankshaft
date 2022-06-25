@@ -1,5 +1,10 @@
 import { FunctionComponent, render } from 'preact';
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'preact/hooks';
 import { Plugin } from '../../services/plugins';
 import { SMM } from '../../smm';
 import { usePluginActions } from './plugin-actions';
@@ -24,6 +29,10 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
     setPlugins(await smm.Plugins.list());
   }, [setPlugins]);
 
+  useLayoutEffect(() => {
+    smm.activeGamepadHandler?.recalculateTree();
+  }, [plugins, smm]);
+
   return (
     <>
       <h1 style={{ fontSize: 24, margin: 'unset', marginBottom: 16 }}>
@@ -37,11 +46,22 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
         }}
       >
         {typeof plugins !== 'undefined' ? (
-          Object.values(plugins).map((plugin) => (
-            <Plugin plugin={plugin} reloadPlugins={reloadPlugins} smm={smm} />
+          Object.values(plugins).map((plugin, index) => (
+            <Plugin
+              plugin={plugin}
+              reloadPlugins={reloadPlugins}
+              smm={smm}
+              first={index === 0}
+            />
           ))
         ) : (
-          <p>Loading...</p>
+          <p
+            data-cs-gp-in-group="root"
+            data-cs-gp-group="loading"
+            data-cs-gp-init-focus
+          >
+            Loading...
+          </p>
         )}
       </ul>
     </>
@@ -49,10 +69,11 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
 };
 
 const Plugin: FunctionComponent<{
+  first: boolean;
   plugin: Plugin;
   reloadPlugins: () => Promise<void>;
   smm: SMM;
-}> = ({ plugin, reloadPlugins, smm }) => {
+}> = ({ first, plugin, reloadPlugins, smm }) => {
   const { handleLoad, handleUnload, handleReload, handleRemove } =
     usePluginActions({
       plugin,
@@ -69,6 +90,9 @@ const Plugin: FunctionComponent<{
         padding: '8px 0',
         marginBottom: 12,
       }}
+      data-cs-gp-in-group="root"
+      data-cs-gp-group={plugin.id}
+      data-cs-gp-init-focus={first}
     >
       <div
         style={{
@@ -86,16 +110,31 @@ const Plugin: FunctionComponent<{
 
         <div style={{ display: 'flex', gap: 8 }}>
           {plugin.enabled ? (
-            <button className="cs-button" onClick={handleUnload}>
+            <button
+              className="cs-button"
+              onClick={handleUnload}
+              data-cs-gp-in-group={plugin.id}
+              data-cs-gp-item={`${plugin.id}__load`}
+            >
               Unload
             </button>
           ) : (
-            <button className="cs-button" onClick={handleLoad}>
+            <button
+              className="cs-button"
+              onClick={handleLoad}
+              data-cs-gp-in-group={plugin.id}
+              data-cs-gp-item={`${plugin.id}__load`}
+            >
               Load
             </button>
           )}
 
-          <button className="cs-button" onClick={handleReload}>
+          <button
+            className="cs-button"
+            onClick={handleReload}
+            data-cs-gp-in-group={plugin.id}
+            data-cs-gp-item={`${plugin.id}__reload`}
+          >
             Reload
           </button>
 
@@ -103,6 +142,8 @@ const Plugin: FunctionComponent<{
             className="cs-button"
             style={{ backgroundColor: 'rgb(209, 28, 28)' }}
             onClick={handleRemove}
+            data-cs-gp-in-group={plugin.id}
+            data-cs-gp-item={`${plugin.id}__remove`}
           >
             Remove
           </button>
