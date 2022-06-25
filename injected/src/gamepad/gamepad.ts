@@ -67,8 +67,10 @@ export class GamepadHandler {
   }
 
   private updateFocused(newFocusPath: string) {
-    const currentFocusEl = this.tree[this.focusPath].el;
-    currentFocusEl.classList.remove('cs-gp-focus');
+    const curFocus = this.tree[this.focusPath];
+    if (curFocus) {
+      curFocus.el.classList.remove('cs-gp-focus');
+    }
 
     const newFocusEl = this.tree[newFocusPath].el;
     newFocusEl.classList.add('cs-gp-focus');
@@ -83,6 +85,20 @@ export class GamepadHandler {
 
   recalculateTree() {
     this.tree = buildGamepadTree(this.root);
+
+    // If currently focused disappears, find initial focus again
+    if (!this.tree[this.focusPath]) {
+      const initialFocusEl = Object.values(this.tree).find(
+        (child) => child.initialFocus
+      );
+      if (!initialFocusEl) {
+        throw new Error(
+          'Focused child dissapeared, new child with initial focus could not be found'
+        );
+      }
+      this.focusPath = initialFocusEl.name;
+      this.updateFocused(this.focusPath);
+    }
   }
 
   private move(direction: 'up' | 'down') {
