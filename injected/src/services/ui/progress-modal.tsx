@@ -1,4 +1,7 @@
+import classNames from 'classnames';
 import { dcCreateElement } from '../../dom-chef';
+import { GP_FOCUS_CLASS } from '../../gamepad';
+import { BTN_CODE } from '../../gamepad/buttons';
 import { deleteAll, formatBytes } from '../../util';
 import { DownloadProgress } from '../network';
 
@@ -16,6 +19,8 @@ export const createProgressModal = ({
   title: string;
 }) => {
   const uiMode = window.smmUIMode;
+
+  const gamepadEnabled = Boolean(window.smm?.activeGamepadHandler);
 
   deleteAll('[data-smm-proton-updater-progress-modal]');
 
@@ -58,6 +63,9 @@ export const createProgressModal = ({
         padding: '4px 12px',
         marginTop: 12,
       }}
+      className={classNames({
+        [GP_FOCUS_CLASS]: gamepadEnabled,
+      })}
     >
       Cancel
     </button>
@@ -114,10 +122,29 @@ export const createProgressModal = ({
   return {
     open: (cancel: () => void) => {
       modal.style.display = '';
+
       cancelButton.onclick = () => {
         cancel();
         modal.remove();
       };
+
+      if (gamepadEnabled) {
+        window.csButtonInterceptors = window.csButtonInterceptors || [];
+        window.csButtonInterceptors.push({
+          id: 'progress-modal',
+          handler: (buttonCode) => {
+            if (buttonCode === BTN_CODE.A) {
+              cancel();
+              modal.remove();
+              window.csButtonInterceptors = window.csButtonInterceptors?.filter(
+                (i) => i.id !== 'progress-modal'
+              );
+            }
+            return true;
+          },
+        });
+      }
+
       document.querySelector('body')?.appendChild(modal);
     },
     update: ({
