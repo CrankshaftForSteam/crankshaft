@@ -47,7 +47,7 @@ export const Setting: FunctionComponent<{
     }}
     data-cs-gp-in-group="root"
     data-cs-gp-group={gpGroupName}
-    data-cs-gp-init-focus={first || undefined}
+    data-cs-gp-init-focus={first}
   >
     <div
       style={{
