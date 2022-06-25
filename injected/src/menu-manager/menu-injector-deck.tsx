@@ -1,5 +1,6 @@
 import { MenuManager } from '.';
 import { dcCreateElement } from '../dom-chef';
+import { GamepadHandler } from '../gamepad';
 import { SMM } from '../smm';
 import { deleteAll, uuidv4 } from '../util';
 import { MenuInjector } from './menu-manager';
@@ -19,6 +20,7 @@ export class MenuInjectorDeck implements MenuInjector {
   private page!: HTMLDivElement;
   private pageContainer!: HTMLDivElement;
   private interceptorId?: string;
+  private gamepad?: GamepadHandler;
 
   constructor(smm: SMM, menuManager: MenuManager) {
     this.smm = smm;
@@ -76,33 +78,9 @@ export class MenuInjectorDeck implements MenuInjector {
 
       window.csMenuActiveItem = item.id;
 
-      window.csButtonInterceptors = window.csButtonInterceptors || [];
-      window.csButtonInterceptors.push({
-        id: interceptorId,
-        handler: (buttonCode) => {
-          // Allow all button presses if a menu is open
-          if (
-            window.coolClass.m_eOpenSideMenu &&
-            window.coolClass.m_eOpenSideMenu !== 0
-          ) {
-            return false;
-          }
-
-          // Allow main menu button
-          if (buttonCode === 27) {
-            return false;
-          }
-
-          // Don't allow buttons other than back
-          if (buttonCode !== 2) {
-            return true;
-          }
-
-          this.closePage();
-
-          // Stop button input
-          return true;
-        },
+      this.gamepad = new GamepadHandler({
+        root,
+        rootExitCallback: () => this.closePage(),
       });
     });
   }
@@ -179,10 +157,8 @@ export class MenuInjectorDeck implements MenuInjector {
       this.pageContainer.remove();
     })();
 
-    // Remove this interceptor
-    window.csButtonInterceptors = window.csButtonInterceptors?.filter(
-      (i) => i.id !== this.interceptorId
-    );
+    this.gamepad?.cleanup();
+    this.gamepad = undefined;
 
     // Clear active item
     window.csMenuActiveItem = undefined;

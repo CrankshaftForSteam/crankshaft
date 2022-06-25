@@ -1,0 +1,1 @@
+export { GamepadHandler } from './gamepad';
