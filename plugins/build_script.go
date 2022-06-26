@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 
+	"git.sr.ht/~avery/crankshaft/build"
 	"github.com/evanw/esbuild/pkg/api"
 )
 
@@ -26,6 +27,8 @@ func buildPluginScript(pluginName, pluginDir string) (string, error) {
 	res := api.Transform(script, api.TransformOptions{
 		Format:     api.FormatIIFE,
 		GlobalName: "smmPlugins['" + pluginName + "']",
+		Target:     build.Target,
+		Engines:    build.Engines,
 	})
 	if len(res.Errors) > 0 {
 		log.Println(res.Errors)

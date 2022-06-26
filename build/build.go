@@ -14,6 +14,16 @@ import (
 
 const VERSION = "0.1.6"
 
+const Target = api.ES2020
+
+// Steam is using Chrome 84
+var Engines = []api.Engine{
+	{
+		Name:    api.EngineChrome,
+		Version: "84",
+	},
+}
+
 func BundleScripts() error {
 	log.Println("Bundling scripts to inject...")
 
@@ -33,6 +43,8 @@ func BundleScripts() error {
 		},
 		Bundle:      true,
 		Format:      api.FormatIIFE,
+		Target:      Target,
+		Engines:     Engines,
 		JSXFactory:  "h",
 		JSXFragment: "DocumentFragment",
 		Inject:      []string{"injected/preact-shim.js"},
@@ -65,6 +77,8 @@ func BundleSharedScripts() (string, error) {
 		},
 		Bundle:      true,
 		Format:      api.FormatIIFE,
+		Target:      Target,
+		Engines:     Engines,
 		JSXFactory:  "h",
 		JSXFragment: "DocumentFragment",
 		Inject:      []string{"injected/preact-shim.js"},
