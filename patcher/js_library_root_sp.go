@@ -175,7 +175,7 @@ func addButtonInterceptor(fileLines []string) ([]string, error) {
 func appPropertiesEvent(fileLines []string) ([]string, error) {
 	titleLine := -1
 	for i, line := range fileLines {
-		if strings.Contains(line, "#AppProperties_Title") {
+		if strings.Contains(line, "#AppProperties_ShortcutPage") {
 			titleLine = i
 			break
 		}
@@ -185,24 +185,36 @@ func appPropertiesEvent(fileLines []string) ([]string, error) {
 		return nil, errors.New("Didn't find app properties title line")
 	}
 
-	navToAppPropsLine := regexp.MustCompile(`NavigateToAppProperties\((.+),.*\);$`)
+	getAppPropsLine := regexp.MustCompile(`GetAppOverviewByAppID\(([a-zA-Z0-9]+)\)`)
 
 	found := false
-	for i := titleLine - 1; i >= titleLine-10; i-- {
+	appId := ""
+	for i := titleLine - 1; i >= titleLine-15; i-- {
 		line := fileLines[i]
 
-		matches := navToAppPropsLine.FindStringSubmatch(line)
+		matches := getAppPropsLine.FindStringSubmatch(line)
 		if len(matches) >= 2 {
 			found = true
-
-			appId := matches[1]
-			fileLines[i] = fmt.Sprintf("smm.switchToAppProperties(%s);\n", appId) + line
+			appId = matches[1]
 			break
 		}
 	}
 
 	if !found {
-		return nil, errors.New("Didn't find NavigateToAppProperties")
+		return nil, errors.New("Didn't find GetAppOverviewByAppID")
+	}
+
+	for i := titleLine - 1; i >= titleLine-10; i-- {
+		line := fileLines[i]
+		if strings.HasPrefix(strings.TrimSpace(line), "return") {
+			found = true
+			fileLines[i] = fmt.Sprintf("smm.switchToAppProperties(%s);\n", appId) + fileLines[i]
+			break
+		}
+	}
+
+	if !found {
+		return nil, errors.New("Didn't find return")
 	}
 
 	return fileLines, nil
