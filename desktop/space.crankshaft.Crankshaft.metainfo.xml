@@ -41,6 +41,18 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.1.7" date="2022-06-26">
+      <description>
+        <p>This is a minor bug fix release.</p>
+        <ul>
+          <li>Fix patching for app properties</li>
+          <li>Target Steam's Chromium version when building scripts</li>
+        </ul>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.7</url>
+    </release>
+
     <release version="0.1.6" date="2022-06-13">
       <description>
         <ul>
