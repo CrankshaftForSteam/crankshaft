@@ -26,7 +26,7 @@ func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataD
 	fDataDir := flag.String("data-dir", path.Join(dataHome, "crankshaft"), "Crankshaft data directory")
 	fPluginsDir := flag.String("plugins-dir", path.Join(dataHome, "crankshaft", "plugins"), "Directory to load plugins from")
 	fLogsDir := flag.String("logs-dir", path.Join(stateHome, "crankshaft", "logs"), "Directory to write logs to")
-	fSteamPath := flag.String("steam-path", path.Join(dataHome, "Steam"), "Path to Steam files")
+	fSteamPath := flag.String("steam-path", "~/.steam/steam", "Path to Steam files")
 	fCleanup := flag.Bool("cleanup", false, "Cleanup patched files and exit")
 
 	flag.Parse()
