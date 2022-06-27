@@ -4,6 +4,7 @@ import (
 	"flag"
 	"path"
 
+	"git.sr.ht/~avery/crankshaft/pathutil"
 	"github.com/adrg/xdg"
 )
 
@@ -33,10 +34,10 @@ func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataD
 	debugPort = *fDebugPort
 	serverPort = *fServerPort
 	skipPatching = *fSkipPatching
-	dataDir = *fDataDir
-	pluginsDir = *fPluginsDir
-	logsDir = *fLogsDir
-	steamPath = *fSteamPath
+	dataDir = pathutil.SubstituteHomeDir(*fDataDir)
+	pluginsDir = pathutil.SubstituteHomeDir(*fPluginsDir)
+	logsDir = pathutil.SubstituteHomeDir(*fLogsDir)
+	steamPath = pathutil.SubstituteHomeDir(*fSteamPath)
 	cleanup = *fCleanup
 
 	return
