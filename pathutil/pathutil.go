@@ -4,21 +4,36 @@ package pathutil
 import (
 	"bufio"
 	"io"
+	"log"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
 
+	"git.sr.ht/~avery/crankshaft/executil"
 	"github.com/adrg/xdg"
 )
+
+var flatpak = false
 
 var getCurrentUser = user.Current
 
 // SubstituteHomeDir takes a path that might be prefixed with `~`, and returns
 // the path with the `~` replaced by the user's home directory.
 func SubstituteHomeDir(path string) string {
-	usr, _ := getCurrentUser()
-	homeDir := usr.HomeDir
+	homeDir := ""
+	if flatpak {
+		cmd := executil.Command("bash", "-c", "echo $HOME")
+		homeDirBytes, err := cmd.Output()
+		if err != nil {
+			log.Fatalf("Error substituting home dir: %v", err)
+		}
+		homeDir = strings.TrimSpace(string(homeDirBytes))
+	} else {
+		usr, _ := getCurrentUser()
+		homeDir = usr.HomeDir
+	}
+
 	if strings.HasPrefix(path, "~") {
 		return filepath.Join(homeDir, path[2:])
 	}
