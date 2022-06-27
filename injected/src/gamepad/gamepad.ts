@@ -1,8 +1,7 @@
-import { SMM } from '../SMM';
+import { SMM } from '../smm';
 import { isOutsideContainer } from '../util';
 import { attachBasicGamepadHandler } from './basic-handler';
 import { BTN_CODE } from './buttons';
-import { shouldAllowButtonPress } from './overrides';
 import {
   buildGamepadTree,
   children as childrenFilter,
@@ -56,8 +55,7 @@ export class GamepadHandler {
     this.focusPath = initialFocusEl.name;
     this.updateFocused(this.focusPath);
 
-    window.csButtonInterceptors = window.csButtonInterceptors || [];
-    window.csButtonInterceptors.push({
+    this.smm.ButtonInterceptors.addInterceptor({
       id: 'gamepad-root',
       handler: (buttonCode) =>
         this.handleButtonPress({
@@ -100,9 +98,7 @@ export class GamepadHandler {
     // If a basic handler is attached, redo setup to see if we can have proper
     // gamepad support now
     if (this.basicHandlerId) {
-      window.csButtonInterceptors = window.csButtonInterceptors?.filter(
-        ({ id }) => id !== this.basicHandlerId
-      );
+      this.smm.ButtonInterceptors.removeInterceptor(this.basicHandlerId);
       this.basicHandlerId = undefined;
       this.setup();
       return;
@@ -153,8 +149,7 @@ export class GamepadHandler {
     };
 
     const interceptorId = `gamepad-${groupName}`;
-    window.csButtonInterceptors = window.csButtonInterceptors || [];
-    window.csButtonInterceptors.push({
+    this.smm.ButtonInterceptors.addInterceptor({
       id: interceptorId,
       handler: (buttonCode) =>
         this.handleButtonPress({
@@ -174,11 +169,6 @@ export class GamepadHandler {
     interceptorId: string;
     onExit?: () => void;
   }): boolean {
-    // Allow button presses in some cases
-    if (shouldAllowButtonPress(buttonCode)) {
-      return false;
-    }
-
     this.recalculateTree();
 
     switch (buttonCode) {
@@ -204,9 +194,7 @@ export class GamepadHandler {
 
       // Exit group
       case BTN_CODE.B:
-        window.csButtonInterceptors = window.csButtonInterceptors?.filter(
-          (i) => i.id !== interceptorId
-        );
+        this.smm.ButtonInterceptors.removeInterceptor(interceptorId);
         onExit?.();
         break;
     }
