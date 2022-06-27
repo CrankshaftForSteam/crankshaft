@@ -1,4 +1,5 @@
 import { GamepadHandler } from './gamepad';
+import { ButtonInterceptors } from './gamepad/button-interceptors';
 import { InGameMenu } from './in-game-menu';
 import { MenuManager } from './menu-manager';
 import { Apps } from './services/apps';
@@ -92,6 +93,7 @@ export class SMM extends EventTarget {
   readonly Exec: Exec;
   readonly Inject: Inject;
   readonly Store: Store;
+  readonly ButtonInterceptors: ButtonInterceptors;
   // TODO: related to types for specific context above, use inherited classes
   readonly Apps?: Apps;
 
@@ -131,6 +133,7 @@ export class SMM extends EventTarget {
     this.Exec = new Exec(this);
     this.Inject = new Inject(this);
     this.Store = new Store(this);
+    this.ButtonInterceptors = new ButtonInterceptors(this);
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);
