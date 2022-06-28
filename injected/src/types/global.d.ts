@@ -29,6 +29,7 @@ declare global {
       m_eOpenSideMenu?: number;
 
       NavigateToLibraryTab: () => void;
+      NavigateBackOrOpenMenu: () => void;
 
       VirtualKeyboardManager: {
         IsShowingVirtualKeyboard: {

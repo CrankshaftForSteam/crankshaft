@@ -1,6 +1,7 @@
 import { MenuManager } from '.';
 import { dcCreateElement } from '../dom-chef';
 import { GamepadHandler } from '../gamepad';
+import { DECK_SELECTORS } from '../selectors';
 import { SMM } from '../smm';
 import { deleteAll, uuidv4 } from '../util';
 import { MenuInjector } from './menu-manager';
@@ -21,14 +22,24 @@ export class MenuInjectorDeck implements MenuInjector {
   private pageContainer!: HTMLDivElement;
   private interceptorId?: string;
   private gamepad?: GamepadHandler;
+  private enteredWithNavigate: boolean;
 
   constructor(smm: SMM, menuManager: MenuManager) {
     this.smm = smm;
     this.menuManager = menuManager;
+    this.enteredWithNavigate = false;
 
     smm.IPC.on('csMenuItemClicked', (e) => {
       // Close menu
       window.coolClass.OpenSideMenu();
+
+      if (
+        document.querySelector(DECK_SELECTORS.topLevelTransitionSwitch)
+          ?.children?.length === 0
+      ) {
+        window.coolClass.NavigateToLibraryTab();
+        this.enteredWithNavigate = true;
+      }
 
       const { id } = e.data as { id: string };
 
@@ -165,5 +176,9 @@ export class MenuInjectorDeck implements MenuInjector {
     window.csMenuActiveItem = undefined;
 
     window.csMenuUpdate?.();
+
+    if (this.enteredWithNavigate) {
+      window.coolClass.NavigateBackOrOpenMenu();
+    }
   }
 }
