@@ -1,4 +1,6 @@
 import { dcCreateElement } from '../dom-chef';
+import { GamepadHandler } from '../gamepad';
+import { BTN_CODE } from '../gamepad/buttons';
 import { SMM } from '../smm';
 import { InGameMenu, InGameMenuInjector, InGameMenuItem } from './in-game-menu';
 
@@ -7,6 +9,8 @@ import { InGameMenu, InGameMenuInjector, InGameMenuItem } from './in-game-menu';
 export class InGameMenuInjectorDeck implements InGameMenuInjector {
   private readonly smm: SMM;
   private readonly inGameMenu: InGameMenu;
+
+  private gamepad?: GamepadHandler;
 
   constructor(smm: SMM, inGameMenu: InGameMenu) {
     this.smm = smm;
@@ -62,6 +66,48 @@ export class InGameMenuInjectorDeck implements InGameMenuInjector {
         panel.appendChild(root);
 
         item.render?.(this.smm, root);
+
+        // im sorry
+        const resizeObserver = new ResizeObserver(() => {
+          const panelVisible = panel.offsetWidth > 0 || panel.offsetHeight > 0;
+          if (panelVisible) {
+            if (
+              this.smm.ButtonInterceptors.interceptorExists(
+                `csInGameInjector-${item.id}`
+              )
+            ) {
+              return;
+            }
+
+            this.smm.ButtonInterceptors.addInterceptor({
+              id: `csInGameInjector-${item.id}`,
+              buttonFilters: [BTN_CODE.A, BTN_CODE.RIGHT],
+              handler: (buttonCode) => {
+                if (
+                  !this.gamepad &&
+                  (buttonCode === BTN_CODE.A || buttonCode === BTN_CODE.RIGHT)
+                ) {
+                  this.gamepad = new GamepadHandler({
+                    smm: this.smm,
+                    root,
+                    rootExitCallback: () => {
+                      this.gamepad?.cleanup();
+                      this.gamepad = undefined;
+                    },
+                  });
+                }
+              },
+            });
+            return;
+          }
+
+          this.gamepad?.cleanup();
+          this.gamepad = undefined;
+          this.smm.ButtonInterceptors.removeInterceptor(
+            `csInGameInjector-${item.id}`
+          );
+        });
+        resizeObserver.observe(panel);
       });
       observer.observe(document.body, { subtree: true, childList: true });
       return;

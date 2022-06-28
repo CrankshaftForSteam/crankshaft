@@ -70,7 +70,10 @@ export class GamepadHandler {
   }
 
   cleanup() {
-    window.csButtonInterceptors = [];
+    this.smm.ButtonInterceptors.removeAfter('gamepad-root');
+    this.root
+      .querySelectorAll('.cs-gp-focus')
+      .forEach((node) => node.classList.remove('cs-gp-focus'));
   }
 
   private updateFocused(newFocusPath: string) {
@@ -119,9 +122,7 @@ export class GamepadHandler {
       this.focusPath = initialFocusEl.name;
       this.updateFocused(this.focusPath);
 
-      window.csButtonInterceptors = window.csButtonInterceptors?.filter(
-        ({ id }) => id === 'gamepad-root'
-      );
+      this.smm.ButtonInterceptors.removeAfter('gamepad-root');
     }
   }
 

@@ -13,7 +13,7 @@ export const attachBasicGamepadHandler = (onExit?: () => void): string => {
   window.csButtonInterceptors.push({
     id: interceptorId,
     handler: (buttonCode) => {
-      if (shouldAllowButtonPress(buttonCode)) {
+      if (shouldAllowButtonPress(buttonCode, 'library')) {
         return false;
       }
 

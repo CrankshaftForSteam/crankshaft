@@ -1,13 +1,22 @@
+import { Entry } from '../smm';
 import { BTN_CODE } from './buttons';
 
 // In some cases, we override our gamepad handler even if it's active
-export const shouldAllowButtonPress = (buttonCode: number) => {
+export const shouldAllowButtonPress = (buttonCode: number, entry: Entry) => {
   // A Steam side menu is open (Steam menu or quick access)
-  if (
-    window.coolClass.m_eOpenSideMenu &&
-    window.coolClass.m_eOpenSideMenu !== 0
-  ) {
-    return true;
+  if (entry === 'library') {
+    if (
+      window.coolClass.m_eOpenSideMenu &&
+      window.coolClass.m_eOpenSideMenu !== 0
+    ) {
+      return true;
+    }
+  }
+
+  if (entry === 'quickAccess') {
+    if (window.coolClass.m_eOpenSideMenu !== 2) {
+      return true;
+    }
   }
 
   // Web browser is open
