@@ -62,7 +62,7 @@ const main = async () => {
   if (window.smmUIMode === 'deck') {
     document.addEventListener('keydown', (event) => {
       if (event.shiftKey && event.key === 'Tab') {
-        window.coolClass.OpenQuickAccessMenu();
+        window.coolClass.ToggleSideMenu(2);
       }
     });
   }

@@ -24,6 +24,7 @@ declare global {
       // 2 = quick access
       // other/none = close menu
       OpenSideMenu: (menu?: number) => void;
+      ToggleSideMenu: (menu?: number) => void;
       // Currently open menu (same number values as above)
       m_eOpenSideMenu?: number;
 
