@@ -21,7 +21,6 @@ export const registerCustomElements = async () => {
   // Typescript has bad types for constructable stylesheets, so we need some
   // custom types below
 
-  console.log({ styleSheetContents });
   await (stylesheet as any).replace(styleSheetContents);
 
   // im so sorry
