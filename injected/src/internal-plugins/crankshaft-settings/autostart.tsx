@@ -80,12 +80,12 @@ export const Autostart: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
 
   return (
     <>
-      <RestartSection serviceInstalled={serviceInstalled} smm={smm} />
       <AutostartSection
         hasSystemd={hasSystemd}
         serviceInstalled={serviceInstalled}
         setAutostartEnabled={setAutostartEnabled}
       />
+      <RestartSection serviceInstalled={serviceInstalled} smm={smm} />
     </>
   );
 };
@@ -123,25 +123,46 @@ const RestartSection: FunctionComponent<{
     [setRestarting]
   );
 
-  if (!serviceInstalled) {
-    return null;
-  }
+  const handleReload = useCallback(() => {
+    window.location.reload();
+  }, []);
 
-  return (
-    <Setting name="Restart" gpGroupName="restart">
-      <p style={{ margin: '0 0 8px 0' }}>
-        You can try restarting Crankshaft if you have issues like plugins not
-        loading.
-      </p>
+  const buttons: JSX.Element[] = [];
+
+  if (serviceInstalled) {
+    buttons.push(
       <button
         className="cs-button"
         onClick={handleRestart}
         disabled={restarting}
+        style={{ marginRight: 8 }}
         data-cs-gp-in-group="restart"
         data-cs-gp-item="restart__restart-btn"
       >
         {restarting ? 'Restarting Crankshaft...' : 'Restart Crankshaft'}
       </button>
+    );
+  }
+
+  buttons.push(
+    <button
+      className="cs-button"
+      onClick={handleReload}
+      data-cs-gp-in-group="restart"
+      data-cs-gp-item="restart__reload-btn"
+    >
+      Reload Steam
+    </button>
+  );
+
+  return (
+    <Setting name="Restart" gpGroupName="restart">
+      <p style={{ margin: '0 0 8px 0' }}>
+        {serviceInstalled
+          ? 'Restarting Crankshaft or reloading Steam can help debug some issues.'
+          : 'Reloading Steam can help debug some issues.'}
+      </p>
+      <div>{buttons}</div>
     </Setting>
   );
 };
