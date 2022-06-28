@@ -29,6 +29,16 @@ declare global {
       m_eOpenSideMenu?: number;
 
       NavigateToLibraryTab: () => void;
+
+      VirtualKeyboardManager: {
+        IsShowingVirtualKeyboard: {
+          m_currentValue: boolean;
+          // Returns unsubscribe function
+          Subscribe: (callback: (showing: boolean) => void) => {
+            Unsubscribe: () => void;
+          };
+        };
+      };
     };
 
     // Custom menu items to load into the main menu
