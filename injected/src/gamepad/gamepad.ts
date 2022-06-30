@@ -170,7 +170,13 @@ export class GamepadHandler {
     interceptorId: string;
     onExit?: () => void;
   }): boolean {
-    this.recalculateTree();
+    try {
+      this.recalculateTree();
+    } catch (err) {
+      this.smm.ButtonInterceptors.removeInterceptor(interceptorId);
+      onExit?.();
+      console.error(err);
+    }
 
     switch (buttonCode) {
       case BTN_CODE.UP:
