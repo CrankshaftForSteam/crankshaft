@@ -4,12 +4,12 @@ go 1.18
 
 require (
 	git.sr.ht/~avery/systray v0.0.0-20220425043645-2d004e22f3af
-	github.com/BurntSushi/toml v1.0.0
+	github.com/BurntSushi/toml v1.1.0
 	github.com/adrg/xdg v0.4.0
 	github.com/boltdb/bolt v1.3.1
-	github.com/chromedp/cdproto v0.0.0-20220217222649-d8c14a5c6edf
-	github.com/chromedp/chromedp v0.7.8
-	github.com/evanw/esbuild v0.14.27
+	github.com/chromedp/cdproto v0.0.0-20220515234810-83d799542a04
+	github.com/chromedp/chromedp v0.8.2
+	github.com/evanw/esbuild v0.14.47
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/rpc v1.2.0
 )
@@ -23,5 +23,5 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 )
