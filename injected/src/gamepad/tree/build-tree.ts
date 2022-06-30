@@ -108,4 +108,5 @@ const makeItem = (
   el,
   initialFocus: (el.dataset.csGpInitFocus ?? '') === 'true',
   position,
+  receiveCustomEvents: (el.dataset.csGpItemCustomEvents ?? '') === 'true',
 });

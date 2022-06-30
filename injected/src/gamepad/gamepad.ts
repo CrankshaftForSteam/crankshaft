@@ -5,7 +5,10 @@ import { BTN_CODE } from './buttons';
 import {
   buildGamepadTree,
   children as childrenFilter,
+  GamepadItem,
   GamepadTree,
+  isGroup,
+  isItem,
   siblings as siblingsFilter,
 } from './tree';
 
@@ -195,11 +198,11 @@ export class GamepadHandler {
       // Enter group or trigger action on item
       case BTN_CODE.A:
         const focused = this.tree[this.focusPath];
-        if (focused.type === 'group') {
+        if (isGroup(focused)) {
           this.enterGroup(focused.name);
         }
-        if (focused.type === 'item') {
-          focused.el.dispatchEvent(new MouseEvent('click'));
+        if (isItem(focused)) {
+          this.handleItemTrigger(focused);
         }
         break;
 
@@ -211,5 +214,36 @@ export class GamepadHandler {
     }
 
     return true;
+  }
+
+  // Handle when user triggers (presses A) on the focused item
+  private handleItemTrigger(focused: GamepadItem) {
+    if (!focused.receiveCustomEvents) {
+      focused.el.dispatchEvent(new MouseEvent('click'));
+      return;
+    }
+
+    // Add interceptor to send events
+
+    const interceptorId = `gamepad-${focused.name}-custom-${this.id}`;
+    this.smm.ButtonInterceptors.addInterceptor({
+      id: interceptorId,
+      handler: (buttonCode) => {
+        if (buttonCode === BTN_CODE.B) {
+          this.smm.ButtonInterceptors.removeInterceptor(interceptorId);
+          return true;
+        }
+
+        focused.el.dispatchEvent(
+          new CustomEvent('cs-gp-button-down', {
+            detail: {
+              buttonCode,
+            },
+          })
+        );
+
+        return true;
+      },
+    });
   }
 }

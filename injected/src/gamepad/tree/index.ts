@@ -16,6 +16,7 @@ export interface GamepadGroup extends GamepadTreeChild {
 
 export interface GamepadItem extends GamepadTreeChild {
   type: 'item';
+  receiveCustomEvents: boolean;
 }
 
 export * from './build-tree';

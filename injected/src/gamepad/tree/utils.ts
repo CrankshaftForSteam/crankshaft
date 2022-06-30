@@ -1,4 +1,9 @@
-import { GamepadTreeChild } from '.';
+import { GamepadGroup, GamepadItem, GamepadTreeChild } from '.';
+
+export const isGroup = (child: GamepadTreeChild): child is GamepadGroup =>
+  child.type === 'group';
+export const isItem = (child: GamepadTreeChild): child is GamepadItem =>
+  child.type === 'item';
 
 // Selector for items in the specified group
 export const selectInGroup = (groupName: string) =>
