@@ -1,5 +1,5 @@
 import { SMM } from '../smm';
-import { isOutsideContainer } from '../util';
+import { isOutsideContainer, uuidv4 } from '../util';
 import { attachBasicGamepadHandler } from './basic-handler';
 import { BTN_CODE } from './buttons';
 import {
@@ -9,8 +9,11 @@ import {
   siblings as siblingsFilter,
 } from './tree';
 
+const gamepadRoot = (id: string) => `gamepad-root-${id}`;
+
 export class GamepadHandler {
-  smm: SMM;
+  private readonly smm: SMM;
+  private readonly id: string;
   root: HTMLElement;
   tree!: GamepadTree;
   focusPath!: string;
@@ -27,6 +30,7 @@ export class GamepadHandler {
     rootExitCallback?: GamepadHandler['rootExitCallback'];
   }) {
     this.smm = smm;
+    this.id = uuidv4();
     this.root = root;
     this.rootExitCallback = rootExitCallback;
 
@@ -56,11 +60,11 @@ export class GamepadHandler {
     this.updateFocused(this.focusPath);
 
     this.smm.ButtonInterceptors.addInterceptor({
-      id: 'gamepad-root',
+      id: gamepadRoot(this.id),
       handler: (buttonCode) =>
         this.handleButtonPress({
           buttonCode,
-          interceptorId: 'gamepad-root',
+          interceptorId: gamepadRoot(this.id),
           onExit: () => {
             this.smm._setActiveGamepadHandler(undefined);
             this.rootExitCallback?.();
@@ -70,7 +74,7 @@ export class GamepadHandler {
   }
 
   cleanup() {
-    this.smm.ButtonInterceptors.removeAfter('gamepad-root');
+    this.smm.ButtonInterceptors.removeInterceptor(gamepadRoot(this.id));
     this.root
       .querySelectorAll('.cs-gp-focus')
       .forEach((node) => node.classList.remove('cs-gp-focus'));
@@ -122,7 +126,7 @@ export class GamepadHandler {
       this.focusPath = initialFocusEl.name;
       this.updateFocused(this.focusPath);
 
-      this.smm.ButtonInterceptors.removeAfter('gamepad-root');
+      this.smm.ButtonInterceptors.removeAfter(gamepadRoot(this.id));
     }
   }
 
@@ -149,7 +153,7 @@ export class GamepadHandler {
       this.updateFocused(groupName);
     };
 
-    const interceptorId = `gamepad-${groupName}`;
+    const interceptorId = `gamepad-${groupName}-${this.id}`;
     this.smm.ButtonInterceptors.addInterceptor({
       id: interceptorId,
       handler: (buttonCode) =>
