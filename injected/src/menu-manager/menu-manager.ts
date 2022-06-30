@@ -16,6 +16,7 @@ export interface MenuItem {
 export interface MenuInjector {
   createMenuItem: (item: MenuItem) => void;
   removeMenuItem: (id: string) => void;
+  closeActivePage?: () => void | Promise<void>;
 }
 
 export class MenuManager {
@@ -80,5 +81,11 @@ export class MenuManager {
     }
 
     this.menuItems.splice(index, 1);
+  }
+
+  async closeActivePage() {
+    if (window.csMenuActiveItem) {
+      await this.injector.closeActivePage?.();
+    }
   }
 }

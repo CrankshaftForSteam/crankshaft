@@ -195,6 +195,36 @@ func patchMenuItems(fileLines []string, serverPort string) ([]string, string, er
 		return nil, "", errors.New("active not found")
 	}
 
+	// Used to close plugin pages when another main menu item is pressed
+	onActivateExp := regexp.MustCompile(`onActivate: ([a-zA-Z0-9]+)`)
+	actionVar := ""
+	onActivateLineNum := -1
+	for i := activePropLineNum - 1; i >= activePropLineNum-50; i-- {
+		line := fileLines[i]
+		matches := onActivateExp.FindStringSubmatch(line)
+		if len(matches) > 0 {
+			onActivateLineNum = i
+			actionVar = matches[1]
+		}
+	}
+
+	// (overly) obscure argument name to avoid conflicts
+	newOnClick := fmt.Sprintf(`onClick: (__cs_e) => {
+		if (window.smm) {
+			window.smm.closeActivePluginPage();
+		}
+		%s(__cs_e);
+	},`, actionVar)
+	newOnActivate := fmt.Sprintf(`onActivate: (__cs_e) => {
+		if (window.smm) {
+			window.smm.closeActivePluginPage();
+		}
+		%s(__cs_e);
+	},`, actionVar)
+
+	fileLines[onActivateLineNum-1] = newOnClick
+	fileLines[onActivateLineNum] = newOnActivate
+
 	return fileLines, react, nil
 }
 
@@ -216,8 +246,6 @@ func patchQuickAccessItems(fileLines []string, react string, serverPort string) 
 		return nil, errors.New("Settings tab not found")
 	}
 
-	fmt.Println("settingsLineNum", settingsLineNum)
-
 	settingsTabComponentExp := regexp.MustCompile(`^\s*tab: .*createElement\((.+), .+\)`)
 	var settingsTabComponent string
 	for i := settingsLineNum; i < settingsLineNum+4; i++ {
@@ -230,8 +258,6 @@ func patchQuickAccessItems(fileLines []string, react string, serverPort string) 
 	if settingsTabComponent == "" {
 		return nil, errors.New("settingsTabComponent not found")
 	}
-
-	fmt.Println("settingsTabComponent", settingsTabComponent)
 
 	// Find end of tabs array
 	for i := settingsLineNum + 5; i < settingsLineNum+40; i++ {
