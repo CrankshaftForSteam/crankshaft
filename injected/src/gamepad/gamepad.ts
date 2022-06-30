@@ -76,8 +76,9 @@ export class GamepadHandler {
     });
   }
 
-  cleanup() {
-    this.smm.ButtonInterceptors.removeInterceptor(gamepadRoot(this.id));
+  async cleanup() {
+    await this.smm.ButtonInterceptors.removeAfter(gamepadRoot(this.id));
+    await this.smm.ButtonInterceptors.removeInterceptor(gamepadRoot(this.id));
     this.root
       .querySelectorAll('.cs-gp-focus')
       .forEach((node) => node.classList.remove('cs-gp-focus'));
