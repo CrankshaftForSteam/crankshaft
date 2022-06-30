@@ -45,17 +45,25 @@ export class MenuInjectorDeck implements MenuInjector {
     );
     document.body.appendChild(this.pageContainer);
 
-    this.smm.IPC.on<{ id: string }>('csMenuItemClicked', ({ data: { id } }) => {
-      try {
-        this.openPage(id);
-      } catch (err) {
-        console.error(err);
-        this.smm.Toast.addToast('Error opening plugin.', 'error');
+    this.smm.IPC.on<{ id: string }>(
+      'csMenuItemClicked',
+      async ({ data: { id } }) => {
+        try {
+          await this.openPage(id);
+        } catch (err) {
+          console.error(err);
+          this.smm.Toast.addToast('Error opening plugin.', 'error');
+        }
       }
-    });
+    );
   }
 
-  openPage(id: string) {
+  async openPage(id: string) {
+    // Close current page
+    if (this.active) {
+      await this.closeActivePage();
+    }
+
     // Close menu
     window.coolClass.OpenSideMenu();
 
@@ -95,7 +103,7 @@ export class MenuInjectorDeck implements MenuInjector {
     const gamepad = new GamepadHandler({
       smm: this.smm,
       root: this.pageContainer,
-      rootExitCallback: () => this.closePage(),
+      rootExitCallback: () => this.closeActivePage(),
     });
 
     this.active = {
@@ -104,7 +112,7 @@ export class MenuInjectorDeck implements MenuInjector {
     };
   }
 
-  closePage() {
+  async closeActivePage() {
     if (!this.active) {
       return;
     }
@@ -112,15 +120,13 @@ export class MenuInjectorDeck implements MenuInjector {
     const { page, gamepad } = this.active;
 
     // Fade out the plugin page before removing it
-    (async () => {
-      const animation = await this.pageContainer.animate([{ opacity: 0 }], {
-        duration: 300,
-        fill: 'forwards',
-      }).finished;
-      this.pageContainer.style.opacity = '0';
-      page.remove();
-      animation.cancel();
-    })();
+    const animation = await this.pageContainer.animate([{ opacity: 0 }], {
+      duration: 300,
+      fill: 'forwards',
+    }).finished;
+    this.pageContainer.style.opacity = '0';
+    page.remove();
+    animation.cancel();
 
     gamepad.cleanup();
 

@@ -328,11 +328,6 @@ export class SMM extends EventTarget {
     return super.dispatchEvent(event);
   }
 
-  // Close plugin page if a page is open
-  closeActivePluginPage() {
-    this.MenuManager.closeActivePage();
-  }
-
   // Currently active gamepad handler
   // This should only be set by internal Crankshaft code
   private _activeGamepadHandler?: GamepadHandler;
