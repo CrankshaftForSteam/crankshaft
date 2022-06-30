@@ -1,7 +1,7 @@
-[data-smm-menu-page] a {
+[data-smm-menu-page-container] a {
   color: var(--cs-col-primary);
 }
 
-[data-smm-menu-page] p {
+[data-smm-menu-page-container] p {
   margin: 8px 0;
 }
