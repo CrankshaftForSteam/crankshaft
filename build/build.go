@@ -12,7 +12,7 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-const VERSION = "0.1.7"
+const VERSION = "0.1.8"
 
 const Target = api.ES2020
 
