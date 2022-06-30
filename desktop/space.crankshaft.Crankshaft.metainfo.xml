@@ -40,42 +40,42 @@
 
   <url type="homepage">https://crankshaft.space/</url>
 
-  <release version="0.1.8" date="2022-06-29">
-    <description>
-      <p>Features:</p>
-      <ul>
-        <li>Add button to reload Steam in Crankshaft settings</li>
-        <li>Add basic gamepad support for plugins and built-in Crankshaft menus</li>
-        <li>Plugin API: Add key-value store service for plugins</li>
-      </ul>
-
-      <p>Enhancements:</p>
-      <ul>
-        <li>Change autostart service to restart only on failure</li>
-        <li>Substitute home directory in command line flags</li>
-        <li>Change default steam path to ~/.steam/steam</li>
-        <li>Improve reliability of shift + tab to toggle quick access menu in gamepad UI</li>
-        <li>Clean up logs by removing some unneeded log message</li>
-        <li>Log an error if specified steam-path doesn't exist</li>
-      </ul>
-
-      <p>Bugfixes:</p>
-      <ul>
-        <li>Use 24-hour time in log file names</li>
-        <li>Improve navigating between plugin pages</li>
-        <li>Use host home directory in file paths</li>
-      </ul>
-
-      <p>Misc:</p>
-      <ul>
-        <li>Update dependencies</li>
-      </ul>
-    </description>
-
-    <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.8</url>
-  </release>
-
   <releases>
+    <release version="0.1.8" date="2022-06-29">
+      <description>
+        <p>Features:</p>
+        <ul>
+          <li>Add button to reload Steam in Crankshaft settings</li>
+          <li>Add basic gamepad support for plugins and built-in Crankshaft menus</li>
+          <li>Plugin API: Add key-value store service for plugins</li>
+        </ul>
+
+        <p>Enhancements:</p>
+        <ul>
+          <li>Change autostart service to restart only on failure</li>
+          <li>Substitute home directory in command line flags</li>
+          <li>Change default steam path to ~/.steam/steam</li>
+          <li>Improve reliability of shift + tab to toggle quick access menu in gamepad UI</li>
+          <li>Clean up logs by removing some unneeded log message</li>
+          <li>Log an error if specified steam-path doesn't exist</li>
+        </ul>
+
+        <p>Bugfixes:</p>
+        <ul>
+          <li>Use 24-hour time in log file names</li>
+          <li>Improve navigating between plugin pages</li>
+          <li>Use host home directory in file paths</li>
+        </ul>
+
+        <p>Misc:</p>
+        <ul>
+          <li>Update dependencies</li>
+        </ul>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.8</url>
+    </release>
+    
     <release version="0.1.7" date="2022-06-26">
       <description>
         <p>This is a minor bug fix release.</p>
