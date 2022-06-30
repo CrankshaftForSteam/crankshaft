@@ -159,6 +159,11 @@ export const createProgressModal = ({
       )} / ${formatBytes(finalSizeBytes)}`;
       progressSpan.style.width = progress;
     },
-    close: () => modal.remove(),
+    close: () => {
+      modal.remove();
+      window.csButtonInterceptors = window.csButtonInterceptors?.filter(
+        (i) => i.id !== 'progress-modal'
+      );
+    },
   };
 };
