@@ -181,11 +181,11 @@ func run() error {
 	wg.Wait()
 
 	// When Crankshaft exits, clean up patched JS
-	sigs := make(chan os.Signal)
-	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+	exitSigs := make(chan os.Signal)
+	signal.Notify(exitSigs, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
+		<-exitSigs
 		log.Println("Cleaning up patched scripts before exiting")
-		<-sigs
 		err := patcher.Cleanup(steamPath)
 		if err != nil {
 			log.Println("Error cleaning up", err)

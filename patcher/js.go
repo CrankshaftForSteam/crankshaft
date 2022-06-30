@@ -49,8 +49,6 @@ these scripts, Steam will go through a >30 second update process next time it
 launches.
 */
 func cleanupJS(steamuiPath string) error {
-	log.Println("Cleaning up patched JS")
-
 	files := []string{libraryRootSP, sp}
 	for _, filename := range files {
 		path := path.Join(steamuiPath, filename)
