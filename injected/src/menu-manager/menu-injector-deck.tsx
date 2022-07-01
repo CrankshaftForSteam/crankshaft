@@ -36,9 +36,10 @@ export class MenuInjectorDeck implements MenuInjector {
           right: 0,
           bottom: 'auto',
           zIndex: 999,
-          opacity: 0,
           overflow: 'scroll',
           backgroundColor: '#23262e',
+          opacity: 0,
+          pointerEvents: 'none',
         }}
         data-smm-menu-page-container
       />
@@ -96,7 +97,7 @@ export class MenuInjectorDeck implements MenuInjector {
     this.pageContainer.appendChild(page);
 
     item.render(this.smm, page);
-    this.pageContainer.style.opacity = '1';
+    this.showPageContainer();
 
     window.csMenuActiveItem = item.id;
 
@@ -124,7 +125,7 @@ export class MenuInjectorDeck implements MenuInjector {
       duration: 300,
       fill: 'forwards',
     }).finished;
-    this.pageContainer.style.opacity = '0';
+    this.hidePageContainer();
     page.remove();
     animation.cancel();
 
@@ -153,5 +154,15 @@ export class MenuInjectorDeck implements MenuInjector {
   removeMenuItem(id: string) {
     window.csMenuItems = window.csMenuItems?.filter((i) => i.id !== id);
     window.csMenuUpdate?.();
+  }
+
+  showPageContainer() {
+    this.pageContainer.style.opacity = '1';
+    this.pageContainer.style.pointerEvents = 'all';
+  }
+
+  hidePageContainer() {
+    this.pageContainer.style.opacity = '0';
+    this.pageContainer.style.pointerEvents = 'none';
   }
 }
