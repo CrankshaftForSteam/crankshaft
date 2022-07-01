@@ -1,11 +1,11 @@
 image: archlinux
 secrets:
-  - 9f60d0b6-3755-4452-a803-4a6fa256d46b # github.com/Crankshaft-for-Steam deploy key
+  - 9f60d0b6-3755-4452-a803-4a6fa256d46b # github.com/CrankshaftForSteam deploy key
 sources:
   - https://git.sr.ht/~avery/crankshaft
 tasks:
  - mirror: |
      ssh-keyscan github.com > "$HOME"/.ssh/known_hosts
      cd crankshaft
-     git remote add github git@github.com:Crankshaft-for-Steam/crankshaft.git
+     git remote add github git@github.com:CrankshaftForSteam/crankshaft.git
      git push --prune github +refs/remotes/origin/*:refs/heads/* +refs/tags/*:refs/tags/* main
