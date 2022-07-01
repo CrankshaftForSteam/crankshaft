@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
@@ -101,6 +102,11 @@ func copyOriginal(scriptPath string) error {
 	return pathutil.Copy(scriptPath, copyPath)
 }
 
+func getCachedFilePath(scriptPath, cacheDir, md5sum string) string {
+	cachedFileName := fmt.Sprintf("%s.%s.%s", filepath.Base(scriptPath), build.VERSION, md5sum)
+	return path.Join(cacheDir, "patched", cachedFileName)
+}
+
 func useCachedPatchedScript(scriptPath, cacheDir string) (bool, string, error) {
 	data, err := os.ReadFile(scriptPath)
 	if err != nil {
@@ -111,8 +117,7 @@ func useCachedPatchedScript(scriptPath, cacheDir string) (bool, string, error) {
 	sumStr := hex.EncodeToString(sum[:])
 
 	// Check if we have a cached copy
-	cachedFileName := fmt.Sprintf("%s.%s", filepath.Base(scriptPath), sumStr)
-	cachedFilePath := path.Join(cacheDir, "patched", cachedFileName)
+	cachedFilePath := getCachedFilePath(scriptPath, cacheDir, sumStr)
 	if _, err := os.Stat(cachedFilePath); err != nil {
 		if os.IsNotExist(err) {
 			return false, sumStr, nil
@@ -126,8 +131,7 @@ func useCachedPatchedScript(scriptPath, cacheDir string) (bool, string, error) {
 }
 
 func cachePatchedScript(fileLines []string, scriptPath, cacheDir, origSum string) error {
-	cachedFileName := fmt.Sprintf("%s.%s", filepath.Base(scriptPath), origSum)
-	cachedFilePath := path.Join(cacheDir, "patched", cachedFileName)
+	cachedFilePath := getCachedFilePath(scriptPath, cacheDir, origSum)
 
 	log.Printf("Writing patched file to cache at %s\n", cachedFilePath)
 
