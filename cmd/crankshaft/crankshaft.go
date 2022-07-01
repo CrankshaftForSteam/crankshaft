@@ -33,7 +33,7 @@ func main() {
 }
 
 func run() error {
-	debugPort, serverPort, skipPatching, dataDir, pluginsDir, logsDir, steamPath, cleanup := config.ParseFlags()
+	debugPort, serverPort, skipPatching, dataDir, pluginsDir, logsDir, cacheDir, steamPath, cleanup := config.ParseFlags()
 
 	if cleanup {
 		log.Println("Cleaning up patched files and exiting")
@@ -57,6 +57,11 @@ func run() error {
 	// Ensure logs directory exists
 	if err := os.MkdirAll(logsDir, 0700); err != nil {
 		return fmt.Errorf(`Error creating logs directory "%s": %v`, logsDir, err)
+	}
+
+	// Ensure cache directory exists
+	if err := os.MkdirAll(cacheDir, 0700); err != nil {
+		return fmt.Errorf(`Error creating cache directory "%s": %v`, cacheDir, err)
 	}
 
 	// Ensure Steam directory exists
@@ -116,7 +121,7 @@ func run() error {
 		cdp.WaitForConnection(debugPort)
 		cdp.WaitForLibraryEl(debugPort)
 		cdp.ShowLoadingIndicator(debugPort, serverPort)
-		err = patcher.Patch(debugPort, serverPort, steamPath)
+		err = patcher.Patch(debugPort, serverPort, steamPath, cacheDir)
 		if err != nil {
 			return err
 		}

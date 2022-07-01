@@ -11,13 +11,24 @@ import (
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
-func patchSP(scriptPath string, serverPort string) error {
+func patchSP(scriptPath, serverPort, cacheDir string) error {
 	log.Printf("Patching %s...\n", scriptPath)
 
-	checkForOriginal(scriptPath)
+	if err := checkForOriginal(scriptPath); err != nil {
+		return err
+	}
 
 	if err := copyOriginal(scriptPath); err != nil {
 		return err
+	}
+
+	found, origSum, err := useCachedPatchedScript(scriptPath, cacheDir)
+	if err != nil {
+		return err
+	}
+
+	if found {
+		return nil
 	}
 
 	unminFilePath, err := unmin(scriptPath)
@@ -55,7 +66,9 @@ func patchSP(scriptPath string, serverPort string) error {
 		return err
 	}
 
-	return nil
+	err = cachePatchedScript(fileLines, scriptPath, cacheDir, origSum)
+
+	return err
 }
 
 /*

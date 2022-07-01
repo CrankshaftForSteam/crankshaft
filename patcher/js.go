@@ -2,11 +2,15 @@ package patcher
 
 import (
 	"bufio"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -26,12 +30,12 @@ run every time Crankshaft starts (if not already patched).
 
 At the moment this only patches libraryroot~sp.js.
 */
-func patchJS(steamuiPath string, debugPort string, serverPort string) error {
-	if err := patchLibraryRootSP(path.Join(steamuiPath, libraryRootSP), serverPort); err != nil {
+func patchJS(steamuiPath string, debugPort string, serverPort string, cacheDir string) error {
+	if err := patchLibraryRootSP(path.Join(steamuiPath, libraryRootSP), serverPort, cacheDir); err != nil {
 		return err
 	}
 
-	if err := patchSP(path.Join(steamuiPath, "sp.js"), serverPort); err != nil {
+	if err := patchSP(path.Join(steamuiPath, "sp.js"), serverPort, cacheDir); err != nil {
 		return err
 	}
 
@@ -95,6 +99,44 @@ func copyOriginal(scriptPath string) error {
 	copyPath := pathutil.AddExtPrefix(scriptPath, ".orig")
 	log.Printf("Copying original %s to %s...\n", scriptPath, copyPath)
 	return pathutil.Copy(scriptPath, copyPath)
+}
+
+func useCachedPatchedScript(scriptPath, cacheDir string) (bool, string, error) {
+	data, err := os.ReadFile(scriptPath)
+	if err != nil {
+		return false, "", err
+	}
+
+	sum := md5.Sum(data)
+	sumStr := hex.EncodeToString(sum[:])
+
+	// Check if we have a cached copy
+	cachedFileName := fmt.Sprintf("%s.%s", filepath.Base(scriptPath), sumStr)
+	cachedFilePath := path.Join(cacheDir, "patched", cachedFileName)
+	if _, err := os.Stat(cachedFilePath); err != nil {
+		if os.IsNotExist(err) {
+			return false, sumStr, nil
+		}
+		return false, sumStr, err
+	}
+
+	log.Println("Using cached file")
+
+	return true, sumStr, pathutil.Copy(cachedFilePath, scriptPath)
+}
+
+func cachePatchedScript(fileLines []string, scriptPath, cacheDir, origSum string) error {
+	cachedFileName := fmt.Sprintf("%s.%s", filepath.Base(scriptPath), origSum)
+	cachedFilePath := path.Join(cacheDir, "patched", cachedFileName)
+
+	log.Printf("Writing patched file to cache at %s\n", cachedFilePath)
+
+	err := os.WriteFile(cachedFilePath, []byte(strings.Join(fileLines, "\n")), 0755)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // unmin unminifies the speecifid Javascript file with js-beautify and returns

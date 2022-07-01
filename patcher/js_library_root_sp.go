@@ -11,21 +11,25 @@ import (
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
-func patchLibraryRootSP(scriptPath, serverPort string) error {
+func patchLibraryRootSP(scriptPath, serverPort, cacheDir string) error {
 	log.Printf("Patching %s...\n", scriptPath)
 
-	checkForOriginal(scriptPath)
-
-	// TODO: use checksum to cache output
-	// f, _ := os.Open(scriptPath)
-	// defer f.Close()
-	// h := md5.New()
-	// io.Copy(h, f)
-	// log.Printf("%x\n", h.Sum(nil))
+	if err := checkForOriginal(scriptPath); err != nil {
+		return err
+	}
 
 	// Make a copy of the original, just in case
 	if err := copyOriginal(scriptPath); err != nil {
 		return err
+	}
+
+	found, origSum, err := useCachedPatchedScript(scriptPath, cacheDir)
+	if err != nil {
+		return err
+	}
+
+	if found {
+		return nil
 	}
 
 	unminFilePath, err := unmin(scriptPath)
@@ -68,7 +72,9 @@ func patchLibraryRootSP(scriptPath, serverPort string) error {
 		return err
 	}
 
-	return nil
+	err = cachePatchedScript(fileLines, scriptPath, cacheDir, origSum)
+
+	return err
 }
 
 /*
