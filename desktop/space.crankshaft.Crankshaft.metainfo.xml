@@ -41,6 +41,18 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.1.9" date="2022-06-30">
+      <description>
+        <p>This is a smaller release to fix a bug from the previous release, along with improved startup time!</p>
+        <ul>
+          <li>Fix touchscreen input in the library in gamepad/game mode UI</li>
+          <li>1.5x - 2x faster Crankshaft startup by caching patched files</li>
+        </ul>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.1.9</url>
+    </release>
+    
     <release version="0.1.8" date="2022-06-29">
       <description>
         <p>Features:</p>
