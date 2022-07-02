@@ -8,13 +8,15 @@ import (
 )
 
 // Patch patches necessary Steam resources.
-func Patch(debugPort string, serverPort string, steamPath string, cacheDir string) error {
+func Patch(debugPort string, serverPort string, steamPath string, cacheDir string, noCache bool) error {
 	// Ensure cached patched scripts directory exists
-	if err := os.MkdirAll(path.Join(cacheDir, "patched"), 0700); err != nil {
-		return fmt.Errorf(`Error creating cached patched scripts directory "%s": %v`, cacheDir, err)
+	if !noCache {
+		if err := os.MkdirAll(path.Join(cacheDir, "patched"), 0700); err != nil {
+			return fmt.Errorf(`Error creating cached patched scripts directory "%s": %v`, cacheDir, err)
+		}
 	}
 
-	return patchJS(path.Join(steamPath, "steamui"), debugPort, serverPort, cacheDir)
+	return patchJS(path.Join(steamPath, "steamui"), debugPort, serverPort, cacheDir, noCache)
 }
 
 // Cleanup cleans up patched Steam resources.

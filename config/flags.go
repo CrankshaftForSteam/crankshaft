@@ -20,7 +20,7 @@ func GetXdgCacheHome() string {
 	return xdg.CacheHome
 }
 
-func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataDir string, pluginsDir string, logsDir string, cacheDir string, steamPath string, cleanup bool) {
+func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataDir string, pluginsDir string, logsDir string, cacheDir string, steamPath string, cleanup bool, noCache bool) {
 	dataHome := GetXdgDataHome()
 	stateHome := GetXdgStateHome()
 	cacheHome := GetXdgCacheHome()
@@ -34,6 +34,7 @@ func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataD
 	fCacheDir := flag.String("cache-dir", path.Join(cacheHome, "crankshaft"), "Directory to use for caching files")
 	fSteamPath := flag.String("steam-path", "~/.steam/steam", "Path to Steam files")
 	fCleanup := flag.Bool("cleanup", false, "Cleanup patched files and exit")
+	fNoCache := flag.Bool("no-cache", false, "Disable caching")
 
 	flag.Parse()
 
@@ -46,6 +47,7 @@ func ParseFlags() (debugPort string, serverPort string, skipPatching bool, dataD
 	cacheDir = pathutil.SubstituteHomeDir(*fCacheDir)
 	steamPath = pathutil.SubstituteHomeDir(*fSteamPath)
 	cleanup = *fCleanup
+	noCache = *fNoCache
 
 	return
 }

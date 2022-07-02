@@ -11,7 +11,7 @@ import (
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
-func patchLibraryRootSP(scriptPath, serverPort, cacheDir string) error {
+func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool) error {
 	log.Printf("Patching %s...\n", scriptPath)
 
 	if err := checkForOriginal(scriptPath); err != nil {
@@ -23,13 +23,21 @@ func patchLibraryRootSP(scriptPath, serverPort, cacheDir string) error {
 		return err
 	}
 
-	found, origSum, err := useCachedPatchedScript(scriptPath, cacheDir)
-	if err != nil {
-		return err
-	}
+	origSum := ""
 
-	if found {
-		return nil
+	if !noCache {
+		found, _origSum, err := useCachedPatchedScript(scriptPath, cacheDir)
+		if err != nil {
+			return err
+		}
+
+		if found {
+			return nil
+		}
+
+		origSum = _origSum
+	} else {
+		log.Println("Skipping cache...")
 	}
 
 	unminFilePath, err := unmin(scriptPath)
@@ -72,7 +80,11 @@ func patchLibraryRootSP(scriptPath, serverPort, cacheDir string) error {
 		return err
 	}
 
-	err = cachePatchedScript(fileLines, scriptPath, cacheDir, origSum)
+	if !noCache {
+		err = cachePatchedScript(fileLines, scriptPath, cacheDir, origSum)
+	} else {
+		log.Println("Skipping cache...")
+	}
 
 	return err
 }
