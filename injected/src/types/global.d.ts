@@ -1,5 +1,46 @@
 import { SMM } from '../smm';
 
+export interface AppPropsApp {
+  app_type: number;
+  appid: number;
+  association: string[];
+  canonicalAppType: number;
+  controller_support: number;
+  display_name: string;
+  metacritic_score: number;
+  minutes_playtime_forever: number;
+  minutes_playtime_last_two_weeks: number;
+  review_percentage_with_bombs: number;
+  review_percentage_without_bombs: number;
+  review_score_with_bombs: number;
+  review_score_without_bombs: number;
+  rt_last_time_locally_played: number;
+  rt_last_time_played: number;
+  rt_last_time_played_or_installed: number;
+  rt_original_release_date: number;
+  rt_purchased_time: number;
+  rt_recent_activity_time: number;
+  rt_steam_release_date: number;
+  selected_clientid: string;
+  selected_per_client_data: {
+    bytes_downloaded: string;
+    bytes_total: string;
+    client_name: string;
+    clientid: string;
+    cloud_status: number;
+    display_status: number;
+    installed: boolean;
+    is_available_on_current_platform: boolean;
+    status_percentage: number
+  },
+  size_on_disk: string;
+  sort_as: string;
+  steam_deck_compat_category: number;
+  visible_in_game_list: boolean;
+  vr_only?: boolean;
+  vr_supported?: boolean;
+}
+
 declare global {
   interface Window {
     smm?: SMM;
@@ -62,6 +103,10 @@ declare global {
     csButtonInterceptors?: {
       id: string;
       handler: (buttonCode: number) => void | boolean;
+    }[];
+
+    csGetAppPropsMenuItems?: (app: AppPropsApp) => {
+      title: string;
     }[];
 
     // Internal Steam stuff
