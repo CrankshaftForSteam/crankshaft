@@ -31,8 +31,8 @@ export interface AppPropsApp {
     display_status: number;
     installed: boolean;
     is_available_on_current_platform: boolean;
-    status_percentage: number
-  },
+    status_percentage: number;
+  };
   size_on_disk: string;
   sort_as: string;
   steam_deck_compat_category: number;

@@ -1,14 +1,15 @@
 import { rpcRequest } from '../rpc';
+import { AppPropsApp } from '../types/global';
 import { Service } from './service';
 
 export class Inject extends Service {
-  async injectAppProperties(appId: number) {
+  async injectAppProperties(app: AppPropsApp) {
     const { getRes } = rpcRequest<
       {
-        appId: number;
+        app: string;
       },
       {}
-    >('InjectService.InjectAppProperties', { appId });
+    >('InjectService.InjectAppProperties', { app: JSON.stringify(app) });
     return getRes();
   }
 }

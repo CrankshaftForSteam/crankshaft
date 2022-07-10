@@ -1,5 +1,6 @@
 import { SHARED_SELECTORS } from '../selectors';
 import { SMM } from '../smm';
+import { AppPropsApp } from '../types/global';
 import { info, waitForElement } from '../util';
 
 const main = async () => {
@@ -19,10 +20,10 @@ const main = async () => {
 
   await smm.loadPlugins();
 
-  const appPropertiesAppId: number | undefined = (window as any)
-    .appPropertiesAppId;
-  if (appPropertiesAppId) {
-    smm.switchToAppProperties(appPropertiesAppId);
+  const appPropertiesApp: AppPropsApp | undefined = (window as any)
+    .appPropertiesApp;
+  if (appPropertiesApp) {
+    smm.switchToAppProperties(appPropertiesApp);
   } else {
     console.error('App ID for app properties context not found.');
   }

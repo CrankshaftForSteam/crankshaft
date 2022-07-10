@@ -62,7 +62,7 @@ func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool) e
 		return err
 	}
 
-	fileLines, err = appPropertiesEvent(fileLines)
+	fileLines, err = appProperties(fileLines)
 	if err != nil {
 		return err
 	}
@@ -190,7 +190,7 @@ func addButtonInterceptor(fileLines []string) ([]string, error) {
 	return fileLines, nil
 }
 
-func appPropertiesEvent(fileLines []string) ([]string, error) {
+func appProperties(fileLines []string) ([]string, error) {
 	titleLine := -1
 	for i, line := range fileLines {
 		if strings.Contains(line, "#AppProperties_ShortcutPage") {
@@ -203,30 +203,51 @@ func appPropertiesEvent(fileLines []string) ([]string, error) {
 		return nil, errors.New("Didn't find app properties title line")
 	}
 
-	getAppPropsLine := regexp.MustCompile(`GetAppOverviewByAppID\(([a-zA-Z0-9]+)\)`)
+	getAppPropsLine := regexp.MustCompile(`\s([a-zA-Z0-9]+)\.app_type`)
 
 	found := false
-	appId := ""
-	for i := titleLine - 1; i >= titleLine-15; i-- {
+	app := ""
+	for i := titleLine - 1; i >= titleLine-5; i-- {
 		line := fileLines[i]
 
 		matches := getAppPropsLine.FindStringSubmatch(line)
 		if len(matches) >= 2 {
 			found = true
-			appId = matches[1]
+			app = matches[1]
 			break
 		}
 	}
 
 	if !found {
-		return nil, errors.New("Didn't find GetAppOverviewByAppID")
+		return nil, errors.New("Didn't find app")
+	}
+
+	createElementRe := regexp.MustCompile(` ([a-zA-Z0-9]+)\.createElement`)
+	react := ""
+	for i := titleLine; i < titleLine+20; i++ {
+		line := fileLines[i]
+
+		if matches := createElementRe.FindStringSubmatch(line); len(matches) >= 2 {
+			react = matches[1]
+			break
+		}
+	}
+
+	if react == "" {
+		return nil, errors.New("Didn't find createElementRe")
 	}
 
 	for i := titleLine - 1; i >= titleLine-10; i-- {
 		line := fileLines[i]
 		if strings.HasPrefix(strings.TrimSpace(line), "return") {
 			found = true
-			fileLines[i] = fmt.Sprintf("smm.switchToAppProperties(%s);\n", appId) + fileLines[i]
+			fileLines[i] = fmt.Sprintf(`
+				const [, updateState] = %[1]s.useState();
+				window.csAppPropsMenuUpdate = %[1]s.useCallback(() => {
+					updateState({});
+				}, [updateState]);
+				smm.switchToAppProperties(%[2]s);
+			`, react, app) + fileLines[i]
 			break
 		}
 	}
@@ -234,6 +255,89 @@ func appPropertiesEvent(fileLines []string) ([]string, error) {
 	if !found {
 		return nil, errors.New("Didn't find return")
 	}
+
+	feedbackLine := -1
+	for i, line := range fileLines {
+		if strings.Contains(line, `"#AppProperties_FeedbackPage"`) {
+			feedbackLine = i
+			break
+		}
+	}
+	if feedbackLine < 0 {
+		return nil, errors.New("Didn't find feedback line")
+	}
+
+	log.Println("feedbackLine", feedbackLine)
+
+	itemsExp := regexp.MustCompile(`\S ([a-zA-Z0-9]+)\.push\(\{`)
+	items := ""
+	for i := feedbackLine - 1; i > feedbackLine-3; i-- {
+		line := fileLines[i]
+
+		if matches := itemsExp.FindStringSubmatch(line); len(matches) >= 2 {
+			items = matches[1]
+			break
+		}
+	}
+
+	if items == "" {
+		return nil, errors.New("Didn't find items")
+	}
+
+	matchRe := regexp.MustCompile(`^\s+className: .+AppProperties,$`)
+	appPropsLine := -1
+	for i := feedbackLine + 1; i < feedbackLine+15; i++ {
+		if match := matchRe.MatchString(fileLines[i]); match {
+			appPropsLine = i
+			break
+		}
+	}
+	if appPropsLine < 0 {
+		return nil, errors.New("Didn't find appProps line")
+	}
+
+	log.Println("appPropsLine", appPropsLine, fileLines[appPropsLine])
+
+	createLine := -1
+	for i := appPropsLine; i > appPropsLine-10; i-- {
+		line := fileLines[i]
+		if matches := createElementRe.FindStringSubmatch(line); len(matches) >= 2 {
+			createLine = i
+			break
+		}
+	}
+
+	if createLine < 0 {
+		return nil, errors.New("Didn't find create line")
+	}
+
+	line := strings.TrimSpace(fileLines[createLine])
+
+	if !strings.HasPrefix(line, "})") {
+		return nil, errors.New("Error patching app properties")
+	}
+
+	fileLines[createLine] = "}), " + fmt.Sprintf(`(
+		window.csGetAppPropsMenuItems
+			? %[1]s.push(
+					...(
+						window.csGetAppPropsMenuItems()
+							.map((item) => {
+								return ({
+									...item,
+									link: "/app/"+%[2]s.appid+"/properties/"+item.id,
+									route: "/app/:appid/properties/"+item.id,
+									content: %[3]s.createElement('div', {
+										"data-cs-plugin-id": item.id,
+										"data-cs-plugin-data": JSON.stringify(%[2]s),
+									}, null),
+								});
+							}
+						)
+					)
+				)
+			: undefined
+	)`, items, app, react) + strings.TrimPrefix(line, "})")
 
 	return fileLines, nil
 }

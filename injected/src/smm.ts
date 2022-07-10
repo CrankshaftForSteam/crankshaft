@@ -1,3 +1,4 @@
+import { AppPropertiesMenu } from './app-properties-menu';
 import { GamepadHandler } from './gamepad';
 import { ButtonInterceptors } from './gamepad/button-interceptors';
 import { InGameMenu } from './in-game-menu';
@@ -12,6 +13,7 @@ import { Plugins } from './services/plugins';
 import { Store } from './services/store';
 import { Toast } from './services/toast';
 import { UI } from './services/ui';
+import { AppPropsApp } from './types/global';
 import { info } from './util';
 
 type PluginId = string;
@@ -52,9 +54,8 @@ class EventSwitchToAppDetails extends CustomEvent<eventDetailsSwitchToAppDetails
   }
 }
 
-type eventDetailsSwitchToAppProperties = { appId: number };
-class EventSwitchToAppProperties extends CustomEvent<eventDetailsSwitchToAppProperties> {
-  constructor(detail: eventDetailsSwitchToAppProperties) {
+class EventSwitchToAppProperties extends CustomEvent<AppPropsApp> {
+  constructor(detail: AppPropsApp) {
     super('switchToAppProperties', { detail });
   }
 }
@@ -86,6 +87,7 @@ export class SMM extends EventTarget {
   // TODO: improve types for running in context without menu
   readonly MenuManager!: MenuManager;
   readonly InGameMenu!: InGameMenu;
+  readonly AppPropertiesMenu!: AppPropertiesMenu;
   readonly FS: FS;
   readonly Plugins: Plugins;
   readonly IPC: IPC;
@@ -94,8 +96,7 @@ export class SMM extends EventTarget {
   readonly Inject: Inject;
   readonly Store: Store;
   readonly ButtonInterceptors: ButtonInterceptors;
-  // TODO: related to types for specific context above, use inherited classes
-  readonly Apps?: Apps;
+  readonly Apps: Apps;
 
   readonly serverPort: string;
 
@@ -134,14 +135,21 @@ export class SMM extends EventTarget {
     this.Inject = new Inject(this);
     this.Store = new Store(this);
     this.ButtonInterceptors = new ButtonInterceptors(this);
+    this.Apps = new Apps(this);
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);
-      this.Apps = new Apps(this);
     }
 
     if (entry === 'library' || entry === 'quickAccess') {
       this.InGameMenu = new InGameMenu(this);
+    }
+
+    if (
+      entry === 'library' ||
+      (window.smmUIMode === 'desktop' && entry === 'appProperties')
+    ) {
+      this.AppPropertiesMenu = new AppPropertiesMenu(this);
     }
 
     this.serverPort = window.smmServerPort;
@@ -206,8 +214,8 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventSwitchToAppDetails({ appId, appName }));
   }
 
-  switchToAppProperties(appId: number) {
-    info('Switched to app properties for app', appId);
+  switchToAppProperties(app: AppPropsApp) {
+    info('Switched to app properties for app', app.appid);
 
     /*
       In desktop mode, the app properties dialog is in a different context, so
@@ -218,11 +226,11 @@ export class SMM extends EventTarget {
     */
 
     if (window.smmUIMode === 'desktop' && this.entry !== 'appProperties') {
-      this.Inject.injectAppProperties(appId);
+      this.Inject.injectAppProperties(app);
       return;
     }
 
-    this.dispatchEvent(new EventSwitchToAppProperties({ appId }));
+    this.dispatchEvent(new EventSwitchToAppProperties(app));
   }
 
   lockScreenOpened() {
@@ -311,16 +319,14 @@ export class SMM extends EventTarget {
     callback: EventListenerOrEventListenerObject | null,
     options?: boolean | AddEventListenerOptions
   ): void {
-    if (!this.currentPlugin) {
-      console.error('[SMM] addEventListener missing this.currentPlugin!');
-      return;
+    if (this.currentPlugin) {
+      if (!this.attachedEvents[this.currentPlugin]) {
+        this.attachedEvents[this.currentPlugin] = [];
+      }
+
+      this.attachedEvents[this.currentPlugin].push({ type, callback, options });
     }
 
-    if (!this.attachedEvents[this.currentPlugin]) {
-      this.attachedEvents[this.currentPlugin] = [];
-    }
-
-    this.attachedEvents[this.currentPlugin].push({ type, callback, options });
     super.addEventListener(type, callback, options);
   }
 

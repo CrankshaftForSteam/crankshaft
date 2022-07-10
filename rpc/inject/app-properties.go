@@ -13,13 +13,13 @@ import (
 )
 
 type InjectAppPropertiesArgs struct {
-	AppId int
+	App string
 }
 
 type InjectAppPropertiesReply struct{}
 
 var appPropertiesScriptTemplate = template.Must(template.New("app-properties").Parse(`
-	window.appPropertiesAppId = {{ .AppId }};
+	window.appPropertiesApp = JSON.parse(` + "`{{ .App }}`" + `);
 	{{ .Script }}
 `))
 
@@ -65,10 +65,10 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAp
 
 	var scriptBytes bytes.Buffer
 	if err := appPropertiesScriptTemplate.Execute(&scriptBytes, struct {
-		AppId  int
+		App    string
 		Script string
 	}{
-		AppId:  req.AppId,
+		App:    req.App,
 		Script: appPropertiesEvalScript,
 	}); err != nil {
 		return err

@@ -17,6 +17,7 @@ export const DECK_SELECTORS = {
   quickAccessContainer: '[class*=quickaccessmenu_Container_]',
   topLevelTransitionSwitch:
     '[class^=topleveltransitionswitch_TopLevelTransitionSwitch_]',
+  appProperties: '[class*=appproperties_AppProperties]',
 };
 
 const createModeSelectors = <
