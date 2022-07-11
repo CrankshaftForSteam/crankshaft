@@ -41,6 +41,17 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.2.0" date="2022-07-11">
+      <description>
+        <ul>
+          <li>Add flag to skip caching</li>
+          <li>Improve app properties plugin support</li>
+        </ul>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.2.0</url>
+    </release>
+
     <release version="0.1.9" date="2022-06-30">
       <description>
         <p>This is a smaller release to fix a bug from the previous release, along with improved startup time!</p>
