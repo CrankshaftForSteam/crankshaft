@@ -12,6 +12,10 @@ import { info, waitForElement } from '../util';
 const main = async () => {
   info('Successfully injected library script');
 
+  if (window.smmUIMode === 'desktop') {
+    await waitForElement(MENU_DESKTOP_SELECTORS.collectionsButton);
+  }
+
   let smm: SMM;
   try {
     smm = new SMM('library');
@@ -43,10 +47,6 @@ const main = async () => {
   const mainLibraryEl = await waitForElement<HTMLDivElement>(
     getSelectorByMode('mainLibrary')
   );
-
-  if (window.smmUIMode === 'desktop') {
-    await waitForElement(MENU_DESKTOP_SELECTORS.collectionsButton);
-  }
 
   createTabObserver(smm, mainLibraryEl);
 
