@@ -317,7 +317,7 @@ func appProperties(fileLines []string) ([]string, error) {
 		return nil, errors.New("Error patching app properties")
 	}
 
-	fileLines[createLine] = "}), " + fmt.Sprintf(`(
+	renderMenuItems := fmt.Sprintf(`(
 		window.csGetAppPropsMenuItems
 			? %[1]s.push(
 					...(
@@ -337,7 +337,18 @@ func appProperties(fileLines []string) ([]string, error) {
 					)
 				)
 			: undefined
-	)`, items, app, react) + strings.TrimPrefix(line, "})")
+	)`, items, app, react)
+
+	fileLines[createLine] = "}), " + renderMenuItems + strings.TrimPrefix(line, "})")
+
+	nonSteamPushRe := regexp.MustCompile(`^\s*\}\)\) : \(.+\.push\(`)
+	for i := titleLine + 1; i <= titleLine+25; i++ {
+		line := fileLines[i]
+		if match := nonSteamPushRe.MatchString(line); match {
+			fileLines[i] = "}), " + renderMenuItems + strings.TrimPrefix(strings.TrimSpace(fileLines[i]), "})")
+			break
+		}
+	}
 
 	return fileLines, nil
 }
