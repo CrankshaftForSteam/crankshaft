@@ -1,6 +1,6 @@
 import { basename, join } from 'path-browserify';
 import { useCallback } from 'preact/hooks';
-import { Plugin } from '.';
+import { FetchedPlugin } from '.';
 import {
   NetworkDownloadCancelledError,
   NetworkDownloadTimeoutError,
@@ -11,7 +11,7 @@ const PLUGINS_DIR = '$XDG_DATA/crankshaft/plugins';
 
 export const useInstallPlugin = (
   smm: SMM,
-  plugin: Plugin,
+  plugin: FetchedPlugin,
   updatePlugins: () => Promise<void>
 ) =>
   useCallback(() => {
