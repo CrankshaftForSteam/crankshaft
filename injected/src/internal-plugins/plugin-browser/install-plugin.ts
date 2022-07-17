@@ -1,11 +1,11 @@
 import { basename, join } from 'path-browserify';
 import { useCallback } from 'preact/hooks';
-import { FetchedPlugin } from '.';
 import {
   NetworkDownloadCancelledError,
   NetworkDownloadTimeoutError,
 } from '../../services/network';
 import { SMM } from '../../smm';
+import { FetchedPlugin } from './fetch-plugins';
 
 const PLUGINS_DIR = '$XDG_DATA/crankshaft/plugins';
 

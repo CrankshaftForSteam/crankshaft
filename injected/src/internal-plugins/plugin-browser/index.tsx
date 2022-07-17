@@ -7,6 +7,7 @@ import {
 } from 'preact/hooks';
 import { Plugin as InstalledPlugin } from '../../services/plugins';
 import { SMM } from '../../smm';
+import { FetchedPlugin, fetchPlugins } from './fetch-plugins';
 import { Plugin } from './plugin';
 
 export const load = (smm: SMM) => {
@@ -16,41 +17,6 @@ export const load = (smm: SMM) => {
     render: (smm, root) => render(<App smm={smm} />, root),
   });
 };
-
-let cachedPlugins: FetchedPlugin[] | undefined;
-const fetchPlugins = async (smm: SMM, refresh: boolean = false) => {
-  if (!cachedPlugins || refresh) {
-    cachedPlugins = Object.values(
-      await smm.Network.get<Record<string, FetchedPlugin>>(PLUGINS_URL)
-    );
-  }
-
-  return cachedPlugins;
-};
-
-export interface FetchedPlugin {
-  id: string;
-
-  name: string;
-  version: string;
-  link: string;
-  source: string;
-  minCrankshaftVersion?: string;
-
-  author: {
-    name: string;
-    link?: string;
-  };
-
-  store: {
-    description?: string;
-  };
-
-  archive: string;
-  sha256: string;
-}
-
-const PLUGINS_URL = 'https://crankshaft.space/plugins.json';
 
 const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
   const [plugins, setPlugins] = useState<FetchedPlugin[] | undefined>(

@@ -3,9 +3,9 @@ import { marked } from 'marked';
 import { FunctionComponent } from 'preact';
 import { memo } from 'preact/compat';
 import { useMemo } from 'preact/hooks';
-import { FetchedPlugin } from '.';
 import { Plugin as InstalledPlugin } from '../../services/plugins';
 import { SMM } from '../../smm';
+import { FetchedPlugin } from './fetch-plugins';
 import { useInstallPlugin } from './install-plugin';
 
 const InstallButton = memo<{
