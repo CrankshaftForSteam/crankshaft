@@ -7,7 +7,7 @@
   "dependencies": {
     "@avery42/preact-custom-element": "^4.2.1",
     "classnames": "^2.3.1",
-    "dom-chef": "5.0.0",
+    "dom-chef": "^5.0.0",
     "dompurify": "^2.3.9",
     "marked": "^4.0.18",
     "path-browserify": "^1.0.1",
@@ -17,8 +17,8 @@
     "@types/dompurify": "^2.3.3",
     "@types/marked": "^4.0.3",
     "@types/path-browserify": "^1.0.0",
-    "prettier": "2.6.0",
-    "prettier-plugin-organize-imports": "2.3.4",
-    "typescript": "4.6.2"
+    "prettier": "^2.6.0",
+    "prettier-plugin-organize-imports": "^2.3.4",
+    "typescript": "^4.6.2"
   }
 }

@@ -7,9 +7,9 @@ require (
 	github.com/BurntSushi/toml v1.1.0
 	github.com/adrg/xdg v0.4.0
 	github.com/boltdb/bolt v1.3.1
-	github.com/chromedp/cdproto v0.0.0-20220515234810-83d799542a04
+	github.com/chromedp/cdproto v0.0.0-20220629234738-4cfc9cdeeb92
 	github.com/chromedp/chromedp v0.8.2
-	github.com/evanw/esbuild v0.14.47
+	github.com/evanw/esbuild v0.14.49
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/rpc v1.2.0
 )
