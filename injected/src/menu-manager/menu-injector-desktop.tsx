@@ -1,4 +1,4 @@
-import { puzzleIcon } from '../assets/assets';
+import { logoIcon } from '../assets/assets';
 import { dcCreateElement } from '../dom-chef';
 import { SMM } from '../smm';
 import { deleteAll } from '../util';
@@ -197,7 +197,10 @@ export class MenuInjectorDesktop implements MenuInjector {
               transition: 'all 150ms',
             }}
           >
-            <img src={puzzleIcon} style={{ width: 20 }} />
+            <img
+              src={logoIcon}
+              style={{ width: 24, filter: 'brightness(0.4)' }}
+            />
           </button>
         </div>
       )

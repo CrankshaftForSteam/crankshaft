@@ -8,7 +8,7 @@ import (
 	"git.sr.ht/~avery/systray"
 )
 
-//go:embed puzzle.ico
+//go:embed logo.ico
 var icon []byte
 
 func StartTray(reloadChannel chan struct{}) {

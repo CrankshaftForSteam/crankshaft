@@ -1,3 +1,3 @@
-import puzzleIcon from '../assets/puzzle-icon.svg';
+import logoIcon from '../assets/logo.svg';
 
-export { puzzleIcon };
+export { logoIcon };
