@@ -19,18 +19,11 @@ export const load = (smm: SMM) => {
 
 let cachedPlugins: FetchedPlugin[] | undefined;
 const fetchPlugins = async (smm: SMM, refresh: boolean = false) => {
-  if (cachedPlugins && !refresh) {
-    return cachedPlugins;
+  if (!cachedPlugins || refresh) {
+    cachedPlugins = Object.values(
+      await smm.Network.get<Record<string, FetchedPlugin>>(PLUGINS_URL)
+    );
   }
-
-  const data = await smm.Network.get<Record<string, Omit<FetchedPlugin, 'id'>>>(
-    PLUGINS_URL
-  );
-
-  cachedPlugins = Object.entries(data).map(([id, plugin]) => ({
-    id,
-    ...plugin,
-  }));
 
   return cachedPlugins;
 };

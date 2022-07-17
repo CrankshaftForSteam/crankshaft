@@ -181,6 +181,8 @@ const Plugin: FunctionComponent<{
                 borderLeft: 'solid 1px rgba(255, 255, 255, 0.5)',
                 paddingLeft: 16,
                 flexGrow: 1,
+                maxHeight: 200,
+                overflow: 'scroll',
               }}
               dangerouslySetInnerHTML={{ __html: description }}
             />
