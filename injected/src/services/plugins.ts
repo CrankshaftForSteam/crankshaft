@@ -15,6 +15,7 @@ export interface Plugin {
     version: string;
     link: string;
     source: string;
+    description?: string;
 
     author: {
       name: string;

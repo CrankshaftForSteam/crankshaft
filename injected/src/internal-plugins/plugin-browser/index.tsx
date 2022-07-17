@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 import { FunctionComponent, render } from 'preact';
 import {
   useCallback,
@@ -20,23 +22,37 @@ export const load = (smm: SMM) => {
 
 export interface Plugin {
   id: string;
+
   name: string;
   version: string;
-  author: string;
-  minCrankshaftVersion?: string;
+  link: string;
   source: string;
+  minCrankshaftVersion?: string;
+  description?: string;
+
+  author: {
+    name: string;
+    link?: string;
+  };
+
   archive: string;
   sha256: string;
 }
 
-const PLUGINS_URL =
-  'https://git.sr.ht/~avery/crankshaft-plugins/blob/main/plugins.json';
+const PLUGINS_URL = 'https://crankshaft.space/plugins.json';
 
 const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
   const [plugins, setPlugins] = useState<Plugin[] | undefined>(undefined);
   const getPlugins = useCallback(async () => {
-    const data = await smm.Network.get<{ plugins: Plugin[] }>(PLUGINS_URL);
-    setPlugins(data.plugins);
+    const data = await smm.Network.get<Record<string, Omit<Plugin, 'id'>>>(
+      PLUGINS_URL
+    );
+    setPlugins(
+      Object.entries(data).map(([id, plugin]) => ({
+        id,
+        ...plugin,
+      }))
+    );
   }, [setPlugins, smm]);
 
   const [installedPlugins, setInstalledPlugins] = useState<
@@ -166,6 +182,14 @@ const Plugin: FunctionComponent<
     );
   }, [installedPlugin, plugin, canUpdate]);
 
+  const description = useMemo(() => {
+    if (!plugin.description) {
+      return undefined;
+    }
+
+    return DOMPurify.sanitize(marked.parse(plugin.description));
+  }, [plugin.description]);
+
   return (
     <li
       style={{
@@ -179,32 +203,50 @@ const Plugin: FunctionComponent<
       data-cs-gp-in-group="root"
       data-cs-gp-group={plugin.id}
     >
+      <h2 style={{ margin: '0 0 0 12px' }}>{plugin.name}</h2>
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
           margin: '0 12px',
         }}
       >
-        <h2 style={{ margin: 0 }}>{plugin.name}</h2>
-        <p>
-          by {plugin.author}
-          <br />
-          Version {plugin.version}
-          <br />
-          <a
-            href={plugin.source}
-            data-cs-gp-in-group={plugin.id}
-            data-cs-gp-item={`${plugin.id}__source-code`}
-          >
-            Source code
-          </a>
-          <br />
-          {installedPlugin && canUpdate ? (
-            <>Latest version: {plugin.version}</>
-          ) : null}
-        </p>
-        {installButton}{' '}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            marginRight: 16,
+            flex: '0 0 166px',
+          }}
+        >
+          <p style={{ marginTop: 0 }}>
+            by {plugin.author.name}
+            <br />
+            Version {plugin.version}
+            <br />
+            <a
+              href={plugin.source}
+              data-cs-gp-in-group={plugin.id}
+              data-cs-gp-item={`${plugin.id}__source-code`}
+            >
+              Source code
+            </a>
+            <br />
+            {installedPlugin && canUpdate ? (
+              <>Latest version: {plugin.version}</>
+            ) : null}
+          </p>
+          {installButton}{' '}
+        </div>
+        {typeof description !== 'undefined' && Boolean(description) ? (
+          <div
+            style={{
+              borderLeft: 'solid 1px rgba(255, 255, 255, 0.5)',
+              paddingLeft: 16,
+              flexGrow: 1,
+            }}
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
+        ) : undefined}
       </div>
     </li>
   );

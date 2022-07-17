@@ -1,8 +1,11 @@
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 import { FunctionComponent, render } from 'preact';
 import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useState,
 } from 'preact/hooks';
 import { Plugin } from '../../services/plugins';
@@ -81,6 +84,14 @@ const Plugin: FunctionComponent<{
       smm,
     });
 
+  const description = useMemo(() => {
+    if (!plugin.config.description) {
+      return undefined;
+    }
+
+    return DOMPurify.sanitize(marked.parse(plugin.config.description));
+  }, [plugin.config.description]);
+
   return (
     <li
       style={{
@@ -101,52 +112,79 @@ const Plugin: FunctionComponent<{
           margin: '0 12px',
         }}
       >
-        <h2 style={{ margin: 0 }}>{plugin.config.name}</h2>
-        <p style={{ marginTop: 0 }}>
-          Version {plugin.config.version}
-          <br />
-          {plugin.enabled ? 'Loaded' : 'Disabled'}
-        </p>
+        <h2 style={{ margin: '0 0 0 12px' }}>{plugin.config.name}</h2>
 
-        <div style={{ display: 'flex', gap: 8 }}>
-          {plugin.enabled ? (
-            <button
-              className="cs-button"
-              onClick={handleUnload}
-              data-cs-gp-in-group={plugin.id}
-              data-cs-gp-item={`${plugin.id}__load`}
-            >
-              Unload
-            </button>
-          ) : (
-            <button
-              className="cs-button"
-              onClick={handleLoad}
-              data-cs-gp-in-group={plugin.id}
-              data-cs-gp-item={`${plugin.id}__load`}
-            >
-              Load
-            </button>
-          )}
-
-          <button
-            className="cs-button"
-            onClick={handleReload}
-            data-cs-gp-in-group={plugin.id}
-            data-cs-gp-item={`${plugin.id}__reload`}
+        <div
+          style={{
+            display: 'flex',
+            margin: '0 12px',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              marginRight: 16,
+              flex: '0 0 250px',
+            }}
           >
-            Reload
-          </button>
+            <p style={{ marginTop: 0 }}>
+              Version {plugin.config.version}
+              <br />
+              {plugin.enabled ? 'Loaded' : 'Disabled'}
+            </p>
 
-          <button
-            className="cs-button"
-            style={{ backgroundColor: 'rgb(209, 28, 28)' }}
-            onClick={handleRemove}
-            data-cs-gp-in-group={plugin.id}
-            data-cs-gp-item={`${plugin.id}__remove`}
-          >
-            Remove
-          </button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {plugin.enabled ? (
+                <button
+                  className="cs-button"
+                  onClick={handleUnload}
+                  data-cs-gp-in-group={plugin.id}
+                  data-cs-gp-item={`${plugin.id}__load`}
+                >
+                  Unload
+                </button>
+              ) : (
+                <button
+                  className="cs-button"
+                  onClick={handleLoad}
+                  data-cs-gp-in-group={plugin.id}
+                  data-cs-gp-item={`${plugin.id}__load`}
+                >
+                  Load
+                </button>
+              )}
+
+              <button
+                className="cs-button"
+                onClick={handleReload}
+                data-cs-gp-in-group={plugin.id}
+                data-cs-gp-item={`${plugin.id}__reload`}
+              >
+                Reload
+              </button>
+
+              <button
+                className="cs-button"
+                style={{ backgroundColor: 'rgb(209, 28, 28)' }}
+                onClick={handleRemove}
+                data-cs-gp-in-group={plugin.id}
+                data-cs-gp-item={`${plugin.id}__remove`}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+          {typeof description !== 'undefined' && Boolean(description) ? (
+            <div
+              style={{
+                borderLeft: 'solid 1px rgba(255, 255, 255, 0.5)',
+                paddingLeft: 16,
+                flexGrow: 1,
+              }}
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          ) : undefined}
         </div>
       </div>
     </li>
