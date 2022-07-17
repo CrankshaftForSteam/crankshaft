@@ -92,11 +92,16 @@ export class MenuInjectorDesktop implements MenuInjector {
     document.querySelector('head')?.appendChild(
       dcCreateElement<HTMLStyleElement>(
         <style data-smm-menu-style>{`
-          [data-smm-menu-button]:hover img {
-            filter: brightness(10);
+          [data-smm-menu-button] > button > img {
+            filter: brightness(0.4);
+            transition: all 150ms;
+          }
+          
+          [data-smm-menu-button]:hover > button > img {
+            filter: brightness(1);
           }
 
-          [data-smm-menu-button] button:focus {
+          [data-smm-menu-button] > button:focus {
             outline: none;
           }
 
@@ -197,10 +202,7 @@ export class MenuInjectorDesktop implements MenuInjector {
               transition: 'all 150ms',
             }}
           >
-            <img
-              src={logoIcon}
-              style={{ width: 24, filter: 'brightness(0.4)' }}
-            />
+            <img src={logoIcon} style={{ width: 24 }} />
           </button>
         </div>
       )
