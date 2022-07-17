@@ -8,8 +8,11 @@ import {
 import { SMM } from '../../smm';
 import { FetchedPlugin, fetchPlugins } from './fetch-plugins';
 import { Plugin } from './plugin';
+import { checkForUpdates } from './update-check';
 
 export const load = (smm: SMM) => {
+  checkForUpdates(smm);
+
   smm.MenuManager.addMenuItem({
     id: 'plugin-browser',
     label: 'Get Plugins',
