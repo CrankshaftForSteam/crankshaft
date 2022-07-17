@@ -85,12 +85,12 @@ const Plugin: FunctionComponent<{
     });
 
   const description = useMemo(() => {
-    if (!plugin.config.description) {
+    if (!plugin.config.store.description) {
       return undefined;
     }
 
-    return DOMPurify.sanitize(marked.parse(plugin.config.description));
-  }, [plugin.config.description]);
+    return DOMPurify.sanitize(marked.parse(plugin.config.store.description));
+  }, [plugin.config.store.description]);
 
   return (
     <li

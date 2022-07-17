@@ -15,7 +15,6 @@ export interface Plugin {
     version: string;
     link: string;
     source: string;
-    description?: string;
 
     author: {
       name: string;
@@ -25,6 +24,10 @@ export interface Plugin {
     entrypoints: {
       desktop: Entrypoint;
       deck: Entrypoint;
+    };
+
+    store: {
+      description?: string;
     };
   };
   enabled: boolean;

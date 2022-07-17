@@ -22,16 +22,19 @@ type entrypoint struct {
 	AppProperties bool `json:"appProperties" toml:"app-properties"`
 }
 
-type pluginConfig struct {
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	Link        string `json:"link"`
-	Source      string `json:"source"`
+type store struct {
 	Description string `json:"description"`
+}
 
-	Author authorInfo `json:"author"`
+type pluginConfig struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	Link    string `json:"link"`
+	Source  string `json:"source"`
 
+	Author      authorInfo                `json:"author"`
 	Entrypoints map[cdp.UIMode]entrypoint `json:"entrypoints"`
+	Store       store                     `json:"store"`
 }
 
 func NewPluginConfig(pluginDir string) (*pluginConfig, error) {

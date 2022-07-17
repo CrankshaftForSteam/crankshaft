@@ -28,11 +28,14 @@ export interface Plugin {
   link: string;
   source: string;
   minCrankshaftVersion?: string;
-  description?: string;
 
   author: {
     name: string;
     link?: string;
+  };
+
+  store: {
+    description?: string;
   };
 
   archive: string;
@@ -183,12 +186,12 @@ const Plugin: FunctionComponent<
   }, [installedPlugin, plugin, canUpdate]);
 
   const description = useMemo(() => {
-    if (!plugin.description) {
+    if (!plugin.store.description) {
       return undefined;
     }
 
-    return DOMPurify.sanitize(marked.parse(plugin.description));
-  }, [plugin.description]);
+    return DOMPurify.sanitize(marked.parse(plugin.store.description));
+  }, [plugin.store.description]);
 
   return (
     <li
