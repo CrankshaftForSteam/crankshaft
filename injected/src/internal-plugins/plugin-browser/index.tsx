@@ -5,7 +5,6 @@ import {
   useLayoutEffect,
   useState,
 } from 'preact/hooks';
-import { Plugin as InstalledPlugin } from '../../services/plugins';
 import { SMM } from '../../smm';
 import { FetchedPlugin, fetchPlugins } from './fetch-plugins';
 import { Plugin } from './plugin';
@@ -30,25 +29,17 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
     [setPlugins, smm]
   );
 
-  const [installedPlugins, setInstalledPlugins] = useState<
-    Record<string, InstalledPlugin> | undefined
-  >(undefined);
-  const getInstalledPlugins = useCallback(async () => {
-    setInstalledPlugins(await smm.Plugins.list());
-  }, [setInstalledPlugins, smm]);
-
   useEffect(() => {
     getPlugins();
-    getInstalledPlugins();
-  }, [getPlugins, getInstalledPlugins]);
+  }, [getPlugins]);
 
   const updatePlugins = useCallback(async () => {
-    Promise.all([getPlugins(), getInstalledPlugins()]);
-  }, [getPlugins, getInstalledPlugins]);
+    Promise.all([getPlugins()]);
+  }, [getPlugins]);
 
   useLayoutEffect(() => {
     smm.activeGamepadHandler?.recalculateTree();
-  }, [smm, plugins, installedPlugins]);
+  }, [smm, plugins]);
 
   return (
     <>
@@ -70,7 +61,6 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
             <Plugin
               {...plugin}
               first={index === 0}
-              installedPlugin={installedPlugins?.[plugin.id]}
               smm={smm}
               updatePlugins={updatePlugins}
               key={plugin.id}

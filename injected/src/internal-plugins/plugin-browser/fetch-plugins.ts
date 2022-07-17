@@ -1,3 +1,4 @@
+import { Plugin as InstalledPlugin } from '../../services/plugins';
 import { SMM } from '../../smm';
 
 const PLUGINS_URL = 'https://crankshaft.space/plugins.json';
@@ -22,14 +23,25 @@ export interface FetchedPlugin {
 
   archive: string;
   sha256: string;
+
+  installedPlugin?: InstalledPlugin;
 }
 
 let cachedPlugins: FetchedPlugin[] | undefined;
 export const fetchPlugins = async (smm: SMM, refresh: boolean = false) => {
   if (!cachedPlugins || refresh) {
-    cachedPlugins = Object.values(
-      await smm.Network.get<Record<string, FetchedPlugin>>(PLUGINS_URL)
+    const data = Object.values(
+      await smm.Network.get<
+        Record<string, Omit<FetchedPlugin, 'installedPlugin'>>
+      >(PLUGINS_URL)
     );
+
+    const installedPlugins = await smm.Plugins.list();
+
+    cachedPlugins = data.map((plugin) => ({
+      ...plugin,
+      installedPlugin: installedPlugins[plugin.id],
+    }));
   }
 
   return cachedPlugins;
