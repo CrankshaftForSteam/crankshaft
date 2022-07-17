@@ -41,6 +41,24 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.2.1" date="2022-07-17">
+      <description>
+        <ul>
+          <li>Show plugin descriptions in the plugin browser and manager</li>
+          <li>Once per day, Crankshaft will check for plugin updates and show a notification if any are found</li>
+          <li>Increase restart burst limit for the Systemd autostart service</li>
+          <li>Update desktop icon, library button, and tray icon to use new Crankshaft logo</li>
+          <li>Update dependencies</li>
+          <li>Fix loading app properties plugins for non-Steam games</li>
+          <li>Improve reliability of loading Crankshaft in desktop mode</li>
+          <li>Plugin API: Store service now returns if the specified key was found</li>
+          <li>Plugin API: Allow launching GUI apps when executing commands</li>
+        </ul>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.2.1</url>
+    </release>
+
     <release version="0.2.0" date="2022-07-11">
       <description>
         <ul>
