@@ -48,7 +48,12 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
     <>
       <div style={{ display: 'flex', marginBottom: 16, gap: 16 }}>
         <h1 style={{ fontSize: 24, margin: 'unset' }}>Get Plugins</h1>
-        <button className="cs-button" onClick={() => getPlugins(true)}>
+        <button
+          className="cs-button"
+          onClick={() => getPlugins(true)}
+          data-cs-gp-in-group="root"
+          data-cs-gp-item="refresh-btn"
+        >
           Refresh
         </button>
       </div>
