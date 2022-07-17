@@ -1,7 +1,6 @@
 package rpc
 
 import (
-	"errors"
 	"log"
 	"net/http"
 	"path"
@@ -30,16 +29,27 @@ type GetArgs struct {
 }
 
 type GetReply struct {
+	Found bool   `json:"found"`
 	Value string `json:"value"`
 }
 
 func (service *StoreService) Get(r *http.Request, req *GetArgs, res *GetReply) error {
 	return service.db.View(func(tx *bolt.Tx) error {
+		res.Found = false
+		res.Value = ""
+
 		b := tx.Bucket([]byte(req.Bucket))
 		if b == nil {
-			return errors.New("Bucket not found")
+			return nil
 		}
-		res.Value = string(b.Get([]byte(req.Key)))
+
+		val := b.Get([]byte(req.Key))
+		if val == nil {
+			return nil
+		}
+
+		res.Found = true
+		res.Value = string(val)
 		return nil
 	})
 }
