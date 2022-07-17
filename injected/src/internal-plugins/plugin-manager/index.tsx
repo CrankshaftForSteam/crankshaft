@@ -109,7 +109,6 @@ const Plugin: FunctionComponent<{
         style={{
           display: 'flex',
           flexDirection: 'column',
-          margin: '0 12px',
         }}
       >
         <h2 style={{ margin: '0 0 0 12px' }}>{plugin.config.name}</h2>
