@@ -138,15 +138,22 @@ export const createProgressModal = ({
     </div>
   );
 
+  const handleClose = () => {
+    modal.remove();
+    backdropEl?.remove();
+    window.csButtonInterceptors = window.csButtonInterceptors?.filter(
+      (i) => i.id !== 'progress-modal'
+    );
+  };
+
   return {
     open: (cancel: () => void) => {
       modal.style.display = '';
 
-      cancelButton.onclick = () => {
+      cancelButton.addEventListener('click', () => {
         cancel();
-        modal.remove();
-        backdropEl?.remove();
-      };
+        handleClose();
+      });
 
       if (gamepadEnabled) {
         window.csButtonInterceptors = window.csButtonInterceptors || [];
@@ -154,11 +161,7 @@ export const createProgressModal = ({
           id: 'progress-modal',
           handler: (buttonCode) => {
             if (buttonCode === BTN_CODE.A) {
-              cancel();
-              modal.remove();
-              window.csButtonInterceptors = window.csButtonInterceptors?.filter(
-                (i) => i.id !== 'progress-modal'
-              );
+              cancelButton.dispatchEvent(new MouseEvent('click'));
             }
             return true;
           },
@@ -183,11 +186,7 @@ export const createProgressModal = ({
       progressSpan.style.width = progress;
     },
     close: () => {
-      modal.remove();
-      backdropEl?.remove();
-      window.csButtonInterceptors = window.csButtonInterceptors?.filter(
-        (i) => i.id !== 'progress-modal'
-      );
+      handleClose();
     },
   };
 };
