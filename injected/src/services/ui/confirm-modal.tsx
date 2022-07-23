@@ -108,6 +108,7 @@ export const createConfirmModal = ({
             right: 0,
             width: '100%',
             height: '100%',
+            zIndex: 9998,
           }}
           onClick={onCancel}
         />
