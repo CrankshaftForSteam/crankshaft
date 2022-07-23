@@ -17,21 +17,26 @@ export const confirm = async (
   new Promise<void>((resolve, reject) => {
     const handleConfirm = () => {
       modal.remove();
+      backdrop?.remove();
       resolve();
     };
 
     const handleCancel = () => {
       modal.remove();
+      backdrop?.remove();
       reject(new ConfirmModalCancelledError());
     };
 
-    const modal = createConfirmModal({
+    const { modal, backdrop } = createConfirmModal({
       ...args,
       onConfirm: handleConfirm,
       onCancel: handleCancel,
     });
 
     document.body.appendChild(modal);
+    if (backdrop) {
+      document.body.appendChild(backdrop);
+    }
   });
 
 export const createConfirmModal = ({
@@ -41,6 +46,7 @@ export const createConfirmModal = ({
   cancelText = 'Cancel',
   onConfirm,
   onCancel,
+  backdrop = true,
 }: {
   message: string;
   confirmText?: string;
@@ -48,6 +54,7 @@ export const createConfirmModal = ({
   cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  backdrop?: boolean;
 }) => {
   const uiMode = window.smmUIMode;
 
@@ -88,8 +95,28 @@ export const createConfirmModal = ({
     });
   }
 
+  const backdropEl = backdrop
+    ? dcCreateElement<HTMLDivElement>(
+        <div
+          data-smm-modal
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 30%)',
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            width: '100%',
+            height: '100%',
+          }}
+          onClick={onCancel}
+        />
+      )
+    : undefined;
+
   const modal = dcCreateElement<HTMLDivElement>(
     <div
+      data-smm-modal
       style={{
         position: 'absolute',
         top: 0,
@@ -111,7 +138,6 @@ export const createConfirmModal = ({
         color: '#b8bcbf',
         padding: 20,
       }}
-      data-smm-modal
     >
       <span>{message}</span>
       <div
@@ -127,7 +153,7 @@ export const createConfirmModal = ({
     </div>
   );
 
-  return modal;
+  return { modal, backdrop: backdropEl };
 };
 
 const buttonInterceptor =

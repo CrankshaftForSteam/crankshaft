@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { dcCreateElement } from '../../dom-chef';
 import { GP_FOCUS_CLASS } from '../../gamepad';
 import { BTN_CODE } from '../../gamepad/buttons';
-import { deleteAll, formatBytes } from '../../util';
+import { formatBytes } from '../../util';
 import { DownloadProgress } from '../network';
 
 // @use-dom-chef
@@ -12,17 +12,17 @@ export const createProgressModal = ({
   fileName,
   progress = true,
   title = 'Downloading,',
+  backdrop = true,
 }: {
   displayName: string;
   fileName: string;
   progress: boolean;
   title: string;
+  backdrop?: boolean;
 }) => {
   const uiMode = window.smmUIMode;
 
   const gamepadEnabled = Boolean(window.smm?.activeGamepadHandler);
-
-  deleteAll('[data-smm-proton-updater-progress-modal]');
 
   const progressText = dcCreateElement<HTMLHeadingElement>(
     <h3
@@ -71,10 +71,28 @@ export const createProgressModal = ({
     </button>
   );
 
+  const backdropEl = backdrop
+    ? dcCreateElement<HTMLDivElement>(
+        <div
+          data-smm-modal
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 30%)',
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            width: '100%',
+            height: '100%',
+          }}
+        />
+      )
+    : undefined;
+
   const modal = dcCreateElement<HTMLDivElement>(
     <div
-      data-smm-modal={true}
-      data-smm-proton-updater-progress-modal={true}
+      data-smm-modal
+      data-smm-proton-updater-progress-modal
       style={{
         position: 'absolute',
         top: 0,
@@ -126,6 +144,7 @@ export const createProgressModal = ({
       cancelButton.onclick = () => {
         cancel();
         modal.remove();
+        backdropEl?.remove();
       };
 
       if (gamepadEnabled) {
@@ -146,6 +165,9 @@ export const createProgressModal = ({
       }
 
       document.querySelector('body')?.appendChild(modal);
+      if (backdropEl) {
+        document.querySelector('body')?.appendChild(backdropEl);
+      }
     },
     update: ({
       progressPercent,
@@ -161,6 +183,7 @@ export const createProgressModal = ({
     },
     close: () => {
       modal.remove();
+      backdropEl?.remove();
       window.csButtonInterceptors = window.csButtonInterceptors?.filter(
         (i) => i.id !== 'progress-modal'
       );
