@@ -191,23 +191,23 @@ func addButtonInterceptor(fileLines []string) ([]string, error) {
 }
 
 func appProperties(fileLines []string) ([]string, error) {
-	titleLine := -1
+	firstItemLine := -1
 	for i, line := range fileLines {
 		if strings.Contains(line, "#AppProperties_ShortcutPage") {
-			titleLine = i
+			firstItemLine = i
 			break
 		}
 	}
 
-	if titleLine < 0 {
-		return nil, errors.New("Didn't find app properties title line")
+	if firstItemLine < 0 {
+		return nil, errors.New("Didn't find app properties first item line")
 	}
 
 	getAppPropsLine := regexp.MustCompile(`\s([a-zA-Z0-9]+)\.app_type`)
 
 	found := false
 	app := ""
-	for i := titleLine - 1; i >= titleLine-5; i-- {
+	for i := firstItemLine - 1; i >= firstItemLine-5; i-- {
 		line := fileLines[i]
 
 		matches := getAppPropsLine.FindStringSubmatch(line)
@@ -224,7 +224,7 @@ func appProperties(fileLines []string) ([]string, error) {
 
 	createElementRe := regexp.MustCompile(` ([a-zA-Z0-9]+)\.createElement`)
 	react := ""
-	for i := titleLine; i < titleLine+20; i++ {
+	for i := firstItemLine; i < firstItemLine+20; i++ {
 		line := fileLines[i]
 
 		if matches := createElementRe.FindStringSubmatch(line); len(matches) >= 2 {
@@ -237,7 +237,7 @@ func appProperties(fileLines []string) ([]string, error) {
 		return nil, errors.New("Didn't find createElementRe")
 	}
 
-	for i := titleLine - 1; i >= titleLine-10; i-- {
+	for i := firstItemLine - 1; i >= firstItemLine-10; i-- {
 		line := fileLines[i]
 		if strings.HasPrefix(strings.TrimSpace(line), "return") {
 			found = true
@@ -246,8 +246,7 @@ func appProperties(fileLines []string) ([]string, error) {
 				window.csAppPropsMenuUpdate = %[1]s.useCallback(() => {
 					updateState({});
 				}, [updateState]);
-				smm.switchToAppProperties(%[2]s);
-			`, react, app) + fileLines[i]
+			`, react) + fileLines[i]
 			break
 		}
 	}
@@ -266,8 +265,6 @@ func appProperties(fileLines []string) ([]string, error) {
 	if feedbackLine < 0 {
 		return nil, errors.New("Didn't find feedback line")
 	}
-
-	log.Println("feedbackLine", feedbackLine)
 
 	itemsExp := regexp.MustCompile(`\S ([a-zA-Z0-9]+)\.push\(\{`)
 	items := ""
@@ -295,8 +292,6 @@ func appProperties(fileLines []string) ([]string, error) {
 	if appPropsLine < 0 {
 		return nil, errors.New("Didn't find appProps line")
 	}
-
-	log.Println("appPropsLine", appPropsLine, fileLines[appPropsLine])
 
 	createLine := -1
 	for i := appPropsLine; i > appPropsLine-10; i-- {
@@ -342,13 +337,44 @@ func appProperties(fileLines []string) ([]string, error) {
 	fileLines[createLine] = "}), " + renderMenuItems + strings.TrimPrefix(line, "})")
 
 	nonSteamPushRe := regexp.MustCompile(`^\s*\}\)\) : \(.+\.push\(`)
-	for i := titleLine + 1; i <= titleLine+25; i++ {
+	for i := firstItemLine + 1; i <= firstItemLine+25; i++ {
 		line := fileLines[i]
 		if match := nonSteamPushRe.MatchString(line); match {
 			fileLines[i] = "}), " + renderMenuItems + strings.TrimPrefix(strings.TrimSpace(fileLines[i]), "})")
 			break
 		}
 	}
+
+	titleLineRe := regexp.MustCompile(` ([a-zA-Z0-9]+) = .+"#AppProperties_Title"`)
+	title := ""
+	titleLine := -1
+	for i, line := range fileLines {
+		if matches := titleLineRe.FindStringSubmatch(line); len(matches) >= 2 {
+			titleLine = i
+			title = matches[1]
+			break
+		}
+	}
+	if titleLine < 0 || title == "" {
+		return nil, errors.New("Title not found")
+	}
+
+	appId := ""
+	appOverviewRe := regexp.MustCompile(`GetAppOverviewByAppID\(([a-zA-Z0-9]+)\)`)
+	for i := titleLine; i >= titleLine-10; i-- {
+		line := fileLines[i]
+		if matches := appOverviewRe.FindStringSubmatch(line); len(matches) >= 2 {
+			appId = matches[1]
+			break
+		}
+	}
+	if appId == "" {
+		return nil, errors.New("App ID not found")
+	}
+
+	fileLines[titleLine] = fileLines[titleLine] + fmt.Sprintf(`
+		smm.switchToAppProperties(%[1]s, %[2]s);
+	`, appId, title)
 
 	return fileLines, nil
 }

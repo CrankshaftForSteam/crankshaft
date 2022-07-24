@@ -37,7 +37,8 @@ func (e entry) target() cdp.SteamTarget {
 }
 
 type InjectPluginsArgs struct {
-	Entrypoint entry `json:"entrypoint"`
+	Entrypoint entry  `json:"entrypoint"`
+	Title      string `json:"title"`
 }
 
 type InjectPluginsReply struct{}
@@ -57,7 +58,7 @@ func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsA
 			continue
 		}
 
-		if err := injectPlugin(steamClient, plugin, req.Entrypoint.target()); err != nil {
+		if err := injectPlugin(steamClient, plugin, req.Entrypoint.target(), req.Title); err != nil {
 			log.Println(err)
 			return err
 		}
@@ -72,7 +73,7 @@ func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsA
 	case QuickAccessEntry:
 		steamClient.RunScriptInQuickAccess("window.csPluginsLoaded()")
 	case AppPropertiesEntry:
-		steamClient.RunScriptInAppProperties("window.csPluginsLoaded()")
+		steamClient.RunScriptInAppProperties("window.csPluginsLoaded()", req.Title)
 	}
 
 	return nil
@@ -80,6 +81,7 @@ func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsA
 
 type InjectPluginArgs struct {
 	PluginId string `json:"pluginId"`
+	Title    string `json:"title"`
 }
 
 type InjectPluginReply struct{}
@@ -104,7 +106,7 @@ func (service *InjectService) InjectPlugin(r *http.Request, req *InjectPluginArg
 	defer steamClient.Cancel()
 
 	for _, entrypoint := range []cdp.SteamTarget{cdp.LibraryTarget, cdp.MenuTarget, cdp.QuickAccessTarget} {
-		if err := injectPlugin(steamClient, plugin, entrypoint); err != nil {
+		if err := injectPlugin(steamClient, plugin, entrypoint, req.Title); err != nil {
 			return err
 		}
 	}
@@ -112,7 +114,7 @@ func (service *InjectService) InjectPlugin(r *http.Request, req *InjectPluginArg
 	return nil
 }
 
-func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin, entrypoint cdp.SteamTarget) error {
+func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin, entrypoint cdp.SteamTarget, title string) error {
 	pluginEntrypoints := plugin.Config.Entrypoints[steamClient.UiMode]
 
 	if entrypoint == cdp.LibraryTarget && pluginEntrypoints.Library {
@@ -139,7 +141,7 @@ func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin, entrypoin
 
 	if entrypoint == cdp.AppPropertiesTarget && pluginEntrypoints.AppProperties {
 		log.Println("Injecting", plugin.Id, "into app properties")
-		if err := steamClient.RunScriptInAppProperties(plugin.Script); err != nil {
+		if err := steamClient.RunScriptInAppProperties(plugin.Script, title); err != nil {
 			log.Println(err)
 			return fmt.Errorf(`Error injecting plugin "%s" into app properties: %v`, plugin.Config.Name, err)
 		}

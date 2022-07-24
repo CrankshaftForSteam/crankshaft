@@ -43,9 +43,9 @@ export class Plugins extends Service {
   }
 
   async injectPlugins(entry: Entry) {
-    const { getRes } = rpcRequest<{ entryPoint: Entry }, {}>(
+    const { getRes } = rpcRequest<{ entryPoint: Entry; title: string }, {}>(
       'InjectService.InjectPlugins',
-      { entryPoint: entry }
+      { entryPoint: entry, title: document.title }
     );
     return getRes();
   }
@@ -78,9 +78,9 @@ export class Plugins extends Service {
   }
 
   async injectPlugin(pluginId: string) {
-    const { getRes } = rpcRequest<{ pluginId: string }, {}>(
+    const { getRes } = rpcRequest<{ pluginId: string; title: string }, {}>(
       'InjectService.InjectPlugin',
-      { pluginId }
+      { pluginId, title: document.title }
     );
     return getRes();
   }

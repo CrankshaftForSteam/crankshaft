@@ -176,12 +176,14 @@ func (sc *SteamClient) RunScriptInQuickAccess(script string) error {
 	return sc.runScriptInTarget(IsQuickAccessTarget, script)
 }
 
-func (sc *SteamClient) RunScriptInAppProperties(script string) error {
+func (sc *SteamClient) RunScriptInAppProperties(script string, title string) error {
 	if sc.UiMode != UIModeDesktop {
 		return fmt.Errorf("Scripts can only be run in app properties context in desktop mode")
 	}
 
-	return sc.runScriptInTarget(IsAppPropertiesTarget, script)
+	return sc.runScriptInTarget(func(target *target.Info) bool {
+		return target.Title == title
+	}, script)
 }
 
 func (sc *SteamClient) runScriptInTargetWithOutput(isTarget targetFilterFunc, script string) (string, error) {

@@ -214,7 +214,7 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventSwitchToAppDetails({ appId, appName }));
   }
 
-  switchToAppProperties(app: AppPropsApp) {
+  switchToAppProperties(app: AppPropsApp, title: string) {
     info('Switched to app properties for app', app.appid);
 
     /*
@@ -226,7 +226,7 @@ export class SMM extends EventTarget {
     */
 
     if (window.smmUIMode === 'desktop' && this.entry !== 'appProperties') {
-      this.Inject.injectAppProperties(app);
+      this.Inject.injectAppProperties(app, title);
       return;
     }
 

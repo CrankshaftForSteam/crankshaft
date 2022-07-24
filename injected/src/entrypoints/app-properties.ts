@@ -23,7 +23,7 @@ const main = async () => {
   const appPropertiesApp: AppPropsApp | undefined = (window as any)
     .appPropertiesApp;
   if (appPropertiesApp) {
-    smm.switchToAppProperties(appPropertiesApp);
+    smm.switchToAppProperties(appPropertiesApp, document.title);
   } else {
     console.error('App ID for app properties context not found.');
   }

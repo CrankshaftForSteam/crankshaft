@@ -13,7 +13,8 @@ import (
 )
 
 type InjectAppPropertiesArgs struct {
-	App string
+	App   string `json:"app"`
+	Title string `json:"title"`
 }
 
 type InjectAppPropertiesReply struct{}
@@ -45,7 +46,7 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAp
 		}
 	}
 
-	if err = steamClient.RunScriptInAppProperties(sharedScript); err != nil {
+	if err = steamClient.RunScriptInAppProperties(sharedScript, req.Title); err != nil {
 		log.Println(err)
 		return fmt.Errorf("Error injecting shared script: %v", err)
 	}
@@ -74,7 +75,7 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAp
 		return err
 	}
 
-	if err := steamClient.RunScriptInAppProperties(scriptBytes.String()); err != nil {
+	if err := steamClient.RunScriptInAppProperties(scriptBytes.String(), req.Title); err != nil {
 		log.Println(err)
 		return fmt.Errorf("Error injecting app properties script: %w", err)
 	}
