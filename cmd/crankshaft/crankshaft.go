@@ -114,6 +114,12 @@ func run() error {
 		}
 	}
 
+	// Make sure CEF debugging is enabled
+	_, err = os.OpenFile(path.Join(steamPath, ".cef-enable-remote-debugging"), os.O_CREATE, 0644)
+	if err != nil {
+		log.Printf("Error enabling CEF debugging %v\n", err)
+	}
+
 	plugins, err := plugins.NewPlugins(crksftConfig, pluginsDir)
 	if err != nil {
 		return err
