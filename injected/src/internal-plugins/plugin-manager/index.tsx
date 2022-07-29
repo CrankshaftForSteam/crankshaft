@@ -37,7 +37,11 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
   }, [plugins, smm]);
 
   return (
-    <>
+    <div
+      style={{
+        padding: '4px 12px',
+      }}
+    >
       <h1 style={{ fontSize: 24, margin: 'unset', marginBottom: 16 }}>
         Manage Plugins
       </h1>
@@ -67,7 +71,7 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
           </p>
         )}
       </ul>
-    </>
+    </div>
   );
 };
 

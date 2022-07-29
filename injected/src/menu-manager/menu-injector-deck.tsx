@@ -86,8 +86,8 @@ export class MenuInjectorDeck implements MenuInjector {
     const page = dcCreateElement<HTMLDivElement>(
       <div
         style={{
-          height: 'calc(100% - 8px)',
-          padding: '4px 12px',
+          width: '100%',
+          height: '100%',
           backgroundColor: '#23262e',
         }}
       />

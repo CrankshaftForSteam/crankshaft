@@ -12,7 +12,11 @@ export const load = (smm: SMM) => {
 };
 
 const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => (
-  <>
+  <div
+    style={{
+      padding: '4px 12px',
+    }}
+  >
     <h1 style={{ fontSize: 24, margin: 'unset', marginBottom: 16 }}>
       Crankshaft Settings
     </h1>
@@ -29,7 +33,7 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => (
       <Devtools smm={smm} />
       <CefDebugToggle />
     </ul>
-  </>
+  </div>
 );
 
 export const Setting: FunctionComponent<{
