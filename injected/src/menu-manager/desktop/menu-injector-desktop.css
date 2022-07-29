@@ -1,0 +1,81 @@
+[data-smm-menu-button] > button > img {
+  filter: brightness(0.4);
+  transition: all 150ms;
+}
+
+[data-smm-menu-button]:hover > button > img {
+  filter: brightness(1);
+}
+
+[data-smm-menu-button] > button:focus {
+  outline: none;
+}
+
+[data-smm-menu-page-container] {
+  display: none;
+  width: 100%;
+  background-color: #1a1d23;
+}
+
+[data-smm-menu-page-container] > div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 200px;
+}
+
+[data-smm-menu-page-container] h1 {
+  margin: 0;
+}
+
+[data-smm-menu-page] {
+  width: 100%;
+  height: 100%;
+  background-color: #23262e;
+  color: #b8bcbf;
+  padding: 4px 12px;
+  overflow: scroll;
+}
+
+[data-smm-menu-item] {
+  cursor: pointer;
+}
+
+[data-smm-menu-item]:hover {
+  background-color: 'rgba(255, 255, 255, 15%)';
+}
+
+[data-smm-menu-item]:focus {
+  outline: none;
+}
+
+[data-smm-menu-item]:focus-visible {
+  outline: inherit;
+}
+
+.smm-menu-item-button {
+  background-color: rgba(255, 255, 255, 2%);
+  color: rgba(255, 255, 255, 90%);
+  border: none;
+  font-size: 16px;
+  padding: 8px 24px;
+  transition: all 150ms;
+  cursor: pointer;
+  width: 100%;
+}
+
+.smm-menu-item-button:hover {
+  background-color: rgba(255, 255, 255, 4%);
+}
+
+.smm-menu-item-button.active {
+  background-color: #23262e;
+}
+
+.smm-menu-item-button:focus {
+  outline: none;
+}
+
+.smm-menu-item-button:focus-visible {
+  outline: auto 1px white;
+}

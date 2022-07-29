@@ -111,6 +111,8 @@ declare global {
 
     // Internal Steam stuff
 
+    webpackJsonp: any;
+
     SteamClient: {
       Settings: {
         SetCefRemoteDebuggingEnabled: (value: boolean) => void;

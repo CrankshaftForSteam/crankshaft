@@ -1,7 +1,7 @@
 import { SMM } from '../smm';
 import { info } from '../util';
+import { MenuInjectorDesktop } from './desktop/menu-injector-desktop';
 import { MenuInjectorDeck } from './menu-injector-deck';
-import { MenuInjectorDesktop } from './menu-injector-desktop';
 import styles from './styles.css';
 
 type MenuItemRender = (smm: SMM, root: HTMLElement) => void | Promise<void>;
@@ -68,7 +68,7 @@ export class MenuManager {
   }
 
   addMenuItem(item: MenuItem) {
-    const newMenuItem = this.injector.createMenuItem(item);
+    this.injector.createMenuItem(item);
     this.menuItems.push(item);
   }
 
