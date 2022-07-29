@@ -130,32 +130,6 @@ func patchMenuItems(fileLines []string, serverPort string) ([]string, string, er
 		}
 	}
 
-	found = false
-	for i := settingsLineNum; i < settingsLineNum+10; i++ {
-		line := fileLines[i]
-		if strings.Contains(line, "createElement") {
-			insertCol := strings.LastIndex(line, ")") + 2
-			// Add a place to render custom menu items
-			newLine := line[:insertCol] + " " + `(window.csMenuItems || []).map(
-				(item) => ` + createElementStr + `
-					{
-						label: item.label,
-						active: window.csMenuActiveItem && window.csMenuActiveItem === item.id,
-						action: () => {
-							smm.IPC.send('csMenuItemClicked', { id: item.id });
-						},
-					}
-				)),
-			` + line[insertCol:]
-			fileLines[i] = newLine
-			found = true
-			break
-		}
-	}
-	if !found {
-		return nil, "", errors.New("Menu items location not found")
-	}
-
 	returnExp := regexp.MustCompile(`return.*(\w+\.\w+)\.createElement`)
 	returnLineNum := -1
 	var react string
@@ -169,6 +143,41 @@ func patchMenuItems(fileLines []string, serverPort string) ([]string, string, er
 	}
 	if returnLineNum == -1 {
 		return nil, "", errors.New("React not found")
+	}
+
+	found = false
+	for i := settingsLineNum; i < settingsLineNum+10; i++ {
+		line := fileLines[i]
+		if strings.Contains(line, "createElement") {
+			insertCol := strings.LastIndex(line, ")") + 2
+			// Add a place to render custom menu items
+			// TODO: embed logo svg instead of fetching
+			newLine := line[:insertCol] + " " + `(window.csMenuItems || []).map(
+				(item) => ` + createElementStr + fmt.Sprintf(`
+					{
+						label: item.label,
+						active: window.csMenuActiveItem && window.csMenuActiveItem === item.id,
+						action: () => {
+							smm.IPC.send('csMenuItemClicked', { id: item.id });
+						},
+					},
+  				%s.createElement('img', {
+              src: 'https://crankshaft.space/logo.svg',
+              width: 20,
+              height: 20,
+              style: {
+                  filter: 'brightness(0.77)',
+              },
+          }),
+				)),
+			`, react) + line[insertCol:]
+			fileLines[i] = newLine
+			found = true
+			break
+		}
+	}
+	if !found {
+		return nil, "", errors.New("Menu items location not found")
 	}
 
 	// Add a callback to force this component to rerender the main menu
