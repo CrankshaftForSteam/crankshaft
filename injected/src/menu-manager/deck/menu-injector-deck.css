@@ -1,0 +1,73 @@
+[data-smm-menu-page-container] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  z-index: 999;
+
+  width: 100%;
+  height: calc(100% - 40px);
+
+  display: flex;
+  overflow: auto;
+
+  background-color: #23262e;
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+[data-smm-menu-page-container] > ul:first-child {
+  flex: 1 0 auto;
+
+  max-width: 200px;
+  height: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+  background-color: rgba(255, 255, 255, 2%);
+}
+
+[data-smm-menu-page-container] > ul:first-child > li {
+  cursor: pointer;
+  border: solid 1px transparent;
+
+  transition: all 200ms;
+}
+
+[data-smm-menu-page-container] > ul:first-child > li.cs-gp-focus {
+  outline: none;
+  border-color: white;
+}
+
+.smm-menu-item-button {
+  width: 100%;
+
+  padding: 8px 24px;
+
+  background-color: rgba(255, 255, 255, 2%);
+  color: rgba(255, 255, 255, 90%);
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+
+  transition: all 150ms;
+}
+
+.smm-menu-item-button:hover {
+  background-color: rgba(255, 255, 255, 4%);
+}
+
+.smm-menu-item-button.active {
+  background-color: #23262e;
+}
+
+[data-smm-menu-page] {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: #23262e;
+}

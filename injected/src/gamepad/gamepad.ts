@@ -84,7 +84,7 @@ export class GamepadHandler {
       .forEach((node) => node.classList.remove('cs-gp-focus'));
   }
 
-  private updateFocused(newFocusPath: string) {
+  updateFocused(newFocusPath: string) {
     const curFocus = this.tree[this.focusPath];
     if (curFocus) {
       curFocus.el.classList.remove('cs-gp-focus');

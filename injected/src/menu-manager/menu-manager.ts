@@ -1,7 +1,7 @@
 import { SMM } from '../smm';
 import { info } from '../util';
+import { MenuInjectorDeck } from './deck/menu-injector-deck';
 import { MenuInjectorDesktop } from './desktop/menu-injector-desktop';
-import { MenuInjectorDeck } from './menu-injector-deck';
 import styles from './styles.css';
 
 type MenuItemRender = (smm: SMM, root: HTMLElement) => void | Promise<void>;
