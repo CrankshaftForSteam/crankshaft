@@ -70,11 +70,12 @@ export class MenuInjectorDeck implements MenuInjector {
   }
 
   private addPluginsMenuItem() {
-    window.csMenuItems ??= [];
-    window.csMenuItems.push({
-      id: 'plugins',
-      label: 'Plugins',
-    });
+    window.csMenuItems = [
+      {
+        id: 'plugins',
+        label: 'Plugins',
+      },
+    ];
     window.csMenuUpdate?.();
   }
 
