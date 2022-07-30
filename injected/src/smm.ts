@@ -128,8 +128,8 @@ export class SMM extends EventTarget {
     this.Network = new Network(this);
     this.Toast = new Toast(this);
     this.FS = new FS(this);
-    this.Plugins = new Plugins(this);
     this.IPC = new IPC(this);
+    this.Plugins = new Plugins(this);
     this.UI = new UI(this);
     this.Exec = new Exec(this);
     this.Inject = new Inject(this);

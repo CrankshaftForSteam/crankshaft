@@ -33,7 +33,46 @@ export interface Plugin {
   enabled: boolean;
 }
 
+enum ipcNames {
+  load = 'csPluginsLoad',
+  unload = 'csPluginsUnload',
+  injectPlugin = 'csPluginsInjectPlugin',
+  reloadPlugin = 'csPluginsReloadPlugin',
+}
+
+interface PluginsIPCData {
+  entrypoint: Entry;
+  pluginId: string;
+}
+
 export class Plugins extends Service {
+  constructor(...args: ConstructorParameters<typeof Service>) {
+    super(...args);
+
+    this.attachIPCListeners();
+  }
+
+  private attachIPCListeners() {
+    const data = {
+      [ipcNames.load]: '_load',
+      [ipcNames.unload]: '_unload',
+      [ipcNames.injectPlugin]: '_injectPlugin',
+      [ipcNames.reloadPlugin]: '_reloadPlugin',
+    } as const;
+
+    for (const [ipcName, method] of Object.entries(data)) {
+      this.smm.IPC.on<PluginsIPCData>(
+        ipcName,
+        ({ data: { entrypoint, pluginId } }) => {
+          if (this.smm.entry === entrypoint) {
+            return;
+          }
+          this[method](pluginId);
+        }
+      );
+    }
+  }
+
   async list() {
     const { getRes } = rpcRequest<{}, { plugins: Record<string, Plugin> }>(
       'PluginsService.List',
@@ -51,7 +90,6 @@ export class Plugins extends Service {
   }
 
   async setEnabled(id: string, enabled: boolean) {
-    console.info('setEnabled', id, enabled);
     const { getRes } = rpcRequest<{ id: string; enabled: boolean }, {}>(
       'PluginsService.SetEnabled',
       { id, enabled }
@@ -67,17 +105,33 @@ export class Plugins extends Service {
     return getRes();
   }
 
-  async load(pluginId: string) {
+  private async _load(pluginId: string) {
     await this.smm.loadPlugin(pluginId);
     await this.setEnabled(pluginId, true);
   }
 
-  async unload(pluginId: string) {
+  async load(pluginId: string) {
+    this.smm.IPC.send<PluginsIPCData>(ipcNames.load, {
+      entrypoint: this.smm.entry,
+      pluginId,
+    });
+    return this._load(pluginId);
+  }
+
+  private async _unload(pluginId: string) {
     await this.smm.unloadPlugin(pluginId);
     await this.setEnabled(pluginId, false);
   }
 
-  async injectPlugin(pluginId: string) {
+  async unload(pluginId: string) {
+    this.smm.IPC.send<PluginsIPCData>(ipcNames.unload, {
+      entrypoint: this.smm.entry,
+      pluginId,
+    });
+    return this._unload(pluginId);
+  }
+
+  private async _injectPlugin(pluginId: string) {
     const { getRes } = rpcRequest<{ pluginId: string; title: string }, {}>(
       'InjectService.InjectPlugin',
       { pluginId, title: document.title }
@@ -85,7 +139,15 @@ export class Plugins extends Service {
     return getRes();
   }
 
-  async reloadPlugin(pluginId: string) {
+  async injectPlugin(pluginId: string) {
+    this.smm.IPC.send<PluginsIPCData>(ipcNames.injectPlugin, {
+      entrypoint: this.smm.entry,
+      pluginId,
+    });
+    return this._injectPlugin(pluginId);
+  }
+
+  private async _reloadPlugin(pluginId: string) {
     const { getRes: rebuildGetRes } = rpcRequest<{ id: string }, {}>(
       'InjectService.Rebuild',
       { id: pluginId }
@@ -95,5 +157,13 @@ export class Plugins extends Service {
     await rebuildGetRes;
     await this.injectPlugin(pluginId);
     await this.smm.loadPlugin(pluginId);
+  }
+
+  async reloadPlugin(pluginId: string) {
+    this.smm.IPC.send<PluginsIPCData>(ipcNames.reloadPlugin, {
+      entrypoint: this.smm.entry,
+      pluginId,
+    });
+    return this._reloadPlugin(pluginId);
   }
 }
