@@ -1,14 +1,12 @@
 image: archlinux
-packages:
-  - go
-  - yarn
-  - wget
-  - libappindicator-gtk3
 sources:
   - https://git.sr.ht/~avery/crankshaft
 artifacts:
   - crankshaft/crankshaft.tar.gz
 tasks:
+  - packages: |
+      sudo pacman -Sy --noconfirm archlinux-keyring && sudo pacman -Su --noconfirm
+      sudo pacman -S --noconfirm go yarn wget libappindicator-gtk3
   - setup: |
       cd crankshaft
       go mod download
