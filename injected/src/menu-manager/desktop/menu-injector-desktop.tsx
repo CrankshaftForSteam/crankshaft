@@ -136,8 +136,6 @@ export class MenuInjectorDesktop implements MenuInjector {
       document.addEventListener('click', closeHandler);
     };
 
-    addModsButton(showMenuPage);
-
     const libaryContainer = document.querySelector(
       MENU_DESKTOP_SELECTORS.libraryContainer
     );
@@ -146,6 +144,18 @@ export class MenuInjectorDesktop implements MenuInjector {
     }
 
     libaryContainer.appendChild(menuContainer);
+
+    addModsButton(showMenuPage);
+
+    // Make sure mods button gets shown
+    const interval = setInterval(() => {
+      if (document.querySelector('[data-smm-menu-button]')) {
+        clearInterval(interval);
+      }
+      document
+        .querySelector<HTMLLinkElement>(MENU_DESKTOP_SELECTORS.homeButton)
+        ?.click();
+    }, 250);
   }
 
   addLibraryObserver() {
