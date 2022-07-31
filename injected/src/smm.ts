@@ -90,8 +90,14 @@ class EventLockScreenClosed extends CustomEvent<void> {
   }
 }
 
+/**
+ * @public
+ */
 export type Entry = 'library' | 'menu' | 'quickAccess' | 'appProperties';
 
+/**
+ * @public
+ */
 export class SMM extends EventTarget {
   readonly entry: Entry;
 
@@ -187,6 +193,9 @@ export class SMM extends EventTarget {
     return this._onLockScreen;
   }
 
+  /**
+   * @internal
+   */
   switchToUnknownPage() {
     if (typeof this._currentTab === 'undefined') {
       return;
@@ -198,6 +207,9 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventSwitchToUnknownPage());
   }
 
+  /**
+   * @internal
+   */
   switchToHome() {
     if (this._currentTab === 'home') {
       return;
@@ -209,6 +221,9 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventSwitchToHome());
   }
 
+  /**
+   * @internal
+   */
   switchToCollections() {
     if (this._currentTab === 'collections') {
       return;
@@ -220,6 +235,9 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventSwitchToCollections());
   }
 
+  /**
+   * @internal
+   */
   switchToAppDetails(appId: string, appName: string) {
     if (this._currentTab === 'appDetails' && this._currentAppId === appId) {
       return;
@@ -232,6 +250,9 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventSwitchToAppDetails({ appId, appName }));
   }
 
+  /**
+   * @internal
+   */
   switchToAppProperties(app: AppPropsApp, title: string) {
     info('Switched to app properties for app', app.appid);
 
@@ -251,6 +272,9 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventSwitchToAppProperties(app));
   }
 
+  /**
+   * @internal
+   */
   lockScreenOpened() {
     if (this._onLockScreen) {
       return;
@@ -261,6 +285,9 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventLockScreenOpened());
   }
 
+  /**
+   * @internal
+   */
   lockScreenClosed() {
     if (!this._onLockScreen) {
       return;
@@ -271,6 +298,9 @@ export class SMM extends EventTarget {
     this.dispatchEvent(new EventLockScreenClosed());
   }
 
+  /**
+   * @internal
+   */
   async loadPlugins() {
     info('Loading plugins...');
 
@@ -303,6 +333,9 @@ export class SMM extends EventTarget {
     }
   }
 
+  /**
+   * @internal
+   */
   async loadPlugin(pluginId: PluginId) {
     await this.unloadPlugin(pluginId);
 
@@ -316,6 +349,9 @@ export class SMM extends EventTarget {
     this.currentPlugin = undefined;
   }
 
+  /**
+   * @internal
+   */
   async unloadPlugin(pluginId: PluginId) {
     if (!window.smmPlugins) {
       return;
@@ -352,7 +388,10 @@ export class SMM extends EventTarget {
     return super.dispatchEvent(event);
   }
 
-  // Close plugin page if a page is open
+  /**
+   * Close plugin page if a page is open
+   * @internal
+   */
   closeActivePluginPage() {
     this.MenuManager.closeActivePage();
   }
@@ -365,6 +404,9 @@ export class SMM extends EventTarget {
     return this._activeGamepadHandler;
   }
 
+  /**
+   * @internal
+   */
   _setActiveGamepadHandler(gamepadHandler: GamepadHandler | undefined) {
     this._activeGamepadHandler = gamepadHandler;
   }

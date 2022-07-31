@@ -133,3 +133,7 @@ dist
 
 types/*
 !types/package.json
+lib/
+etc/
+dist/
+temp/

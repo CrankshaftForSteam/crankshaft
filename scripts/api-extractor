@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+cd injected/ || exit 1
+
+# Build and manually copy over type declarations
+yarn tsc
+cp -r src/types lib/
+
+yarn api-extractor run --local --verbose
+
+rm -rf temp lib

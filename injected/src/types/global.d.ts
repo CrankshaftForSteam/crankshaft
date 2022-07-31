@@ -1,4 +1,4 @@
-import { SMM } from '../smm';
+import type { SMM } from '../smm';
 
 export interface AppPropsApp {
   app_type: number;
@@ -42,7 +42,7 @@ export interface AppPropsApp {
 }
 
 declare global {
-  interface Window {
+  export interface Window {
     smm?: SMM;
     smmTabObserver?: MutationObserver;
     smmServerPort: string;
