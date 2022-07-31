@@ -57,7 +57,9 @@ export class MenuInjectorDeck implements MenuInjector {
       </div>
     );
 
-    document.body.appendChild(this.pageContainer);
+    document
+      .querySelector<HTMLDivElement>(DECK_SELECTORS.mainNavMenu)
+      ?.appendChild(this.pageContainer);
   }
 
   private listenToClickEvents() {

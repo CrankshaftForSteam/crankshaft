@@ -24,6 +24,14 @@ export const shouldAllowButtonPress = (buttonCode: number, entry: Entry) => {
     return true;
   }
 
+  // On-screen keyboard is open
+  if (
+    window.coolClass.VirtualKeyboardManager.IsShowingVirtualKeyboard
+      .m_currentValue
+  ) {
+    return true;
+  }
+
   // Allow main/quick access menu buttons
   if ([BTN_CODE.MENU, BTN_CODE.QUICK_ACCESS].includes(buttonCode)) {
     return true;
