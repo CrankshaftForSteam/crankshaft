@@ -9,6 +9,7 @@ import { FS } from './services/fs';
 import { Inject } from './services/inject';
 import { IPC } from './services/ipc';
 import { Network } from './services/network';
+import { Patch } from './services/patch';
 import { Plugins } from './services/plugins';
 import { Store } from './services/store';
 import { Toast } from './services/toast';
@@ -121,6 +122,7 @@ export class SMM extends EventTarget {
   readonly Store: Store;
   readonly ButtonInterceptors: ButtonInterceptors;
   readonly Apps: Apps;
+  readonly Patch: Patch;
 
   readonly serverPort: string;
 
@@ -160,6 +162,7 @@ export class SMM extends EventTarget {
     this.Store = new Store(this);
     this.ButtonInterceptors = new ButtonInterceptors(this);
     this.Apps = new Apps(this);
+    this.Patch = new Patch(this);
 
     if (entry === 'library') {
       this.MenuManager = new MenuManager(this);

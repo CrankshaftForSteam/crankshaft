@@ -1,9 +1,17 @@
 import { logoIcon } from '../../assets/assets';
-import { patchExportFromContents } from '../../patch/module-utils';
-import { hasClassContaining } from '../../patch/react';
+import { SMM } from '../../smm';
 
-export const addModsButton = async (onClick: () => void) => {
-  await patchExportFromContents({
+const hasClassContaining = (substr: string, createElementArgs: any[]) => {
+  return (
+    createElementArgs.length >= 1 &&
+    createElementArgs[1] &&
+    createElementArgs[1].className &&
+    createElementArgs[1].className.includes(substr)
+  );
+};
+
+export const addModsButton = async (smm: SMM, onClick: () => void) => {
+  await smm.Patch.patchExportFromContents({
     contents: [
       'useState',
       'useEffect',
@@ -56,7 +64,7 @@ export const addModsButton = async (onClick: () => void) => {
     },
   });
 
-  await patchExportFromContents({
+  await smm.Patch.patchExportFromContents({
     contents: [
       'useState',
       'useEffect',

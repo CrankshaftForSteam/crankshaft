@@ -145,7 +145,7 @@ export class MenuInjectorDesktop implements MenuInjector {
 
     libaryContainer.appendChild(menuContainer);
 
-    addModsButton(showMenuPage);
+    addModsButton(this.smm, showMenuPage);
 
     // Make sure mods button gets shown
     const interval = setInterval(() => {
