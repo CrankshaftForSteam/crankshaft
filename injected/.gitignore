@@ -133,7 +133,16 @@ dist
 
 types/*
 !types/package.json
+
+# Typescript compiler output
 lib/
+# api-extractor documentation output
 etc/
+# api-extractor rollup output
 dist/
+# api-extractor documentation output
 temp/
+crankshaft-types-docs/
+
+crankshaft-types/index.d.ts
+crankshaft-types/index-untrimmed.d.ts

@@ -6,6 +6,8 @@ cd injected/ || exit 1
 yarn tsc
 cp -r src/types lib/
 
+mkdir -p crankshaft-types-docs
+
 yarn api-extractor run --local --verbose
 
 rm -rf temp lib

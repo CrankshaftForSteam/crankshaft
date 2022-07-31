@@ -185,7 +185,7 @@
     /**
      * (REQUIRED) Whether to generate a doc model file.
      */
-    "enabled": true
+    "enabled": true,
 
     /**
      * The output path for the doc model file.  The file extension should be ".api.json".
@@ -196,7 +196,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/temp/<unscopedPackageName>.api.json"
      */
-    // "apiJsonFilePath": "<projectFolder>/temp/<unscopedPackageName>.api.json"
+    "apiJsonFilePath": "<projectFolder>/crankshaft-types-docs/crankshaft.api.json"
   },
 
   /**
@@ -220,7 +220,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/dist/<unscopedPackageName>.d.ts"
      */
-    "untrimmedFilePath": "<projectFolder>/dist/crankshaft-types-untrimmed.d.ts",
+    "untrimmedFilePath": "<projectFolder>/crankshaft-types/index-untrimmed.d.ts",
 
     /**
      * Specifies the output path for a .d.ts rollup file to be generated with trimming for an "alpha" release.
@@ -258,7 +258,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: ""
      */
-    "publicTrimmedFilePath": "<projectFolder>/dist/crankshaft-types.d.ts"
+    "publicTrimmedFilePath": "<projectFolder>/crankshaft-types/index.d.ts"
 
     /**
      * When a declaration is trimmed, by default it will be replaced by a code comment such as
