@@ -19,6 +19,7 @@ export const DECK_SELECTORS = {
     '[class^=topleveltransitionswitch_TopLevelTransitionSwitch_]',
   appProperties: '[class*=appproperties_AppProperties]',
   mainNavMenu: '#MainNavMenu-Rest',
+  header: '#MainNavMenu-Rest #header',
 };
 
 const createModeSelectors = <

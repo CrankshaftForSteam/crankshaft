@@ -131,11 +131,23 @@ export class MenuInjectorDeck implements MenuInjector {
   private showPageContainer() {
     this.pageContainer.style.opacity = '1';
     this.pageContainer.style.pointerEvents = 'all';
+    const header = document.querySelector<HTMLDivElement>(
+      DECK_SELECTORS.header
+    );
+    if (header) {
+      header.style.display = 'none';
+    }
   }
 
   private hidePageContainer() {
     this.pageContainer.style.opacity = '0';
     this.pageContainer.style.pointerEvents = 'none';
+    const header = document.querySelector<HTMLDivElement>(
+      DECK_SELECTORS.header
+    );
+    if (header) {
+      header.style.display = 'flex';
+    }
   }
 
   createMenuItem({ id, label, render }: MenuItem) {
