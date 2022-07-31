@@ -20,6 +20,17 @@ type PluginId = string;
 
 type AddEventListenerArgs = Parameters<EventTarget['addEventListener']>;
 
+// TODO: there's probably a better way to do these EventTarget types
+
+type SMMEventType =
+  | typeof eventTypeSwitchToUnknownPage
+  | typeof eventTypeSwitchToHome
+  | typeof eventTypeSwitchToCollections
+  | typeof eventTypeSwitchToAppDetails
+  | typeof eventTypeSwitchToAppProperties
+  | typeof eventTypeLockScreenOpened
+  | typeof eventTypeLockScreenClosed;
+
 type SMMEvent =
   | EventSwitchToUnknownPage
   | EventSwitchToHome
@@ -29,46 +40,53 @@ type SMMEvent =
   | EventLockScreenOpened
   | EventLockScreenClosed;
 
+const eventTypeSwitchToUnknownPage = 'switchToUnknownPage' as const;
 class EventSwitchToUnknownPage extends CustomEvent<void> {
   constructor() {
-    super('switchToUnknownPage');
+    super(eventTypeSwitchToUnknownPage);
   }
 }
 
+const eventTypeSwitchToHome = 'switchToHome' as const;
 class EventSwitchToHome extends CustomEvent<void> {
   constructor() {
-    super('switchToHome');
+    super(eventTypeSwitchToHome);
   }
 }
 
+const eventTypeSwitchToCollections = 'switchToCollections' as const;
 class EventSwitchToCollections extends CustomEvent<void> {
   constructor() {
-    super('switchToCollections');
+    super(eventTypeSwitchToCollections);
   }
 }
 
+const eventTypeSwitchToAppDetails = 'switchToAppDetails' as const;
 type eventDetailsSwitchToAppDetails = { appId: string; appName: string };
 class EventSwitchToAppDetails extends CustomEvent<eventDetailsSwitchToAppDetails> {
   constructor(detail: eventDetailsSwitchToAppDetails) {
-    super('switchToAppDetails', { detail });
+    super(eventTypeSwitchToAppDetails, { detail });
   }
 }
 
+const eventTypeSwitchToAppProperties = 'switchToAppProperties' as const;
 class EventSwitchToAppProperties extends CustomEvent<AppPropsApp> {
   constructor(detail: AppPropsApp) {
-    super('switchToAppProperties', { detail });
+    super(eventTypeSwitchToAppProperties, { detail });
   }
 }
 
+const eventTypeLockScreenOpened = 'lockScreenOpened' as const;
 class EventLockScreenOpened extends CustomEvent<void> {
   constructor() {
-    super('lockScreenOpened');
+    super(eventTypeLockScreenOpened);
   }
 }
 
+const eventTypeLockScreenClosed = 'lockScreenClosed' as const;
 class EventLockScreenClosed extends CustomEvent<void> {
   constructor() {
-    super('lockScreenClosed');
+    super(eventTypeLockScreenClosed);
   }
 }
 
@@ -315,7 +333,7 @@ export class SMM extends EventTarget {
   }
 
   addEventListener(
-    type: string,
+    type: SMMEventType,
     callback: EventListenerOrEventListenerObject | null,
     options?: boolean | AddEventListenerOptions
   ): void {
