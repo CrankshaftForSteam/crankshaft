@@ -44,3 +44,8 @@ To create a new Flatpak release:
 - Push your commit and tag to `main`
 - Update the archive URL and checksum in the Flatpak manifest
 - Push the manifest change and wait for it to be built and released
+- Release new version of @crankshaft/types NPM package
+  - `make api-extractor`
+  - `cd injected/crankshaft-types`
+  - `yarn publish --access public`
+  	- Bump version number to match new Crankshaft version
