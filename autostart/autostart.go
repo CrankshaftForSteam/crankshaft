@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"io/ioutil"
 	"path"
+	"strings"
 
 	"git.sr.ht/~avery/crankshaft/executil"
 )
@@ -33,9 +34,36 @@ func ServiceInstalled() bool {
 
 // InstallService saves the autostart unit file and enables it with Systemd.
 func InstallService(dataDir string) error {
+	unitFile := unit
+
+	// If the user is on a handheld, make service restart more aggressively
+	isOnHandheld := false
+
+	// Steam Deck
+	{
+		cmd := executil.Command("whoami")
+		whoami, _ := cmd.Output()
+		if strings.TrimSpace(string(whoami)) == "deck" {
+			isOnHandheld = true
+		}
+	}
+
+	// ChimeraOS
+	{
+		cmd := executil.Command("bash", "-c", "ls $HOME/.local/share/chimera")
+		err := cmd.Run()
+		if err == nil {
+			isOnHandheld = true
+		}
+	}
+
+	if isOnHandheld {
+		unitFile = strings.ReplaceAll(unitFile, "Restart=on-failure", "Restart=always")
+	}
+
 	unitPath := path.Join(dataDir, "crankshaft.service")
 
-	err := ioutil.WriteFile(unitPath, []byte(unit), 0755)
+	err := ioutil.WriteFile(unitPath, []byte(unitFile), 0755)
 	if err != nil {
 		return err
 	}
