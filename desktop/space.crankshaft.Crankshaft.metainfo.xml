@@ -41,6 +41,30 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.2.2" date="2022-07-31">
+      <description>
+        <p>Features:</p>
+        <ul>
+          <li>Group all plugin menu items in game mode under one Steam menu item</li>
+          <li>Enable CEF debugging on startup</li>
+          <li>Add backdrop to confirm and progress modals</li>
+          <li>Adjust autostart service restart behaviour on handhelds</li>
+          <li>Expose patching API used for desktop menu button</li>
+        </ul>
+
+        <p>Bugfixes:</p>
+        <ul>
+          <li>Fix some plugins not loading when Steam client language isn't English</li>
+          <li>Fix menu button disappearing in desktop mode</li>
+          <li>Fix some plugins requiring a reload after installing them</li>
+          <li>Fix using on-screen keyboard with gamepad in plugins</li>
+          <li>Minor bugfixes to confirm and progress modals</li>
+        </ul>
+      </description>
+
+      <url>https://git.sr.ht/~avery/crankshaft/refs/0.2.2</url>
+    </release>
+
     <release version="0.2.1" date="2022-07-17">
       <description>
         <ul>
