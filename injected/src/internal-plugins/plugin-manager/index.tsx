@@ -45,32 +45,42 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
       <h1 style={{ fontSize: 24, margin: 'unset', marginBottom: 16 }}>
         Manage Plugins
       </h1>
-      <ul
-        style={{
-          listStyle: 'none',
-          margin: 0,
-          padding: 0,
-        }}
-      >
-        {typeof plugins !== 'undefined' ? (
-          Object.values(plugins).map((plugin, index) => (
+
+      {typeof plugins === 'undefined' ? (
+        <p
+          data-cs-gp-in-group="root"
+          data-cs-gp-group="loading"
+          data-cs-gp-init-focus
+        >
+          Loading...
+        </p>
+      ) : Object.values(plugins).length === 0 ? (
+        <p
+          data-cs-gp-in-group="root"
+          data-cs-gp-group="loading"
+          data-cs-gp-init-focus
+        >
+          No plugins installed - use the <b>Get Plugins</b> menu to download
+          some!
+        </p>
+      ) : (
+        <ul
+          style={{
+            listStyle: 'none',
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          {Object.values(plugins).map((plugin, index) => (
             <Plugin
               plugin={plugin}
               reloadPlugins={reloadPlugins}
               smm={smm}
               first={index === 0}
             />
-          ))
-        ) : (
-          <p
-            data-cs-gp-in-group="root"
-            data-cs-gp-group="loading"
-            data-cs-gp-init-focus
-          >
-            Loading...
-          </p>
-        )}
-      </ul>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
