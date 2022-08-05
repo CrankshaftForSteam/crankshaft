@@ -15,12 +15,12 @@ import (
 	"git.sr.ht/~avery/crankshaft/autostart"
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
-	devmode "git.sr.ht/~avery/crankshaft/cmd/crankshaft/dev_mode"
 	"git.sr.ht/~avery/crankshaft/config"
 	"git.sr.ht/~avery/crankshaft/patcher"
 	"git.sr.ht/~avery/crankshaft/plugins"
 	"git.sr.ht/~avery/crankshaft/ps"
 	"git.sr.ht/~avery/crankshaft/rpc"
+	"git.sr.ht/~avery/crankshaft/tags"
 	"git.sr.ht/~avery/crankshaft/tray"
 	"git.sr.ht/~avery/crankshaft/ws"
 	"github.com/gorilla/handlers"
@@ -88,7 +88,7 @@ func run() error {
 		return err
 	}
 
-	if config.Flatpak && (!found || !crksftConfig.InstalledAutostart) {
+	if !tags.Dev && (!found || !crksftConfig.InstalledAutostart) {
 		// First launch, install autostart service
 		if autostart.HostHasSystemd() {
 			log.Println("Installing autostart service...")
@@ -153,7 +153,7 @@ func run() error {
 	// Patch and bundle in parallel
 	var wg sync.WaitGroup
 
-	if devmode.DevMode {
+	if tags.Dev {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -184,7 +184,7 @@ func run() error {
 			ws.ServeWs(hub, w, r)
 		})
 
-		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, devmode.DevMode, hub, steamPath, dataDir, pluginsDir)
+		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, tags.Dev, hub, steamPath, dataDir, pluginsDir)
 
 		http.Handle("/rpc", handlers.CORS(
 			handlers.AllowedHeaders([]string{"Content-Type"}),

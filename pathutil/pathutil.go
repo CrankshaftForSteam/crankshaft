@@ -11,10 +11,9 @@ import (
 	"strings"
 
 	"git.sr.ht/~avery/crankshaft/executil"
+	"git.sr.ht/~avery/crankshaft/tags"
 	"github.com/adrg/xdg"
 )
-
-var flatpak = false
 
 var getCurrentUser = user.Current
 
@@ -22,7 +21,7 @@ var getCurrentUser = user.Current
 // the path with the `~` replaced by the user's home directory.
 func SubstituteHomeDir(path string) string {
 	homeDir := ""
-	if flatpak {
+	if !tags.Dev {
 		cmd := executil.Command("bash", "-c", "echo $HOME")
 		homeDirBytes, err := cmd.Output()
 		if err != nil {

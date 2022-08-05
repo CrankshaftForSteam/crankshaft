@@ -1,7 +1,7 @@
 //go:build dev
 
-package devmode
+package tags
 
 func init() {
-	DevMode = true
+	Dev = true
 }
