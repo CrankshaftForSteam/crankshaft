@@ -16,7 +16,7 @@ func getDisplay() string {
 // Command wraps exec.Command to use flatpak-spawn when Crankshaft is running
 // inside the Flatpak sandbox.
 func Command(name string, args ...string) *exec.Cmd {
-	if !tags.Dev {
+	if tags.Flatpak {
 		cmdArgs := []string{
 			// Run command on host
 			"--host",
@@ -27,5 +27,6 @@ func Command(name string, args ...string) *exec.Cmd {
 		cmdArgs = append(cmdArgs, args...)
 		return exec.Command("flatpak-spawn", cmdArgs...)
 	}
+
 	return exec.Command(name, args...)
 }

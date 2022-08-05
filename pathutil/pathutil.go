@@ -19,9 +19,12 @@ var getCurrentUser = user.Current
 
 // SubstituteHomeDir takes a path that might be prefixed with `~`, and returns
 // the path with the `~` replaced by the user's home directory.
+//
+// When running inside a Flatpak, we use executil.Command to fetch $HOME from
+// the host system.
 func SubstituteHomeDir(path string) string {
 	homeDir := ""
-	if !tags.Dev {
+	if tags.Flatpak {
 		cmd := executil.Command("bash", "-c", "echo $HOME")
 		homeDirBytes, err := cmd.Output()
 		if err != nil {
