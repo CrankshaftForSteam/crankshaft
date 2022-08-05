@@ -36,10 +36,6 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
     getPlugins();
   }, [getPlugins]);
 
-  const updatePlugins = useCallback(async () => {
-    Promise.all([getPlugins()]);
-  }, [getPlugins]);
-
   useLayoutEffect(() => {
     smm.activeGamepadHandler?.recalculateTree();
   }, [smm, plugins]);
@@ -74,7 +70,7 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
               {...plugin}
               first={index === 0}
               smm={smm}
-              updatePlugins={updatePlugins}
+              updatePlugins={() => getPlugins()}
               key={plugin.id}
             />
           ))

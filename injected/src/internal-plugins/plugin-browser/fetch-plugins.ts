@@ -27,8 +27,13 @@ export interface FetchedPlugin {
   installedPlugin?: InstalledPlugin;
 }
 
-let cachedPlugins: FetchedPlugin[] | undefined;
-export const fetchPlugins = async (smm: SMM, refresh: boolean = false) => {
+let cachedPlugins: Omit<FetchedPlugin, 'installedPlugin'>[] | undefined;
+export const fetchPlugins = async (
+  smm: SMM,
+  refresh: boolean = false
+): Promise<FetchedPlugin[]> => {
+  const installedPlugins = await smm.Plugins.list();
+
   if (!cachedPlugins || refresh) {
     const data = Object.values(
       await smm.Network.get<
@@ -36,13 +41,13 @@ export const fetchPlugins = async (smm: SMM, refresh: boolean = false) => {
       >(PLUGINS_URL)
     );
 
-    const installedPlugins = await smm.Plugins.list();
-
     cachedPlugins = data.map((plugin) => ({
       ...plugin,
-      installedPlugin: installedPlugins[plugin.id],
     }));
   }
 
-  return cachedPlugins;
+  return cachedPlugins.map((plugin) => ({
+    ...plugin,
+    installedPlugin: installedPlugins[plugin.id],
+  }));
 };
