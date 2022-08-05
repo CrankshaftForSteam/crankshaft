@@ -46,6 +46,13 @@ func (service *PluginsService) Rebuild(r *http.Request, req *RebuildArgs, res *R
 	return service.plugins.RebuildPlugin(req.Id)
 }
 
+type ReloadArgs struct{}
+type ReloadReply struct{}
+
+func (service *PluginsService) Reload(r *http.Request, req *ReloadArgs, res *ReloadReply) error {
+	return service.plugins.Reload()
+}
+
 type SetEnabledArgs struct {
 	Id      string `json:"id"`
 	Enabled bool   `json:"enabled"`

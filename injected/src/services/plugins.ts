@@ -107,7 +107,6 @@ export class Plugins extends Service {
 
   private async _load(pluginId: string) {
     await this.smm.loadPlugin(pluginId);
-    await this.setEnabled(pluginId, true);
   }
 
   async load(pluginId: string) {
@@ -115,12 +114,13 @@ export class Plugins extends Service {
       entrypoint: this.smm.entry,
       pluginId,
     });
+
+    await this.setEnabled(pluginId, true);
     return this._load(pluginId);
   }
 
   private async _unload(pluginId: string) {
     await this.smm.unloadPlugin(pluginId);
-    await this.setEnabled(pluginId, false);
   }
 
   async unload(pluginId: string) {
@@ -128,14 +128,19 @@ export class Plugins extends Service {
       entrypoint: this.smm.entry,
       pluginId,
     });
+    await this.setEnabled(pluginId, false);
     return this._unload(pluginId);
   }
 
   private async _injectPlugin(pluginId: string) {
-    const { getRes } = rpcRequest<{ pluginId: string; title: string }, {}>(
-      'InjectService.InjectPlugin',
-      { pluginId, title: document.title }
-    );
+    const { getRes } = rpcRequest<
+      { pluginId: string; entrypoint: Entry; title: string },
+      {}
+    >('InjectService.InjectPlugin', {
+      pluginId,
+      entrypoint: this.smm.entry,
+      title: document.title,
+    });
     return getRes();
   }
 
@@ -148,14 +153,8 @@ export class Plugins extends Service {
   }
 
   private async _reloadPlugin(pluginId: string) {
-    const { getRes: rebuildGetRes } = rpcRequest<{ id: string }, {}>(
-      'InjectService.Rebuild',
-      { id: pluginId }
-    );
-
     await this.smm.unloadPlugin(pluginId);
-    await rebuildGetRes;
-    await this.injectPlugin(pluginId);
+    await this._injectPlugin(pluginId);
     await this.smm.loadPlugin(pluginId);
   }
 
@@ -165,5 +164,19 @@ export class Plugins extends Service {
       pluginId,
     });
     return this._reloadPlugin(pluginId);
+  }
+
+  async rebuildPlugin(pluginId: string) {
+    const { getRes: rebuildGetRes } = rpcRequest<{ id: string }, {}>(
+      'PluginsService.Rebuild',
+      { id: pluginId }
+    );
+    await rebuildGetRes();
+  }
+
+  async reloadPlugins() {
+    const { getRes } = rpcRequest<{}, {}>('PluginsService.Reload', {});
+
+    await getRes();
   }
 }
