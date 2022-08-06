@@ -89,6 +89,7 @@ export const useInstallPlugin = (
       try {
         await smm.Plugins.reloadPlugins();
         await smm.Plugins.reloadPlugin(plugin.id);
+        await smm.Plugins.setEnabled(plugin.id, true);
       } catch (err) {
         smm.Toast.addToast(`Error loading plugin ${plugin.name}`, 'error');
         console.error(err);
