@@ -80,20 +80,14 @@ func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsA
 }
 
 type InjectPluginArgs struct {
-	PluginId string `json:"pluginId"`
-	Title    string `json:"title"`
+	PluginId   string `json:"pluginId"`
+	Entrypoint entry  `json:"entrypoint"`
+	Title      string `json:"title"`
 }
 
 type InjectPluginReply struct{}
 
 func (service *InjectService) InjectPlugin(r *http.Request, req *InjectPluginArgs, res *InjectPluginReply) error {
-	log.Println("Injecting plugin", req.PluginId)
-
-	err := service.plugins.Reload()
-	if err != nil {
-		return fmt.Errorf("Error reloading plugins: %v", err)
-	}
-
 	plugin, ok := service.plugins.PluginMap[req.PluginId]
 	if !ok {
 		return fmt.Errorf("Plugin %s not found", req.PluginId)
@@ -105,10 +99,8 @@ func (service *InjectService) InjectPlugin(r *http.Request, req *InjectPluginArg
 	}
 	defer steamClient.Cancel()
 
-	for _, entrypoint := range []cdp.SteamTarget{cdp.LibraryTarget, cdp.MenuTarget, cdp.QuickAccessTarget} {
-		if err := injectPlugin(steamClient, plugin, entrypoint, req.Title); err != nil {
-			return err
-		}
+	if err := injectPlugin(steamClient, plugin, req.Entrypoint.target(), req.Title); err != nil {
+		return err
 	}
 
 	return nil

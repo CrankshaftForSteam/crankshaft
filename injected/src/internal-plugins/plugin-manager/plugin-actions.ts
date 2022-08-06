@@ -45,6 +45,7 @@ export const usePluginActions = ({
 
   const handleReload = useCallback(async () => {
     try {
+      await smm.Plugins.rebuildPlugin(plugin.id);
       await smm.Plugins.reloadPlugin(plugin.id);
       smm.Toast.addToast(`${plugin.config.name} reloaded!`, 'success');
     } catch (err) {

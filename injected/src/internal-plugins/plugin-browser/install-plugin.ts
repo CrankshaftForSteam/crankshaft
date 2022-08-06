@@ -87,8 +87,8 @@ export const useInstallPlugin = (
       extractModal.close();
 
       try {
-        await smm.Plugins.injectPlugin(plugin.id);
-        await smm.Plugins.load(plugin.id);
+        await smm.Plugins.reloadPlugins();
+        await smm.Plugins.reloadPlugin(plugin.id);
       } catch (err) {
         smm.Toast.addToast(`Error loading plugin ${plugin.name}`, 'error');
         console.error(err);
