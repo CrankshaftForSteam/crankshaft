@@ -106,6 +106,11 @@ export class Plugins extends Service {
   }
 
   private async _load(pluginId: string) {
+    // If the plugin hasn't been injected, attempt to inject it
+    if (!window.smmPlugins?.[pluginId]) {
+      await this._injectPlugin(pluginId);
+    }
+    
     await this.smm.loadPlugin(pluginId);
   }
 
