@@ -53,14 +53,14 @@ export class Plugins extends Service {
   }
 
   private attachIPCListeners() {
-    const data = {
+    const ipcMethods = {
       [ipcNames.load]: '_load',
       [ipcNames.unload]: '_unload',
       [ipcNames.injectPlugin]: '_injectPlugin',
       [ipcNames.reloadPlugin]: '_reloadPlugin',
     } as const;
 
-    for (const [ipcName, method] of Object.entries(data)) {
+    for (const [ipcName, method] of Object.entries(ipcMethods)) {
       this.smm.IPC.on<PluginsIPCData>(
         ipcName,
         ({ data: { entrypoint, pluginId } }) => {
