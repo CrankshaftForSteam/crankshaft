@@ -110,7 +110,7 @@ export class Plugins extends Service {
     if (!window.smmPlugins?.[pluginId]) {
       await this._injectPlugin(pluginId);
     }
-    
+
     await this.smm.loadPlugin(pluginId);
   }
 

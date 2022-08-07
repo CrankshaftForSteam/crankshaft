@@ -1,6 +1,6 @@
 import { SMM } from '../smm';
 
-export class Service {
+export abstract class Service {
   smm: SMM;
 
   constructor(smm: SMM) {
