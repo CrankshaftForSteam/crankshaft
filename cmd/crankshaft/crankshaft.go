@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"git.sr.ht/~avery/crankshaft/auth"
 	"git.sr.ht/~avery/crankshaft/autostart"
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -125,11 +126,16 @@ func run() error {
 		return err
 	}
 
+	authToken, err := auth.GenAuthToken()
+	if err != nil {
+		return err
+	}
+
 	waitAndPatch := func() error {
 		cdp.WaitForConnection(debugPort)
 		cdp.WaitForLibraryEl(debugPort)
-		cdp.ShowLoadingIndicator(debugPort, serverPort)
-		err = patcher.Patch(debugPort, serverPort, steamPath, cacheDir, noCache)
+		cdp.ShowLoadingIndicator(debugPort, serverPort, authToken)
+		err = patcher.Patch(debugPort, serverPort, steamPath, cacheDir, noCache, authToken)
 		if err != nil {
 			return err
 		}
@@ -184,13 +190,13 @@ func run() error {
 			ws.ServeWs(hub, w, r)
 		})
 
-		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, tags.Dev, hub, steamPath, dataDir, pluginsDir)
+		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, tags.Dev, hub, steamPath, dataDir, pluginsDir, authToken)
 
-		http.Handle("/rpc", handlers.CORS(
-			handlers.AllowedHeaders([]string{"Content-Type"}),
+		http.Handle("/rpc", auth.RequireAuth(authToken, handlers.CORS(
+			handlers.AllowedHeaders([]string{"Content-Type", "X-Cs-Auth"}),
 			handlers.AllowedMethods([]string{"POST"}),
 			handlers.AllowedOrigins([]string{"https://steamloopback.host"}),
-		)(rpcServer))
+		)(rpcServer)))
 
 		log.Println("Listening on :" + serverPort)
 		log.Fatal(http.ListenAndServe(":"+serverPort, nil))

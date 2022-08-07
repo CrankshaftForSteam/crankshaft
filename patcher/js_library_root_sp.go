@@ -11,7 +11,7 @@ import (
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
-func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool) error {
+func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool, authToken string) error {
 	log.Printf("Patching %s...\n", scriptPath)
 
 	if err := checkForOriginal(scriptPath); err != nil {
@@ -52,7 +52,7 @@ func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool) e
 		return err
 	}
 
-	fileLines, err = patchCoolClass(fileLines, scriptPath, serverPort)
+	fileLines, err = patchCoolClass(fileLines, scriptPath, serverPort, authToken)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ that Crankshaft scripts can access it. I don't know exactly what the class
 does, and the name is minified, but it exposes a lot of cool stuff, so lets
 call it coolClass.
 */
-func patchCoolClass(fileLines []string, origPath string, serverPort string) ([]string, error) {
+func patchCoolClass(fileLines []string, origPath string, serverPort string, authToken string) ([]string, error) {
 	constructorLineNum := -1
 	constructorLineNum, err := findCoolClassConstructor(fileLines)
 	if err != nil {
@@ -117,10 +117,11 @@ func patchCoolClass(fileLines []string, origPath string, serverPort string) ([]s
 
 		window.addEventListener('load', () => {
 			console.info('[Crankshaft] Page loading, making request to inject service');
-			fetch('http://localhost:%s/rpc', {
+			fetch('http://localhost:%[1]s/rpc', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+    			'X-Cs-Auth': '%[2]s',
 				},
 				body: JSON.stringify({
 					method: 'InjectService.InjectLibrary',
@@ -129,7 +130,7 @@ func patchCoolClass(fileLines []string, origPath string, serverPort string) ([]s
 				}),
 			})
 		});
-	`, serverPort)
+	`, serverPort, authToken)
 	insertAtPos(&fileLines, 0, script)
 
 	return fileLines, nil

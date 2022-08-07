@@ -33,6 +33,7 @@ export const rpcRequest = <Params, Response>(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Cs-Auth': window.csAuthToken,
         },
         body: JSON.stringify({
           method,

@@ -11,7 +11,7 @@ import (
 	"git.sr.ht/~avery/crankshaft/pathutil"
 )
 
-func patchSP(scriptPath, serverPort, cacheDir string, noCache bool) error {
+func patchSP(scriptPath, serverPort, cacheDir string, noCache bool, authToken string) error {
 	log.Printf("Patching %s...\n", scriptPath)
 
 	if err := checkForOriginal(scriptPath); err != nil {
@@ -49,12 +49,12 @@ func patchSP(scriptPath, serverPort, cacheDir string, noCache bool) error {
 		return err
 	}
 
-	fileLines, react, err := patchMenuItems(fileLines, serverPort)
+	fileLines, react, err := patchMenuItems(fileLines, serverPort, authToken)
 	if err != nil {
 		return err
 	}
 
-	fileLines, err = patchQuickAccessItems(fileLines, react, serverPort)
+	fileLines, err = patchQuickAccessItems(fileLines, react, serverPort, authToken)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func patchSP(scriptPath, serverPort, cacheDir string, noCache bool) error {
 patchMenuItems patches the Steam Deck UI to support loading arbitrary main menu
 items.
 */
-func patchMenuItems(fileLines []string, serverPort string) ([]string, string, error) {
+func patchMenuItems(fileLines []string, serverPort string, authToken string) ([]string, string, error) {
 	log.Println("Patching main menu...")
 
 	// Find settings tab, menu items will be added below it
@@ -193,6 +193,7 @@ func patchMenuItems(fileLines []string, serverPort string) ([]string, string, er
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'X-Cs-Auth': '%[3]s',
 				},
 				body: JSON.stringify({
 					id: String(new Date().getTime() + Math.random()),
@@ -202,7 +203,7 @@ func patchMenuItems(fileLines []string, serverPort string) ([]string, string, er
 			});
 		}, []);
 
-	`, react, serverPort) + fileLines[returnLineNum]
+	`, react, serverPort, authToken) + fileLines[returnLineNum]
 
 	// Patch active menu items
 	activePropExp := regexp.MustCompile(`\[.*"route".*\]`)
@@ -266,7 +267,7 @@ func patchMenuItems(fileLines []string, serverPort string) ([]string, string, er
 patchQuickAccessItems patches the Steam Deck UI to support loading arbitrary
 quick access menu items.
 */
-func patchQuickAccessItems(fileLines []string, react string, serverPort string) ([]string, error) {
+func patchQuickAccessItems(fileLines []string, react, serverPort, authToken string) ([]string, error) {
 	log.Println("Patching quick access...")
 
 	settingsLineNum := 0
@@ -321,6 +322,7 @@ func patchQuickAccessItems(fileLines []string, react string, serverPort string) 
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
+							'X-Cs-Auth': '%[5]s',
 						},
 						body: JSON.stringify({
 							id: String(new Date().getTime() + Math.random()),
@@ -329,7 +331,7 @@ func patchQuickAccessItems(fileLines []string, react string, serverPort string) 
 						}),
 					});
 				}, []);
-			`, react, settingsTabComponent, strings.TrimPrefix(line, "}"), serverPort)
+			`, react, settingsTabComponent, strings.TrimPrefix(line, "}"), serverPort, authToken)
 			break
 		}
 	}

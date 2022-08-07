@@ -55,6 +55,7 @@ declare global {
         unload?: (smm: SMM) => void | Promise<void>;
       }
     >;
+    csAuthToken: string;
 
     csPluginsLoaded?: () => void;
 
