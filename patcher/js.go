@@ -31,12 +31,12 @@ run every time Crankshaft starts (if not already patched).
 
 At the moment this only patches libraryroot~sp.js.
 */
-func patchJS(steamuiPath string, debugPort string, serverPort string, cacheDir string, noCache bool) error {
-	if err := patchLibraryRootSP(path.Join(steamuiPath, libraryRootSP), serverPort, cacheDir, noCache); err != nil {
+func patchJS(steamuiPath string, debugPort string, serverPort string, cacheDir string, noCache bool, authToken string) error {
+	if err := patchLibraryRootSP(path.Join(steamuiPath, libraryRootSP), serverPort, cacheDir, noCache, authToken); err != nil {
 		return err
 	}
 
-	if err := patchSP(path.Join(steamuiPath, "sp.js"), serverPort, cacheDir, noCache); err != nil {
+	if err := patchSP(path.Join(steamuiPath, "sp.js"), serverPort, cacheDir, noCache, authToken); err != nil {
 		return err
 	}
 

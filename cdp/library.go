@@ -35,7 +35,7 @@ func WaitForLibraryEl(debugPort string) error {
 }
 
 // ShowLoadingIndicator shows a Crankshaft loading indicator in Steam.
-func ShowLoadingIndicator(debugPort, serverPort string) error {
+func ShowLoadingIndicator(debugPort, serverPort, authToken string) error {
 	sc, err := NewSteamClient(debugPort)
 	if err != nil {
 		return err
@@ -122,6 +122,7 @@ func ShowLoadingIndicator(debugPort, serverPort string) error {
     			method: 'POST',
     			headers: {
     				'Content-Type': 'application/json',
+    				'X-Cs-Auth': '%[3]s',
     			},
     			body: JSON.stringify({
     				id: String(new Date().getTime() + Math.random()),
@@ -138,6 +139,7 @@ func ShowLoadingIndicator(debugPort, serverPort string) error {
     			method: 'POST',
     			headers: {
     				'Content-Type': 'application/json',
+    				'X-Cs-Auth': '%[3]s',
     			},
     			body: JSON.stringify({
     				id: String(new Date().getTime() + Math.random()),
@@ -159,7 +161,7 @@ func ShowLoadingIndicator(debugPort, serverPort string) error {
 	    	}, 2000);
     	}
     });
-  `, specificIndicatorStyles, serverPort))
+  `, specificIndicatorStyles, serverPort, authToken))
 
 	return nil
 }
