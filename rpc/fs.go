@@ -88,6 +88,25 @@ func (service *FSService) ReadFile(r *http.Request, req *ReadFileArgs, res *Read
 	return nil
 }
 
+type RemoveFileArgs struct {
+	Path string `json:"path"`
+}
+
+type RemoveFileReply struct {
+}
+
+func (service *FSService) RemoveFile(r *http.Request, req *RemoveFileArgs, res *RemoveFileReply) error {
+	path := pathutil.SubstituteHomeAndXdg(req.Path)
+
+	err := os.Remove(path)
+	if err != nil {
+		log.Println("Error removing file", err)
+		return err
+	}
+
+	return nil
+}
+
 type UntarArgs struct {
 	TarPath  string `json:"tarPath"`
 	DestPath string `json:"destPath"`
