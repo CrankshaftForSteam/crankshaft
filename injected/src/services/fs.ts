@@ -42,6 +42,12 @@ export class FS extends Service {
     return (await getRes()).data.trim();
   }
 
+  removeFile(path: string) {
+    info('removeFile', path);
+
+    return rpcRequest<{ path: string }, {}>('FSService.RemoveFile', { path });
+  }
+
   untar(tarPath: string, destPath: string) {
     info('untar', { tarPath, destPath });
 
