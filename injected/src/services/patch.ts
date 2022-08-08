@@ -1,5 +1,11 @@
-import { uuidv4 } from '../util';
+import { isDefined, uuidv4 } from '../util';
 import { Service } from './service';
+
+type PatchAddress = readonly [
+  moduleId: string,
+  exportName: string,
+  index: number
+];
 
 export class Patch extends Service {
   private cachedExports: Record<string, string[]> = {};
@@ -8,11 +14,14 @@ export class Patch extends Service {
     Record<
       string,
       {
-        callbacks: ((
-          origFunc: (...args: any[]) => any,
-          module: any,
-          ...args: any[]
-        ) => any)[];
+        callbacks: (
+          | ((
+              origFunc: (...args: any[]) => any,
+              module: any,
+              ...args: any[]
+            ) => any)
+          | undefined
+        )[];
       }
     >
   > = {};
@@ -62,7 +71,7 @@ export class Patch extends Service {
       module: any,
       ...args: any[]
     ) => any;
-  }) {
+  }): Promise<PatchAddress | undefined> {
     let module: any | undefined;
     let moduleId: string | undefined;
 
@@ -97,7 +106,9 @@ export class Patch extends Service {
 
       const origExport = module[exportName];
       module[exportName] = (...args: any[]) => {
-        for (const cb of this.patches[moduleId!][exportName].callbacks) {
+        for (const cb of this.patches[moduleId!][exportName].callbacks.filter(
+          isDefined
+        )) {
           const res = cb(origExport, module, ...args);
           if (res) {
             return res;
@@ -109,5 +120,15 @@ export class Patch extends Service {
     }
 
     this.patches[moduleId][exportName].callbacks.push(callback);
+
+    return [
+      moduleId,
+      exportName,
+      this.patches[moduleId][exportName].callbacks.length - 1,
+    ];
+  }
+
+  removePatch(addr: PatchAddress) {
+    this.patches[addr[0]][addr[1]].callbacks[addr[2]] = undefined;
   }
 }

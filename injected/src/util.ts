@@ -55,3 +55,6 @@ export const isOutsideContainer = (
     elementRect.bottom > containerRect.bottom
   );
 };
+
+export const isDefined = <T>(o: T | undefined): o is T =>
+  typeof o !== 'undefined';
