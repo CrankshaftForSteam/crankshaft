@@ -5,6 +5,7 @@ import (
 	"os/user"
 	"path"
 	"reflect"
+	"runtime"
 	"testing"
 )
 
@@ -22,6 +23,9 @@ func TestSubstituteHomeDir(t *testing.T) {
 
 	path := "~/foo/bar"
 	expected := "/home/test/foo/bar"
+	if runtime.GOOS == "windows" {
+		expected = "\\home\\test\\foo\\bar"
+	}
 
 	res := SubstituteHomeDir(path)
 	if res != expected {
@@ -33,6 +37,9 @@ func TestAddExtPrefix(t *testing.T) {
 	path := "foo/bar/baz.js"
 	extPrefix := ".bak"
 	expected := "foo/bar/baz.bak.js"
+	if runtime.GOOS == "windows" {
+		expected = "foo\\bar\\baz.bak.js"
+	}
 
 	res := AddExtPrefix(path, extPrefix)
 	if res != expected {
