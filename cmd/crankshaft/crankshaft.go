@@ -22,7 +22,6 @@ import (
 	"git.sr.ht/~avery/crankshaft/ps"
 	"git.sr.ht/~avery/crankshaft/rpc"
 	"git.sr.ht/~avery/crankshaft/tags"
-	"git.sr.ht/~avery/crankshaft/tray"
 	"git.sr.ht/~avery/crankshaft/ws"
 	"github.com/gorilla/handlers"
 )
@@ -140,20 +139,6 @@ func run() error {
 			return err
 		}
 		return nil
-	}
-
-	if len(os.Getenv("DISPLAY")) != 0 {
-		log.Println("Starting system tray icon...")
-		reloadChannel := make(chan struct{})
-		go tray.StartTray(reloadChannel)
-		go func() {
-			for {
-				<-reloadChannel
-				if err := waitAndPatch(); err != nil {
-					log.Println(err)
-				}
-			}
-		}()
 	}
 
 	// Patch and bundle in parallel

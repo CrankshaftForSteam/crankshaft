@@ -6,7 +6,7 @@ artifacts:
 tasks:
   - packages: |
       sudo pacman -Sy --noconfirm archlinux-keyring && sudo pacman -Su --noconfirm
-      sudo pacman -S --noconfirm go yarn wget libappindicator-gtk3
+      sudo pacman -S --noconfirm go yarn wget
   - setup: |
       cd crankshaft
       go mod download

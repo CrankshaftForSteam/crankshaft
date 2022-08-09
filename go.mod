@@ -3,7 +3,6 @@ module git.sr.ht/~avery/crankshaft
 go 1.18
 
 require (
-	git.sr.ht/~avery/systray v0.0.0-20220425043645-2d004e22f3af
 	github.com/BurntSushi/toml v1.1.0
 	github.com/adrg/xdg v0.4.0
 	github.com/boltdb/bolt v1.3.1
