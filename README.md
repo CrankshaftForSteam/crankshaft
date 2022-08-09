@@ -19,6 +19,13 @@ Crankshaft requires the following dependencies:
 - [js-beautify](https://github.com/beautify-web/js-beautify)
 - [libappindicator-gtk3](https://launchpad.net/libappindicator)
 
+Crankshaft on Windows requires the following dependencies:
+- [Go](https://go.dev/doc/install)
+- [Yarn](https://yarnpkg.com/getting-started/install)
+- [NodeJS](https://nodejs.org/en/download/)
+- [js-beautify](https://github.com/beautify-web/js-beautify)
+- ['Make' via Chocolatey](https://stackoverflow.com/a/54086635/2616233)
+
 To set up your development environment:
 
 - Clone this repo: `git clone https://git.sr.ht/~avery/crankshaft`

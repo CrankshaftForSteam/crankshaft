@@ -1,3 +1,13 @@
+ifeq ($(OS),Windows_NT)
+	CMDQUIET = >nul 2>nul || (exit 0)
+	RMDIR = rmdir /Q /S
+	FixPath = $(subst /,\,$1)
+else
+	CMDQUIET := >/dev/null 2>&1
+	RMDIR = rm -rf
+	FixPath = $1
+endif
+
 .PHONY: configure-git-hooks
 configure-git-hooks:
 	git config core.hooksPath .githooks
@@ -9,13 +19,14 @@ install-js-deps:
 
 .PHONY: clean
 clean:
-	rm -rf .build
-	rm -rf .dist
-	rm -rf rpc/inject/scripts
+	$(RMDIR) $(call FixPath, .build) $(CMDQUIET)
+	$(RMDIR) $(call FixPath, .dist) $(CMDQUIET)
+	$(RMDIR) $(call FixPath, rpc/inject/scripts) $(CMDQUIET)
 
 .PHONY: run
 run: clean
-	go run -tags=dev cmd/crankshaft/*.go -no-cache $(ARGS)
+	go build -tags=dev -o crankshaft ./cmd/crankshaft/
+	./crankshaft $(ARGS)
 
 .PHONY: test
 test:

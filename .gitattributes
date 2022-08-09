@@ -1,0 +1,6 @@
+# Set line endings to lf so we don't hit conflicts when formatting
+* text=auto
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.css   text eol=lf
+*.go    text eol=lf
