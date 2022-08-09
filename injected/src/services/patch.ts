@@ -27,7 +27,7 @@ export class Patch extends Service {
   > = {};
 
   // modified from https://stackoverflow.com/a/70600070
-  private getModules() {
+  getModules() {
     return new Promise<any>((resolve) => {
       const id = uuidv4();
       window.webpackJsonp.push([
@@ -42,7 +42,7 @@ export class Patch extends Service {
     });
   }
 
-  private async getModuleExportsContaining(...contents: string[]) {
+  async getModuleExportsContaining(...contents: string[]) {
     const modules = (await this.getModules())[2].c;
     for (const module of Object.values<{ exports?: Record<string, any> }>(
       modules
