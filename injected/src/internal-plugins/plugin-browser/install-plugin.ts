@@ -82,6 +82,9 @@ export const useInstallPlugin = (
         smm.Toast.addToast(`Error extracting ${fileName}`, 'error');
         extractModal.close();
         return;
+      } finally {
+        // Whether the extraction suceeded or failed, remove the donwload tar file
+        smm.FS.removeFile(join(PLUGINS_DIR, fileName));
       }
 
       extractModal.close();

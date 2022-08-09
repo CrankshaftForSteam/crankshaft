@@ -28,3 +28,6 @@ go.work
 .scratch/
 # Release output
 .dist/
+
+# ignore VSCode config
+.vscode/
