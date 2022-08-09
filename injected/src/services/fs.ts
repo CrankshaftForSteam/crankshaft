@@ -45,7 +45,12 @@ export class FS extends Service {
   removeFile(path: string) {
     info('removeFile', path);
 
-    return rpcRequest<{ path: string }, {}>('FSService.RemoveFile', { path });
+    const { getRes } = rpcRequest<{ path: string }, {}>(
+      'FSService.RemoveFile',
+      { path }
+    );
+
+    return getRes();
   }
 
   untar(tarPath: string, destPath: string) {
