@@ -1,3 +1,11 @@
+ifeq ($(OS),Windows_NT)
+	RMDIR = rmdir /Q /S $1 2>NUL || (exit 0)
+	FixPath = $(subst /,\,$1)
+else
+	RMDIR = rm -rf $1
+	FixPath = $1
+endif
+
 .PHONY: configure-git-hooks
 configure-git-hooks:
 	git config core.hooksPath .githooks
@@ -9,9 +17,9 @@ install-js-deps:
 
 .PHONY: clean
 clean:
-	rm -rf .build
-	rm -rf .dist
-	rm -rf rpc/inject/scripts
+	-$(call RMDIR, $(call FixPath, .build))
+	-$(call RMDIR, $(call FixPath, .dist))
+	-$(call RMDIR, $(call FixPath, rpc/inject/scripts))
 
 .PHONY: run
 run: clean
