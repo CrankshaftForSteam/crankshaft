@@ -1,4 +1,5 @@
 # Set line endings to lf so we don't hit conflicts when formatting
-*.ts    text=lf
-*.tsx   text=lf
-*.go    text=lf
+* text=auto
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.go    text eol=lf
