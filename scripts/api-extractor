@@ -7,6 +7,7 @@ yarn tsc
 cp -r src/types lib/
 
 mkdir -p crankshaft-types-docs
+mkdir -p etc
 
 yarn api-extractor run --local --verbose
 
