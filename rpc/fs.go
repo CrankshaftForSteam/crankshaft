@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"git.sr.ht/~avery/crankshaft/executil"
 	"git.sr.ht/~avery/crankshaft/pathutil"
+	"git.sr.ht/~avery/crankshaft/untar"
 )
 
 type FSService struct {
@@ -118,28 +118,11 @@ func (service *FSService) Untar(r *http.Request, req *UntarArgs, res *UntarReply
 	tarPath := pathutil.SubstituteHomeAndXdg(req.TarPath)
 	destPath := pathutil.SubstituteHomeAndXdg(req.DestPath)
 
-	// TODO: handle errors when im not tired
-	cmd := executil.Command("tar", "-xf", tarPath, "-C", destPath)
-	log.Println("untar command", cmd.String())
-	_ = cmd.Run()
-
-	/*
-		 * archive/tar seems to not handle symlinks :(
-		 * need to look into it more, using tar for now
-
-		f, err := os.Open(tarPath)
-		if err != nil {
-			log.Println("Error opening tar file", tarPath)
-			return err
-		}
-		defer f.Close()
-
-		err = untar.Untar(f, destPath)
-		if err != nil {
-			log.Println("Error untaring file", tarPath, destPath)
-			return err
-		}
-	*/
+	err := untar.Untar(tarPath, destPath)
+	if err != nil {
+		log.Println("Error untaring file", tarPath, destPath)
+		return err
+	}
 
 	return nil
 }
