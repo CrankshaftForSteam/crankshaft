@@ -1,8 +1,10 @@
 ifeq ($(OS),Windows_NT)
-	RMDIR = rmdir /Q /S $1 2>NUL || (exit 0)
+	CMDQUIET = >nul 2>nul || (exit 0)
+	RMDIR = rmdir /Q /S
 	FixPath = $(subst /,\,$1)
 else
-	RMDIR = rm -rf $1
+	CMDQUIET := >/dev/null 2>&1
+	RMDIR = rm -rf
 	FixPath = $1
 endif
 
@@ -17,9 +19,9 @@ install-js-deps:
 
 .PHONY: clean
 clean:
-	-$(call RMDIR, $(call FixPath, .build))
-	-$(call RMDIR, $(call FixPath, .dist))
-	-$(call RMDIR, $(call FixPath, rpc/inject/scripts))
+	$(RMDIR) $(call FixPath, .build) $(CMDQUIET)
+	$(RMDIR) $(call FixPath, .dist) $(CMDQUIET)
+	$(RMDIR) $(call FixPath, rpc/inject/scripts) $(CMDQUIET)
 
 .PHONY: run
 run: clean

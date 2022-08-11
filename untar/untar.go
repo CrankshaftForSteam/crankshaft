@@ -20,8 +20,8 @@ func Untar(archive string, dest string) error {
 }
 
 func untar(archive string, dest string) (err error) {
-	t0 := time.Now()
-	madeDirs := map[string]bool{}
+	now := time.Now()
+	madeDirs := []*tar.Header{}
 
 	// Attempt to open the file on disk
 	reader, err := os.Open(archive)
@@ -41,7 +41,7 @@ func untar(archive string, dest string) (err error) {
 	for {
 		header, err := tarReader.Next()
 
-		// If no more files found, exit
+		// If no more files found, break from the loop
 		if err == io.EOF {
 			break
 		}
@@ -49,6 +49,11 @@ func untar(archive string, dest string) (err error) {
 		// If there's some other error, return it
 		if err != nil {
 			return err
+		}
+
+		// Skip extended headers
+		if header.Typeflag == tar.TypeXGlobalHeader || header.Typeflag == tar.TypeXHeader {
+			continue
 		}
 
 		// Build the output path
@@ -60,15 +65,43 @@ func untar(archive string, dest string) (err error) {
 		fileMode := fileInfo.Mode()
 
 		switch {
-		case fileMode.IsRegular():
-			targetDir := filepath.Dir(absolutePath)
-			// We'll attempt to make the dir, but ignore if it fails, as it should have been handled already
-			if !madeDirs[targetDir] {
-				os.MkdirAll(targetDir, 0755)
-				madeDirs[targetDir] = true
+		// Handle directory headers
+		case fileMode.IsDir():
+			// Attempt to make the directory, return on failure
+			if err := os.MkdirAll(absolutePath, 0755); err != nil {
+				return err
 			}
 
-			file, err := os.OpenFile(absolutePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, fileMode.Perm())
+			// Because ordering isn't guaranteed, store the dir header so we can
+			// set its attributes after we're finished extracting
+			madeDirs = append(madeDirs, header)
+
+		// Handle symlinks
+		case header.Typeflag == tar.TypeSymlink:
+			// Note: I'm not currently restricting this to the extraction dir
+			// but we could pull in SecureJoin if we wanted to do that
+			linkTarget := header.Linkname
+
+			// Create the symlink
+			if err := os.Symlink(linkTarget, absolutePath); err != nil {
+				return err
+			}
+
+		// Handle regular files
+		case fileMode.IsRegular():
+			targetDir := filepath.Dir(absolutePath)
+
+			// Because ordering isn't guaranteed, we need to create the directory
+			// if it doesn't exist
+			_, err := os.Stat(targetDir)
+			if os.IsNotExist(err) {
+				if err := os.MkdirAll(targetDir, 0755); err != nil {
+					return err
+				}
+			}
+
+			// Create the file, will truncate if it exists
+			file, err := os.Create(absolutePath)
 			if err != nil {
 				return err
 			}
@@ -86,24 +119,45 @@ func untar(archive string, dest string) (err error) {
 				return fmt.Errorf("incorrect amount of data written for %s. Expected: %d  Actual: %d", absolutePath, fileInfo.Size(), written)
 			}
 
+			// Chmod the file
+			if err := os.Chmod(absolutePath, fileInfo.Mode()); err != nil {
+				return err
+			}
+
 			// Set the modification time of the file, clamped to the current time
 			// For now we'll ignore errors
 			modTime := header.ModTime
-			if modTime.After(t0) {
-				modTime = t0
+			if modTime.IsZero() || modTime.After(now) {
+				modTime = now
 			}
-			if !modTime.IsZero() {
-				os.Chtimes(absolutePath, modTime, modTime)
-			}
-		case fileMode.IsDir():
-			err := os.MkdirAll(absolutePath, 0755)
-			if err != nil {
+
+			if err := os.Chtimes(absolutePath, modTime, modTime); err != nil {
 				return err
 			}
-			madeDirs[absolutePath] = true
 
 		default:
 			return fmt.Errorf("tar file entry %s contained an unsupported file type %v", header.Name, fileMode)
+		}
+	}
+
+	// Now that we're done, all our directories have been created, so
+	// we can set their attributes
+	for _, dirHeader := range madeDirs {
+		targetDir := filepath.Join(dest, dirHeader.Name)
+
+		// Chmod the directory
+		if err := os.Chmod(targetDir, dirHeader.FileInfo().Mode()); err != nil {
+			return err
+		}
+
+		// Set the modification time of the directory, clamped to the current time
+		modTime := dirHeader.ModTime
+		if modTime.IsZero() || modTime.After(now) {
+			modTime = now
+		}
+
+		if err := os.Chtimes(targetDir, modTime, modTime); err != nil {
+			return err
 		}
 	}
 
