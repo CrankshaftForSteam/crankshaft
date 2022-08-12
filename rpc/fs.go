@@ -121,6 +121,7 @@ func (service *FSService) Untar(r *http.Request, req *UntarArgs, res *UntarReply
 	err := untar.Untar(tarPath, destPath)
 	if err != nil {
 		log.Println("Error untaring file", tarPath, destPath)
+		log.Println(err)
 		return err
 	}
 

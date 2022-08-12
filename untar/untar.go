@@ -24,19 +24,24 @@ func untar(archive string, dest string) (err error) {
 	madeDirs := []*tar.Header{}
 
 	// Attempt to open the file on disk
-	reader, err := os.Open(archive)
+	file, err := os.Open(archive)
 	if err != nil {
 		return err
 	}
-	defer reader.Close()
+	defer file.Close()
 
-	// We'll assume all archives are gzip'd
-	gzipReader, err := gzip.NewReader(reader)
-	if err != nil {
-		return fmt.Errorf("requires gzip-compressed archive: %v", err)
+	// Attempt to open this as a gzip, if we can, set reader to the gzip reader
+	// otherwise just fall through to see if it's a tar file
+	var reader io.Reader = file
+	gzipReader, err := gzip.NewReader(file)
+	if err == nil {
+		reader = gzipReader
+	} else {
+		// If it wasn't a gzip, reset our offset to the beginning of the file
+		file.Seek(0, 0)
 	}
 
-	tarReader := tar.NewReader(gzipReader)
+	tarReader := tar.NewReader(reader)
 
 	for {
 		header, err := tarReader.Next()
