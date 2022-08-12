@@ -6,11 +6,13 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"git.sr.ht/~avery/crankshaft/build"
@@ -107,7 +109,7 @@ func getCachedFilePath(scriptPath, cacheDir, md5sum string) string {
 	return path.Join(cacheDir, "patched", cachedFileName)
 }
 
-func useCachedPatchedScript(scriptPath, cacheDir string) (bool, string, error) {
+func useCachedPatchedScript(scriptPath, cacheDir, authToken string) (bool, string, error) {
 	data, err := os.ReadFile(scriptPath)
 	if err != nil {
 		return false, "", err
@@ -127,7 +129,18 @@ func useCachedPatchedScript(scriptPath, cacheDir string) (bool, string, error) {
 
 	log.Println("Using cached file")
 
-	return true, sumStr, pathutil.Copy(cachedFilePath, scriptPath)
+	script, err := ioutil.ReadFile(cachedFilePath)
+	if err != nil {
+		return false, sumStr, err
+	}
+
+	// Update auth token
+	re := regexp.MustCompile(`window\.csAuthToken = '.+';`)
+	script = re.ReplaceAll(script, []byte(fmt.Sprintf(`window.csAuthToken = '%s';`, authToken)))
+
+	err = ioutil.WriteFile(scriptPath, script, 0755)
+
+	return true, sumStr, err
 }
 
 func cachePatchedScript(fileLines []string, scriptPath, cacheDir, origSum string) error {
