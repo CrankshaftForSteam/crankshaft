@@ -83,13 +83,11 @@ export class MenuInjectorDesktop implements MenuInjector {
 
   private injectMenuStyles() {
     deleteAll('[data-smm-menu-style]');
-    document
-      .querySelector('head')
-      ?.appendChild(
-        dcCreateElement<HTMLStyleElement>(
-          <style data-smm-menu-style>{styles}</style>
-        )
-      );
+    const style = dcCreateElement<HTMLStyleElement>(
+      <style data-smm-menu-style>{styles}</style>
+    );
+    console.log('STYLE THING AAAAAAAAAAAAAAAAA', style);
+    document.head.appendChild(style);
   }
 
   private createMenuPage() {
