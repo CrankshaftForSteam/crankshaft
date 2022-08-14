@@ -24,6 +24,8 @@ type entrypoint struct {
 
 type store struct {
 	Description string `json:"description"`
+	Linux       bool   `json:"linux-support"`
+	Windows     bool   `json:"windows-support"`
 }
 
 type pluginConfig struct {
