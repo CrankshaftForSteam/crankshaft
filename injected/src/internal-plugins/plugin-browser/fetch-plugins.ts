@@ -1,4 +1,4 @@
-import {Platform, Plugin as InstalledPlugin} from '../../services/plugins';
+import {Plugin as InstalledPlugin} from '../../services/plugins';
 import { SMM } from '../../smm';
 
 const PLUGINS_URL = 'https://crankshaft.space/plugins.json';
@@ -19,8 +19,8 @@ export interface FetchedPlugin {
 
   store: {
     description?: string;
-    linux: Platform;
-    windows: Platform;
+    linux: boolean;
+    windows: boolean;
   };
 
   archive: string;
