@@ -1,4 +1,7 @@
-import { Plugin as InstalledPlugin } from '../../services/plugins';
+import {
+  Plugin as InstalledPlugin,
+  StorePlatforms,
+} from '../../services/plugins';
 import { SMM } from '../../smm';
 
 const PLUGINS_URL = 'https://crankshaft.space/plugins.json';
@@ -19,6 +22,7 @@ export interface FetchedPlugin {
 
   store: {
     description?: string;
+    platforms: StorePlatforms;
   };
 
   archive: string;
@@ -41,9 +45,15 @@ export const fetchPlugins = async (
       >(PLUGINS_URL)
     );
 
-    cachedPlugins = data.map((plugin) => ({
-      ...plugin,
-    }));
+    // First filter so only plugins supported by current platform are shown
+    cachedPlugins = data
+      .filter((plugin) => {
+        return plugin.store.platforms[window.csPlatform as keyof StorePlatforms]
+          .supported;
+      })
+      .map((plugin) => ({
+        ...plugin,
+      }));
   }
 
   return cachedPlugins.map((plugin) => ({

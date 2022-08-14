@@ -3,13 +3,12 @@ package inject
 import (
 	"errors"
 	"fmt"
-	"log"
-	"net/http"
-
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
 	"git.sr.ht/~avery/crankshaft/plugins"
 	"git.sr.ht/~avery/crankshaft/tags"
+	"log"
+	"net/http"
 )
 
 type InjectService struct {

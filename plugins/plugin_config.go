@@ -22,8 +22,19 @@ type entrypoint struct {
 	AppProperties bool `json:"appProperties" toml:"app-properties"`
 }
 
+type platform struct {
+	Supported bool `json:"supported"`
+}
+
+type platforms struct {
+	Linux   platform `json:"linux"`
+	Windows platform `json:"windows"`
+	Darwin  platform `json:"darwin"`
+}
+
 type store struct {
-	Description string `json:"description"`
+	Description string    `json:"description"`
+	Platforms   platforms `json:"platforms"`
 }
 
 type pluginConfig struct {

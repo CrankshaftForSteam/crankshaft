@@ -7,6 +7,16 @@ interface Entrypoint {
   menu: boolean;
 }
 
+export interface StorePlatforms {
+  linux: Platform;
+  windows: Platform;
+  darwin: Platform;
+}
+
+export interface Platform {
+  supported: boolean;
+}
+
 export interface Plugin {
   id: string;
   dir: string;
@@ -28,6 +38,7 @@ export interface Plugin {
 
     store: {
       description?: string;
+      platforms: StorePlatforms;
     };
   };
   enabled: boolean;
