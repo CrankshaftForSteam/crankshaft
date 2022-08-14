@@ -30,5 +30,6 @@ go.work
 .dist/
 /crankshaft
 
-# ignore VSCode config
+# ignore IDE configs
 .vscode/
+.idea/
