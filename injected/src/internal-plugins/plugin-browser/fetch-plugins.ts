@@ -1,5 +1,6 @@
-import {Plugin as InstalledPlugin} from '../../services/plugins';
+import {Plugin as InstalledPlugin, StorePlatforms} from '../../services/plugins';
 import { SMM } from '../../smm';
+import * as os from "os";
 
 const PLUGINS_URL = 'https://crankshaft.space/plugins.json';
 
@@ -19,8 +20,7 @@ export interface FetchedPlugin {
 
   store: {
     description?: string;
-    linux: boolean;
-    windows: boolean;
+    platforms: StorePlatforms;
   };
 
   archive: string;
@@ -43,7 +43,13 @@ export const fetchPlugins = async (
       >(PLUGINS_URL)
     );
 
-    cachedPlugins = data.map((plugin) => ({
+    // Note: we need to split because windows is returned as `Windows_NT`
+    const current_os = os.type().split('_')[0].toLowerCase();
+
+    // First filter so only plugins supported by current platform are shown
+    cachedPlugins = data.filter(plugin => {
+      return plugin.store.platforms[current_os as keyof StorePlatforms].supported
+    }).map((plugin) => ({
       ...plugin,
     }));
   }
