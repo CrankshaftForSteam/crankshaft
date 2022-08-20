@@ -112,7 +112,8 @@ declare global {
 
     // Internal Steam stuff
 
-    webpackJsonp: any;
+    webpackJsonp?: any;
+    webpackChunksteamui?: any;
 
     SteamClient: {
       Settings: {

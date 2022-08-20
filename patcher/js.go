@@ -22,7 +22,6 @@ import (
 
 var jsBeautifyBin = "js-beautify"
 
-const libraryRootSP = "libraryroot~sp.js"
 const sp = "sp.js"
 
 /*
@@ -34,8 +33,41 @@ run every time Crankshaft starts (if not already patched).
 At the moment this only patches libraryroot~sp.js.
 */
 func patchJS(steamuiPath string, debugPort string, serverPort string, cacheDir string, noCache bool, authToken string) error {
-	if err := patchLibraryRootSP(path.Join(steamuiPath, libraryRootSP), serverPort, cacheDir, noCache, authToken); err != nil {
-		return err
+	// Find library root
+	foundLibraryRootSP := false
+	var patchingError error
+	files, err := ioutil.ReadDir(steamuiPath)
+	if err != nil {
+		return fmt.Errorf("Error reading steamui dir: %v", err)
+	}
+
+	for _, file := range files {
+		fileName := file.Name()
+		filePath := path.Join(steamuiPath, fileName)
+
+		if file.IsDir() || !strings.HasSuffix(fileName, ".js") || strings.HasSuffix(fileName, ".orig.js") || strings.HasSuffix(fileName, ".unmin.js") {
+			continue
+		}
+
+		contents, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			return fmt.Errorf(`Error reading file "%s": %v`, file.Name(), err)
+		}
+
+		if strings.Contains(string(contents), "GetWhatsNewEvents") {
+			foundLibraryRootSP = true
+			if err := patchLibraryRootSP(filePath, serverPort, cacheDir, noCache, authToken); err != nil {
+				patchingError = err
+				continue
+			}
+		}
+	}
+
+	if !foundLibraryRootSP {
+		if patchingError != nil {
+			return fmt.Errorf("Error while patching libraryroot: %v", patchingError)
+		}
+		return errors.New("libraryRootSP not found for patching.")
 	}
 
 	if err := patchSP(path.Join(steamuiPath, "sp.js"), serverPort, cacheDir, noCache, authToken); err != nil {
@@ -56,20 +88,23 @@ these scripts, Steam will go through a >30 second update process next time it
 launches.
 */
 func cleanupJS(steamuiPath string) error {
-	files := []string{libraryRootSP, sp}
-	for _, filename := range files {
-		path := path.Join(steamuiPath, filename)
+	// Find files wiith .orig.js
+	files, err := ioutil.ReadDir(steamuiPath)
+	if err != nil {
+		return fmt.Errorf("Error listing original files: %v", err)
+	}
 
-		// Check if original file exists
-		origPath := pathutil.AddExtPrefix(path, ".orig")
-		if _, err := os.Stat(origPath); err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				continue
-			}
-			return err
+	for _, file := range files {
+		fileName := file.Name()
+		origPath := path.Join(steamuiPath, fileName)
+
+		if file.IsDir() || !strings.HasSuffix(fileName, ".orig.js") {
+			continue
 		}
 
-		log.Println("Writing original", filename)
+		path := strings.Replace(origPath, ".orig.js", ".js", 1)
+
+		log.Println("Writing original", fileName, origPath, path)
 		pathutil.Copy(origPath, path)
 	}
 

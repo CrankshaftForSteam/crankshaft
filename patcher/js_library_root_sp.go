@@ -59,7 +59,8 @@ func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool, a
 
 	fileLines, err = addButtonInterceptor(fileLines)
 	if err != nil {
-		return err
+		// return err
+		// It's ok if we don't find this in desktop mode
 	}
 
 	fileLines, err = appProperties(fileLines)

@@ -60,7 +60,8 @@ func patchSP(scriptPath, serverPort, cacheDir string, noCache bool, authToken st
 	}
 
 	fileLines[0] = fmt.Sprintf(`// file patched by crankshaft
-	window.csAuthToken = '%s';\n`, authToken) + fileLines[0]
+	window.csAuthToken = '%s';
+	`, authToken) + fileLines[0]
 
 	log.Printf("Writing patched file to %s\n", scriptPath)
 
@@ -130,6 +131,20 @@ func patchMenuItems(fileLines []string, serverPort string) ([]string, string, er
 			break
 		}
 	}
+	if createElementStr == "" {
+		// Quick fix for Steam beta/preview, the above can be removed once stable
+		createElementExp = regexp.MustCompile(`^.*(\w+\.createElement\(.+,).*$`)
+		for i := powerLineNum - 1; i >= powerLineNum-10; i-- {
+			matches := createElementExp.FindStringSubmatch(fileLines[i])
+			if len(matches) > 0 {
+				createElementStr = matches[1]
+				break
+			}
+		}
+	}
+	if createElementStr == "" {
+		return nil, "", errors.New("createElementStr not found")
+	}
 
 	returnExp := regexp.MustCompile(`return.*(\w+\.\w+)\.createElement`)
 	returnLineNum := -1
@@ -140,6 +155,18 @@ func patchMenuItems(fileLines []string, serverPort string) ([]string, string, er
 			react = matches[1]
 			returnLineNum = i
 			break
+		}
+	}
+	if returnLineNum == -1 {
+		// Quick fix for Steam beta/preview, the above can be removed once stable
+		returnExp = regexp.MustCompile(`return.*(\w+)\.createElement`)
+		for i := settingsLineNum - 1; i >= settingsLineNum-50; i-- {
+			matches := returnExp.FindStringSubmatch(fileLines[i])
+			if len(matches) > 0 {
+				react = matches[1]
+				returnLineNum = i
+				break
+			}
 		}
 	}
 	if returnLineNum == -1 {
