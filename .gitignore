@@ -28,7 +28,7 @@ go.work
 .scratch/
 # Release output
 .dist/
-crankshaft
+/crankshaft
 
 # ignore VSCode config
 .vscode/

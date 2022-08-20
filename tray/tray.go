@@ -5,17 +5,19 @@ import (
 	"log"
 	"os"
 
+	"git.sr.ht/~avery/crankshaft/executil"
 	"git.sr.ht/~avery/systray"
 )
 
 //go:embed logo.ico
 var icon []byte
 
-func StartTray(reloadChannel chan struct{}) {
+func StartTray(reloadChannel chan struct{}, logsDir string) {
 	systray.SetTitle("Crankshaft")
 	systray.SetTemplateIcon(icon, icon)
 
 	reload := systray.AddMenuItem("Force Reload", "Force Crankshaft to re-inject into the running Steam instance")
+	viewLogs := systray.AddMenuItem("Open logs folder", "Open logs folder")
 	quit := systray.AddMenuItem("Quit", "Quit Crankshaft")
 
 	go func() {
@@ -24,6 +26,8 @@ func StartTray(reloadChannel chan struct{}) {
 			case <-reload.ClickedCh:
 				log.Println("Force reload from systray")
 				reloadChannel <- struct{}{}
+			case <-viewLogs.ClickedCh:
+				executil.Command("xdg-open", logsDir).Run()
 			case <-quit.ClickedCh:
 				systray.Quit()
 				os.Exit(0)

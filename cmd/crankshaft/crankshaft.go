@@ -145,7 +145,7 @@ func run() error {
 	if len(os.Getenv("DISPLAY")) != 0 {
 		log.Println("Starting system tray icon...")
 		reloadChannel := make(chan struct{})
-		go tray.StartTray(reloadChannel)
+		go tray.StartTray(reloadChannel, logsDir)
 		go func() {
 			for {
 				<-reloadChannel
