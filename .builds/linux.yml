@@ -18,6 +18,8 @@ tasks:
   - build: |
       cd crankshaft
       make build
+
+      mkdir .dist
       # Get js-beautify binary
       # See source and build manifest at: https://builds.sr.ht/~avery/job/741873
       # TODO: this link expires in 90 days lol
