@@ -41,6 +41,32 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.2.4" date="2022-08-20">
+      <description>
+        <p>
+          Due to an issue with the 0.2.3 release, this is a re-release of those
+          changes, along with a few additional features and bugfixes.
+        </p>
+
+        <p>Thanks to DrakiaXYZ and Olyve for their contributions!</p>
+        
+        <ul>
+          <li>Fix patching on latest Steam update</li>
+          <li>Add Steam Flatpak to default Steam path lookup locations</li>
+          <li>Fix plugin browser not fully updating after installing/updating plugins</li>
+          <li>Fix non-Flatpak release build</li>
+          <li>Fix multiple instances of a plugin being loaded on plugin reload (by DrakiaXYZ)</li>
+          <li>Fix "Load" not injecting plugins that were disabled on startup (by DrakiaXYZ)</li>
+          <li>Remove plugin archive after installing plugins (by Olyve)</li>
+          <li>Add auth token to plugin API - the API isn't vulnerable to CSRF attacks, but this is still a helpful security measure. Thanks to Scrumplex for pointing this out!</li>
+          <li>Add button to open logs folder to the system tray menu</li>
+          <li>Plugin API: Add method to remove patches</li>
+          <li>Plugin API: Make Patch.getModules and Patch.getModuleExportsContaining public</li>
+          <li>Plugin API: Add csPluginsDir so plugins can know where the plugin directory is located</li>
+        </ul>
+      </description>
+    </release>
+
     <release version="0.2.3" date="2022-08-10">
       <description>
         <p>Thanks to DrakiaXYZ and Olyve for their contributions!</p>
