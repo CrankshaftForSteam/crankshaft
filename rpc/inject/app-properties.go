@@ -55,9 +55,23 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAp
 
 	var appPropertiesEvalScript string
 	if service.devMode {
-		appPropertiesEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/app-properties.js", service.steamPath, service.authToken)
+		appPropertiesEvalScript, err = build.BuildEvalScriptFromFile(
+			service.serverPort,
+			steamClient.UiMode,
+			".build/app-properties.js",
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	} else {
-		appPropertiesEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, appPropertiesScript, service.steamPath, service.authToken)
+		appPropertiesEvalScript, err = build.BuildEvalScript(
+			service.serverPort,
+			steamClient.UiMode,
+			appPropertiesScript,
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	}
 	if err != nil {
 		log.Println(err)

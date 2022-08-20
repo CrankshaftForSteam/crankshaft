@@ -3,7 +3,8 @@ document.querySelectorAll('[data-smm-id]').forEach((node) => node.remove());
 
 window.smmServerPort = '{{ .ServerPort }}';
 window.smmUIMode = '{{ .UIMode }}';
-window.csSteamDir  = '{{ .SteamDir }}';
+window.csSteamDir = '{{ .SteamDir }}';
+window.csPluginsDir = '{{ .PluginsDir }}';
 window.csVersion = '{{ .Version }}';
 window.csAuthToken = '{{ .AuthToken }}';
 
