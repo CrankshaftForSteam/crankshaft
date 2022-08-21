@@ -10,6 +10,7 @@ import (
 
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
+	"git.sr.ht/~avery/crankshaft/tags"
 )
 
 type InjectAppPropertiesArgs struct {
@@ -38,7 +39,7 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAp
 		return errors.New("Separate app properties context only exists in desktop mode")
 	}
 
-	if service.devMode {
+	if tags.Dev {
 		sharedScript, err = build.BundleSharedScripts()
 		if err != nil {
 			log.Println(err)
@@ -54,10 +55,24 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAp
 	// App properties script
 
 	var appPropertiesEvalScript string
-	if service.devMode {
-		appPropertiesEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/app-properties.js", service.steamPath, service.authToken)
+	if tags.Dev {
+		appPropertiesEvalScript, err = build.BuildEvalScriptFromFile(
+			service.serverPort,
+			steamClient.UiMode,
+			".build/app-properties.js",
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	} else {
-		appPropertiesEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, appPropertiesScript, service.steamPath, service.authToken)
+		appPropertiesEvalScript, err = build.BuildEvalScript(
+			service.serverPort,
+			steamClient.UiMode,
+			appPropertiesScript,
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	}
 	if err != nil {
 		log.Println(err)

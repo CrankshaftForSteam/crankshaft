@@ -9,19 +9,20 @@ import (
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
 	"git.sr.ht/~avery/crankshaft/plugins"
+	"git.sr.ht/~avery/crankshaft/tags"
 )
 
 type InjectService struct {
 	debugPort  string
 	serverPort string
 	plugins    *plugins.Plugins
-	devMode    bool
 	steamPath  string
 	authToken  string
+	pluginsDir string
 }
 
-func NewInjectService(debugPort, serverPort string, plugins *plugins.Plugins, devMode bool, steamPath string, authToken string) *InjectService {
-	return &InjectService{debugPort, serverPort, plugins, devMode, steamPath, authToken}
+func NewInjectService(debugPort, serverPort string, plugins *plugins.Plugins, steamPath string, authToken string, pluginsDir string) *InjectService {
+	return &InjectService{debugPort, serverPort, plugins, steamPath, authToken, pluginsDir}
 }
 
 type InjectArgs struct{}
@@ -48,7 +49,7 @@ func (service *InjectService) InjectLibrary(r *http.Request, req *InjectArgs, re
 
 	// Inject shared script
 
-	if service.devMode {
+	if tags.Dev {
 		sharedScript, err = build.BundleSharedScripts()
 		if err != nil {
 			log.Println(err)
@@ -65,10 +66,24 @@ func (service *InjectService) InjectLibrary(r *http.Request, req *InjectArgs, re
 	// Inject library script
 
 	var libraryEvalScript string
-	if service.devMode {
-		libraryEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/library.js", service.steamPath, service.authToken)
+	if tags.Dev {
+		libraryEvalScript, err = build.BuildEvalScriptFromFile(
+			service.serverPort,
+			steamClient.UiMode,
+			".build/library.js",
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	} else {
-		libraryEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, libraryScript, service.steamPath, service.authToken)
+		libraryEvalScript, err = build.BuildEvalScript(
+			service.serverPort,
+			steamClient.UiMode,
+			libraryScript,
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	}
 	if err != nil {
 		log.Println(err)
@@ -99,7 +114,7 @@ func (service *InjectService) InjectMenu(r *http.Request, req *InjectArgs, res *
 
 	// Shared script
 
-	if service.devMode {
+	if tags.Dev {
 		sharedScript, err = build.BundleSharedScripts()
 		if err != nil {
 			log.Println(err)
@@ -116,10 +131,24 @@ func (service *InjectService) InjectMenu(r *http.Request, req *InjectArgs, res *
 	// Menu script
 
 	var menuEvalScript string
-	if service.devMode {
-		menuEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/menu.js", service.steamPath, service.authToken)
+	if tags.Dev {
+		menuEvalScript, err = build.BuildEvalScriptFromFile(
+			service.serverPort,
+			steamClient.UiMode,
+			".build/menu.js",
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	} else {
-		menuEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, menuScript, service.steamPath, service.authToken)
+		menuEvalScript, err = build.BuildEvalScript(
+			service.serverPort,
+			steamClient.UiMode,
+			menuScript,
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	}
 	if err != nil {
 		log.Println(err)
@@ -150,7 +179,7 @@ func (service *InjectService) InjectQuickAccess(r *http.Request, req *InjectArgs
 
 	// Shared script
 
-	if service.devMode {
+	if tags.Dev {
 		sharedScript, err = build.BundleSharedScripts()
 		if err != nil {
 			log.Println(err)
@@ -167,10 +196,24 @@ func (service *InjectService) InjectQuickAccess(r *http.Request, req *InjectArgs
 	// Quick access script
 
 	var quickAccessEvalScript string
-	if service.devMode {
-		quickAccessEvalScript, err = build.BuildEvalScriptFromFile(service.serverPort, steamClient.UiMode, ".build/quick-access.js", service.steamPath, service.authToken)
+	if tags.Dev {
+		quickAccessEvalScript, err = build.BuildEvalScriptFromFile(
+			service.serverPort,
+			steamClient.UiMode,
+			".build/quick-access.js",
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	} else {
-		quickAccessEvalScript, err = build.BuildEvalScript(service.serverPort, steamClient.UiMode, quickAccessScript, service.steamPath, service.authToken)
+		quickAccessEvalScript, err = build.BuildEvalScript(
+			service.serverPort,
+			steamClient.UiMode,
+			quickAccessScript,
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
 	}
 	if err != nil {
 		log.Println(err)

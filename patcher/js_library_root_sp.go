@@ -26,7 +26,7 @@ func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool, a
 	origSum := ""
 
 	if !noCache {
-		found, _origSum, err := useCachedPatchedScript(scriptPath, cacheDir)
+		found, _origSum, err := useCachedPatchedScript(scriptPath, cacheDir, authToken)
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,8 @@ func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool, a
 
 	fileLines, err = addButtonInterceptor(fileLines)
 	if err != nil {
-		return err
+		// return err
+		// It's ok if we don't find this in desktop mode
 	}
 
 	fileLines, err = appProperties(fileLines)
@@ -97,7 +98,7 @@ that Crankshaft scripts can access it. I don't know exactly what the class
 does, and the name is minified, but it exposes a lot of cool stuff, so lets
 call it coolClass.
 */
-func patchCoolClass(fileLines []string, origPath string, serverPort string, authToken string) ([]string, error) {
+func patchCoolClass(fileLines []string, origPath, serverPort, authToken string) ([]string, error) {
 	constructorLineNum := -1
 	constructorLineNum, err := findCoolClassConstructor(fileLines)
 	if err != nil {
@@ -113,6 +114,7 @@ func patchCoolClass(fileLines []string, origPath string, serverPort string, auth
 	}
 
 	script := fmt.Sprintf(`// file patched by crankshaft
+		window.csAuthToken = '%[2]s';
 		console.info('[Crankshaft] Loading patched libraryroot~sp.js');
 
 		window.addEventListener('load', () => {
@@ -121,7 +123,7 @@ func patchCoolClass(fileLines []string, origPath string, serverPort string, auth
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-    			'X-Cs-Auth': '%[2]s',
+    			'X-Cs-Auth': window.csAuthToken,
 				},
 				body: JSON.stringify({
 					method: 'InjectService.InjectLibrary',

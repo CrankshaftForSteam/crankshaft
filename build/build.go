@@ -12,7 +12,7 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-const VERSION = "0.2.3"
+const VERSION = "0.2.4"
 
 const Target = api.ES2020
 
@@ -105,7 +105,7 @@ func BundleSharedScripts() (string, error) {
 var evalScriptTemplate string
 
 // BuildEvalScriptFromFile gets a script from a file and builds an eval script with it.
-func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath, steamPath, authToken string) (string, error) {
+func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath, steamPath, authToken, pluginsDir string) (string, error) {
 	scriptBytes, err := ioutil.ReadFile(scriptPath)
 	if err != nil {
 		return "", fmt.Errorf(`Failed to read injected script at "%s": %w`, scriptPath, err)
@@ -113,11 +113,11 @@ func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath, s
 
 	script := string(scriptBytes)
 
-	return BuildEvalScript(serverPort, uiMode, script, steamPath, authToken)
+	return BuildEvalScript(serverPort, uiMode, script, steamPath, authToken, pluginsDir)
 }
 
 // BuildEvalScript builds a script to be evaluated in the Steam target context.
-func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, authToken string) (string, error) {
+func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, authToken, pluginsDir string) (string, error) {
 	evalTmpl := template.Must(template.New("eval").Parse(evalScriptTemplate))
 	var evalScript bytes.Buffer
 	if err := evalTmpl.Execute(&evalScript, struct {
@@ -127,6 +127,7 @@ func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, au
 		UIMode         cdp.UIMode
 		SteamDir       string
 		AuthToken      string
+		PluginsDir     string
 	}{
 		Version:        VERSION,
 		InjectedScript: script,
@@ -134,6 +135,7 @@ func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, au
 		UIMode:         uiMode,
 		SteamDir:       steamPath,
 		AuthToken:      authToken,
+		PluginsDir:     pluginsDir,
 	}); err != nil {
 		return "", fmt.Errorf("Failed to execute eval script template: %w", err)
 	}

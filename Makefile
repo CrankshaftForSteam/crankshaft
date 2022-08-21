@@ -25,7 +25,7 @@ clean:
 
 .PHONY: run
 run: clean
-	go run -tags=dev cmd/crankshaft/crankshaft.go -no-cache $(ARGS)
+	go run -tags=dev cmd/crankshaft/*.go -no-cache $(ARGS)
 
 .PHONY: test
 test:
@@ -56,24 +56,19 @@ format-js:
 bundle-scripts:
 	go run cmd/bundle-scripts/main.go
 
-.PHONY: release
-release: clean bundle-scripts
+.PHONY: build
+build: bundle-scripts
 	mkdir rpc/inject/scripts
 	cp .build/* rpc/inject/scripts
-	mkdir .dist
-	go build -o .dist/crankshaft cmd/crankshaft/crankshaft.go
-	# Get js-beautify binary
-	# See source and build manifest at: https://builds.sr.ht/~avery/job/741873
-	# TODO: this link expires in 90 days lol
-	wget -O .dist/js-beautify https://patchouli.sr.ht/builds.sr.ht/artifacts/~avery/741873/249ceb5c7c3dfa54/js-beautify
-	chmod +x .dist/js-beautify
+	go run cmd/bundle-scripts/main.go
+	go build -o crankshaft cmd/crankshaft/*.go
 
 .PHONY: flatpak
 flatpak: bundle-scripts
 	mkdir rpc/inject/scripts
 	cp .build/* rpc/inject/scripts
 	go run cmd/bundle-scripts/main.go
-	go build -tags=flatpak -o crankshaft cmd/crankshaft/crankshaft.go
+	go build -tags=flatpak -o crankshaft cmd/crankshaft/*.go
 
 .PHONY: api-extractor
 api-extractor:

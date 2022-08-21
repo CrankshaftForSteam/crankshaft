@@ -25,7 +25,7 @@ func patchSP(scriptPath, serverPort, cacheDir string, noCache bool, authToken st
 	origSum := ""
 
 	if !noCache {
-		found, _origSum, err := useCachedPatchedScript(scriptPath, cacheDir)
+		found, _origSum, err := useCachedPatchedScript(scriptPath, cacheDir, authToken)
 		if err != nil {
 			return err
 		}
@@ -49,17 +49,19 @@ func patchSP(scriptPath, serverPort, cacheDir string, noCache bool, authToken st
 		return err
 	}
 
-	fileLines, react, err := patchMenuItems(fileLines, serverPort, authToken)
+	fileLines, react, err := patchMenuItems(fileLines, serverPort)
 	if err != nil {
 		return err
 	}
 
-	fileLines, err = patchQuickAccessItems(fileLines, react, serverPort, authToken)
+	fileLines, err = patchQuickAccessItems(fileLines, react, serverPort)
 	if err != nil {
 		return err
 	}
 
-	fileLines[0] = "// file patched by crankshaft\n" + fileLines[0]
+	fileLines[0] = fmt.Sprintf(`// file patched by crankshaft
+	window.csAuthToken = '%s';
+	`, authToken) + fileLines[0]
 
 	log.Printf("Writing patched file to %s\n", scriptPath)
 
@@ -87,7 +89,7 @@ func patchSP(scriptPath, serverPort, cacheDir string, noCache bool, authToken st
 patchMenuItems patches the Steam Deck UI to support loading arbitrary main menu
 items.
 */
-func patchMenuItems(fileLines []string, serverPort string, authToken string) ([]string, string, error) {
+func patchMenuItems(fileLines []string, serverPort string) ([]string, string, error) {
 	log.Println("Patching main menu...")
 
 	// Find settings tab, menu items will be added below it
@@ -129,6 +131,20 @@ func patchMenuItems(fileLines []string, serverPort string, authToken string) ([]
 			break
 		}
 	}
+	if createElementStr == "" {
+		// Quick fix for Steam beta/preview, the above can be removed once stable
+		createElementExp = regexp.MustCompile(`^.*(\w+\.createElement\(.+,).*$`)
+		for i := powerLineNum - 1; i >= powerLineNum-10; i-- {
+			matches := createElementExp.FindStringSubmatch(fileLines[i])
+			if len(matches) > 0 {
+				createElementStr = matches[1]
+				break
+			}
+		}
+	}
+	if createElementStr == "" {
+		return nil, "", errors.New("createElementStr not found")
+	}
 
 	returnExp := regexp.MustCompile(`return.*(\w+\.\w+)\.createElement`)
 	returnLineNum := -1
@@ -139,6 +155,18 @@ func patchMenuItems(fileLines []string, serverPort string, authToken string) ([]
 			react = matches[1]
 			returnLineNum = i
 			break
+		}
+	}
+	if returnLineNum == -1 {
+		// Quick fix for Steam beta/preview, the above can be removed once stable
+		returnExp = regexp.MustCompile(`return.*(\w+)\.createElement`)
+		for i := settingsLineNum - 1; i >= settingsLineNum-50; i-- {
+			matches := returnExp.FindStringSubmatch(fileLines[i])
+			if len(matches) > 0 {
+				react = matches[1]
+				returnLineNum = i
+				break
+			}
 		}
 	}
 	if returnLineNum == -1 {
@@ -193,7 +221,7 @@ func patchMenuItems(fileLines []string, serverPort string, authToken string) ([]
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-Cs-Auth': '%[3]s',
+					'X-Cs-Auth': window.csAuthToken,
 				},
 				body: JSON.stringify({
 					id: String(new Date().getTime() + Math.random()),
@@ -203,7 +231,7 @@ func patchMenuItems(fileLines []string, serverPort string, authToken string) ([]
 			});
 		}, []);
 
-	`, react, serverPort, authToken) + fileLines[returnLineNum]
+	`, react, serverPort) + fileLines[returnLineNum]
 
 	// Patch active menu items
 	activePropExp := regexp.MustCompile(`\[.*"route".*\]`)
@@ -267,7 +295,7 @@ func patchMenuItems(fileLines []string, serverPort string, authToken string) ([]
 patchQuickAccessItems patches the Steam Deck UI to support loading arbitrary
 quick access menu items.
 */
-func patchQuickAccessItems(fileLines []string, react, serverPort, authToken string) ([]string, error) {
+func patchQuickAccessItems(fileLines []string, react, serverPort string) ([]string, error) {
 	log.Println("Patching quick access...")
 
 	settingsLineNum := 0
@@ -322,7 +350,7 @@ func patchQuickAccessItems(fileLines []string, react, serverPort, authToken stri
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
-							'X-Cs-Auth': '%[5]s',
+							'X-Cs-Auth': window.csAuthToken,
 						},
 						body: JSON.stringify({
 							id: String(new Date().getTime() + Math.random()),
@@ -331,7 +359,7 @@ func patchQuickAccessItems(fileLines []string, react, serverPort, authToken stri
 						}),
 					});
 				}, []);
-			`, react, settingsTabComponent, strings.TrimPrefix(line, "}"), serverPort, authToken)
+			`, react, settingsTabComponent, strings.TrimPrefix(line, "}"), serverPort)
 			break
 		}
 	}

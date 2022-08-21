@@ -2,18 +2,14 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"path"
 	"sync"
 	"syscall"
-	"time"
 
 	"git.sr.ht/~avery/crankshaft/auth"
-	"git.sr.ht/~avery/crankshaft/autostart"
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
 	"git.sr.ht/~avery/crankshaft/config"
@@ -23,8 +19,6 @@ import (
 	"git.sr.ht/~avery/crankshaft/rpc"
 	"git.sr.ht/~avery/crankshaft/tags"
 	"git.sr.ht/~avery/crankshaft/tray"
-	"git.sr.ht/~avery/crankshaft/ws"
-	"github.com/gorilla/handlers"
 )
 
 func main() {
@@ -45,44 +39,13 @@ func run() error {
 		os.Exit(0)
 	}
 
-	// Ensure data directory exists
-	if err := os.MkdirAll(dataDir, 0700); err != nil {
-		return fmt.Errorf(`Error creating data directory "%s": %v`, dataDir, err)
+	if err := ensureDirsExist(noCache, dataDir, pluginsDir, logsDir, cacheDir, steamPath); err != nil {
+		return fmt.Errorf("Error ensuring directories exist: %v", err)
 	}
 
-	// Ensure plugins directory exists
-	if err := os.MkdirAll(pluginsDir, 0700); err != nil {
-		return fmt.Errorf(`Error creating plugins directory "%s": %v`, pluginsDir, err)
+	if err := setupLogging(logsDir); err != nil {
+		return fmt.Errorf("Error setting up logging: %v", err)
 	}
-
-	// Ensure logs directory exists
-	if err := os.MkdirAll(logsDir, 0700); err != nil {
-		return fmt.Errorf(`Error creating logs directory "%s": %v`, logsDir, err)
-	}
-
-	// Ensure cache directory exists
-	if !noCache {
-		if err := os.MkdirAll(cacheDir, 0700); err != nil {
-			return fmt.Errorf(`Error creating cache directory "%s": %v`, cacheDir, err)
-		}
-	}
-
-	// Ensure Steam directory exists
-	if _, err := os.Stat(steamPath); err != nil {
-		return fmt.Errorf(`Error reading Steam directory at "%s": %v`, steamPath, err)
-	}
-
-	// Create log file
-	logFileName := time.Now().Format("2006-01-02-15_04_05")
-	logFile, err := os.OpenFile(path.Join(logsDir, logFileName), os.O_CREATE|os.O_WRONLY, 0755)
-	if err != nil {
-		return fmt.Errorf(`Error creating log file "%s": %v`, logFileName, err)
-	}
-	defer logFile.Close()
-
-	// Setup logging to write to stdout and log file
-	logWriter := io.MultiWriter(os.Stdout, logFile)
-	log.SetOutput(logWriter)
 
 	crksftConfig, found, err := config.NewCrksftConfig(dataDir)
 	if err != nil {
@@ -90,28 +53,8 @@ func run() error {
 	}
 
 	if !tags.Dev && (!found || !crksftConfig.InstalledAutostart) {
-		// First launch, install autostart service
-		if autostart.HostHasSystemd() {
-			log.Println("Installing autostart service...")
-			err = autostart.InstallService(dataDir)
-			if err != nil {
-				return fmt.Errorf("Error installing autostart service: %v", err)
-			}
-
-			crksftConfig.InstalledAutostart = true
-			err = crksftConfig.Write()
-			if err != nil {
-				return fmt.Errorf("Error writing config: %v", err)
-			}
-
-			log.Println("Starting Crankshaft with Systemd and killing this instance, goodbye!")
-			err = autostart.StartService()
-			if err != nil {
-				return fmt.Errorf("Error starting Crankshaft service: %v", err)
-			}
-			os.Exit(0)
-		} else {
-			log.Println("Not running systemd, skipping autostart service installation")
+		if err := firstLaunchEnableAutostart(dataDir, crksftConfig); err != nil {
+			return fmt.Errorf("Error installing autostart service on first launch: %v", err)
 		}
 	}
 
@@ -142,19 +85,7 @@ func run() error {
 		return nil
 	}
 
-	if len(os.Getenv("DISPLAY")) != 0 {
-		log.Println("Starting system tray icon...")
-		reloadChannel := make(chan struct{})
-		go tray.StartTray(reloadChannel)
-		go func() {
-			for {
-				<-reloadChannel
-				if err := waitAndPatch(); err != nil {
-					log.Println(err)
-				}
-			}
-		}()
-	}
+	tray.StartTray(waitAndPatch, logsDir)
 
 	// Patch and bundle in parallel
 	var wg sync.WaitGroup
@@ -184,22 +115,7 @@ func run() error {
 	// Start RPC server in the background
 	// This will keep running in the background, so we don't need to add it to the wait group
 	go func() {
-		hub := ws.NewHub()
-		go hub.Run()
-		http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-			ws.ServeWs(hub, w, r)
-		})
-
-		rpcServer := rpc.HandleRpc(debugPort, serverPort, plugins, tags.Dev, hub, steamPath, dataDir, pluginsDir, authToken)
-
-		http.Handle("/rpc", auth.RequireAuth(authToken, handlers.CORS(
-			handlers.AllowedHeaders([]string{"Content-Type", "X-Cs-Auth"}),
-			handlers.AllowedMethods([]string{"POST"}),
-			handlers.AllowedOrigins([]string{"https://steamloopback.host"}),
-		)(rpcServer)))
-
-		log.Println("Listening on :" + serverPort)
-		log.Fatal(http.ListenAndServe(":"+serverPort, nil))
+		rpc.StartRpcServer(debugPort, serverPort, steamPath, dataDir, pluginsDir, authToken, plugins)
 	}()
 
 	wg.Wait()

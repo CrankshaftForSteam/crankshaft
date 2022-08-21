@@ -26,15 +26,55 @@ export class Patch extends Service {
     >
   > = {};
 
-  // modified from https://stackoverflow.com/a/70600070
-  getModules() {
-    return new Promise<any>((resolve) => {
+  async getModules(): Promise<Record<string, any>> {
+    // Fix for Steam beta/preview update, the other path can be removed once
+    // the update makes it to stable.
+    if (window.webpackChunksteamui) {
+      // see https://github.com/webpack/webpack/blob/8729f2e787c1780b5b1109df7738521621609d61/lib/web/JsonpChunkLoadingRuntimeModule.js#L401
+      return new Promise<any>((resolve) => {
+        const chunkIds: string[] = window.webpackChunksteamui
+          .flatMap((chunk: any) => chunk)
+          .filter(
+            (idOrChunk: Object | Array<any>) =>
+              typeof idOrChunk === 'object' && !Array.isArray(idOrChunk)
+          )
+          .map((chunk: Object) => Object.keys(chunk))
+          .flat();
+
+        window.webpackChunksteamui.push([
+          [uuidv4()],
+          {},
+          (__webpack_require__: (id: string) => any) => {
+            const modules = chunkIds.reduce<Record<string, any>>((prev, id) => {
+              prev[id] = __webpack_require__(id);
+              return prev;
+            }, {});
+            resolve(modules);
+          },
+        ]);
+      });
+    }
+
+    // modified from https://stackoverflow.com/a/70600070
+    return new Promise((resolve) => {
       const id = uuidv4();
       window.webpackJsonp.push([
         id,
         {
           [id]: (...args: any[]) => {
-            resolve(args);
+            const modules = args[2].c as Record<
+              string,
+              { i: string; exports: any }
+            >;
+            resolve(
+              Object.values(modules).reduce<Record<string, any>>(
+                (prev, cur) => {
+                  prev[cur.i] = cur.exports;
+                  return prev;
+                },
+                {}
+              )
+            );
           },
         },
         [[id]],
@@ -43,18 +83,12 @@ export class Patch extends Service {
   }
 
   async getModuleExportsContaining(...contents: string[]) {
-    const modules = (await this.getModules())[2].c;
-    for (const module of Object.values<{ exports?: Record<string, any> }>(
-      modules
-    )) {
-      if (!module.exports) {
-        continue;
-      }
-
-      const keys = Object.keys(module.exports);
+    const modules = await this.getModules();
+    for (const module of Object.values(modules)) {
+      const keys = Object.keys(module);
 
       if (contents.every((content) => keys.includes(content))) {
-        return module.exports;
+        return module;
       }
     }
   }
