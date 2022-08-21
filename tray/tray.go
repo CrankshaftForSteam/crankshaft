@@ -12,7 +12,22 @@ import (
 //go:embed logo.ico
 var icon []byte
 
-func StartTray(reloadChannel chan struct{}, logsDir string) {
+// StartTray starts the system tray menu if the system has a display available.
+func StartTray(onReload func() error, logsDir string) {
+	log.Println("Starting system tray icon...")
+	reloadChannel := make(chan struct{})
+	go setupTray(reloadChannel, logsDir)
+	go func() {
+		for {
+			<-reloadChannel
+			if err := onReload(); err != nil {
+				log.Printf("Error reloading from system tray: %v", err)
+			}
+		}
+	}()
+}
+
+func setupTray(reloadChannel chan struct{}, logsDir string) {
 	systray.SetTitle("Crankshaft")
 	systray.SetTemplateIcon(icon, icon)
 

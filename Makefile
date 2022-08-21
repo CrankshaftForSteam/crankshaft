@@ -15,7 +15,7 @@ clean:
 
 .PHONY: run
 run: clean
-	go run -tags=dev cmd/crankshaft/crankshaft.go -no-cache $(ARGS)
+	go run -tags=dev cmd/crankshaft/*.go -no-cache $(ARGS)
 
 .PHONY: test
 test:
@@ -51,14 +51,14 @@ build: bundle-scripts
 	mkdir rpc/inject/scripts
 	cp .build/* rpc/inject/scripts
 	go run cmd/bundle-scripts/main.go
-	go build -o crankshaft cmd/crankshaft/crankshaft.go
+	go build -o crankshaft cmd/crankshaft/*.go
 
 .PHONY: flatpak
 flatpak: bundle-scripts
 	mkdir rpc/inject/scripts
 	cp .build/* rpc/inject/scripts
 	go run cmd/bundle-scripts/main.go
-	go build -tags=flatpak -o crankshaft cmd/crankshaft/crankshaft.go
+	go build -tags=flatpak -o crankshaft cmd/crankshaft/*.go
 
 .PHONY: api-extractor
 api-extractor:
