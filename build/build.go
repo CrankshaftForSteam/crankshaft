@@ -16,6 +16,16 @@ const VERSION = "0.2.4"
 
 const Target = api.ES2020
 
+type csGlobals struct {
+	Version        string
+	InjectedScript string
+	ServerPort     string
+	UIMode         cdp.UIMode
+	SteamDir       string
+	AuthToken      string
+	PluginsDir     string
+}
+
 // Steam is using Chrome 84
 var Engines = []api.Engine{
 	{
@@ -120,15 +130,9 @@ func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath, s
 func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, authToken, pluginsDir string) (string, error) {
 	evalTmpl := template.Must(template.New("eval").Parse(evalScriptTemplate))
 	var evalScript bytes.Buffer
-	if err := evalTmpl.Execute(&evalScript, struct {
-		Version        string
-		InjectedScript string
-		ServerPort     string
-		UIMode         cdp.UIMode
-		SteamDir       string
-		AuthToken      string
-		PluginsDir     string
-	}{
+
+	// Create globals struct for script execution
+	globals := csGlobals{
 		Version:        VERSION,
 		InjectedScript: script,
 		ServerPort:     serverPort,
@@ -136,7 +140,9 @@ func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, au
 		SteamDir:       steamPath,
 		AuthToken:      authToken,
 		PluginsDir:     pluginsDir,
-	}); err != nil {
+	}
+
+	if err := evalTmpl.Execute(&evalScript, globals); err != nil {
 		return "", fmt.Errorf("Failed to execute eval script template: %w", err)
 	}
 
