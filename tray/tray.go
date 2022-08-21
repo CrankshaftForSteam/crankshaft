@@ -31,7 +31,7 @@ func setupTray(reloadChannel chan struct{}, logsDir string) {
 	systray.SetTitle("Crankshaft")
 	systray.SetTemplateIcon(icon, icon)
 
-	reload := systray.AddMenuItem("Force Reload", "Force Crankshaft to re-inject into the running Steam instance")
+	reload := systray.AddMenuItem("Force reload", "Force Crankshaft to re-inject into the running Steam instance")
 	viewLogs := systray.AddMenuItem("Open logs folder", "Open logs folder")
 	quit := systray.AddMenuItem("Quit", "Quit Crankshaft")
 
