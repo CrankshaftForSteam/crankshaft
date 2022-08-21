@@ -28,27 +28,27 @@ func StartTray(onReload func() error, logsDir string) {
 }
 
 func setupTray(reloadChannel chan struct{}, logsDir string) {
-	systray.SetTitle("Crankshaft")
-	systray.SetTemplateIcon(icon, icon)
+	systray.Run(func() {
+		systray.SetTitle("Crankshaft")
+		systray.SetTemplateIcon(icon, icon)
 
-	reload := systray.AddMenuItem("Force reload", "Force Crankshaft to re-inject into the running Steam instance")
-	viewLogs := systray.AddMenuItem("Open logs folder", "Open logs folder")
-	quit := systray.AddMenuItem("Quit", "Quit Crankshaft")
+		reload := systray.AddMenuItem("Force reload", "Force Crankshaft to re-inject into the running Steam instance")
+		viewLogs := systray.AddMenuItem("Open logs folder", "Open logs folder")
+		quit := systray.AddMenuItem("Quit", "Quit Crankshaft")
 
-	go func() {
-		for {
-			select {
-			case <-reload.ClickedCh:
-				log.Println("Force reload from systray")
-				reloadChannel <- struct{}{}
-			case <-viewLogs.ClickedCh:
-				executil.Command("xdg-open", logsDir).Run()
-			case <-quit.ClickedCh:
-				systray.Quit()
-				os.Exit(0)
+		go func() {
+			for {
+				select {
+				case <-reload.ClickedCh:
+					log.Println("Force reload from systray")
+					reloadChannel <- struct{}{}
+				case <-viewLogs.ClickedCh:
+					executil.Command("xdg-open", logsDir).Run()
+				case <-quit.ClickedCh:
+					systray.Quit()
+					os.Exit(0)
+				}
 			}
-		}
-	}()
-
-	systray.Run(func() {}, func() {})
+		}()
+	}, func() {})
 }

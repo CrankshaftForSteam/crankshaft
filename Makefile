@@ -25,7 +25,8 @@ clean:
 
 .PHONY: run
 run: clean
-	go run -tags=dev cmd/crankshaft/*.go -no-cache $(ARGS)
+	go build -tags=dev -o crankshaft ./cmd/crankshaft/
+	./crankshaft $(ARGS)
 
 .PHONY: test
 test:

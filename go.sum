@@ -1,5 +1,7 @@
 git.sr.ht/~avery/systray v0.0.0-20220425043645-2d004e22f3af h1:zWrYlRBI7Cq6JPAU9B2gY/UWORnyZvW1nP1dZUo8zWY=
 git.sr.ht/~avery/systray v0.0.0-20220425043645-2d004e22f3af/go.mod h1:YYPLgavlmBb19VairGVlVkAbHaLIZK8pZmMc+LMyMeY=
+git.sr.ht/~avery/systray v0.0.0-20220812015514-99b4d6c7eac2 h1:cLPOaFl3KmEG9Lx1Mp0JZ9cTUsrIIyz7e207VcC5mRg=
+git.sr.ht/~avery/systray v0.0.0-20220812015514-99b4d6c7eac2/go.mod h1:YYPLgavlmBb19VairGVlVkAbHaLIZK8pZmMc+LMyMeY=
 github.com/BurntSushi/toml v1.1.0 h1:ksErzDEI1khOiGPgpwuI7x2ebx/uXQNw7xJpn9Eq1+I=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/adrg/xdg v0.4.0 h1:RzRqFcjH4nE5C6oTAxhBtoE2IRyjBSa62SCbyPidvls=
