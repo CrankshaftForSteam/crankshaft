@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"runtime"
 	"text/template"
 
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -24,6 +25,7 @@ type csGlobals struct {
 	SteamDir       string
 	AuthToken      string
 	PluginsDir     string
+	Platform       string
 }
 
 // Steam is using Chrome 84
@@ -140,6 +142,7 @@ func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, au
 		SteamDir:       steamPath,
 		AuthToken:      authToken,
 		PluginsDir:     pluginsDir,
+		Platform:       runtime.GOOS,
 	}
 
 	if err := evalTmpl.Execute(&evalScript, globals); err != nil {

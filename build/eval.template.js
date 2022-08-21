@@ -7,5 +7,6 @@ window.csSteamDir = '{{ .SteamDir }}';
 window.csPluginsDir = '{{ .PluginsDir }}';
 window.csVersion = '{{ .Version }}';
 window.csAuthToken = '{{ .AuthToken }}';
+window.csPlatform = '{{ .Platform }}';
 
 {{ .InjectedScript }}
