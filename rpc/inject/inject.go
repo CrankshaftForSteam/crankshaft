@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -74,6 +75,7 @@ func (service *InjectService) InjectLibrary(r *http.Request, req *InjectArgs, re
 			service.steamPath,
 			service.authToken,
 			service.pluginsDir,
+			runtime.GOOS,
 		)
 	} else {
 		libraryEvalScript, err = build.BuildEvalScript(
@@ -83,6 +85,7 @@ func (service *InjectService) InjectLibrary(r *http.Request, req *InjectArgs, re
 			service.steamPath,
 			service.authToken,
 			service.pluginsDir,
+			runtime.GOOS,
 		)
 	}
 	if err != nil {
@@ -139,6 +142,7 @@ func (service *InjectService) InjectMenu(r *http.Request, req *InjectArgs, res *
 			service.steamPath,
 			service.authToken,
 			service.pluginsDir,
+			runtime.GOOS,
 		)
 	} else {
 		menuEvalScript, err = build.BuildEvalScript(
@@ -148,6 +152,7 @@ func (service *InjectService) InjectMenu(r *http.Request, req *InjectArgs, res *
 			service.steamPath,
 			service.authToken,
 			service.pluginsDir,
+			runtime.GOOS,
 		)
 	}
 	if err != nil {
@@ -204,6 +209,7 @@ func (service *InjectService) InjectQuickAccess(r *http.Request, req *InjectArgs
 			service.steamPath,
 			service.authToken,
 			service.pluginsDir,
+			runtime.GOOS,
 		)
 	} else {
 		quickAccessEvalScript, err = build.BuildEvalScript(
@@ -213,6 +219,7 @@ func (service *InjectService) InjectQuickAccess(r *http.Request, req *InjectArgs
 			service.steamPath,
 			service.authToken,
 			service.pluginsDir,
+			runtime.GOOS,
 		)
 	}
 	if err != nil {

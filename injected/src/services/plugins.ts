@@ -10,7 +10,7 @@ interface Entrypoint {
 export interface StorePlatforms {
   linux: Platform;
   windows: Platform;
-  mac: Platform;
+  darwin: Platform;
 }
 
 export interface Platform {
@@ -38,9 +38,7 @@ export interface Plugin {
 
     store: {
       description?: string;
-      platforms: {
-
-      }
+      platforms: StorePlatforms;
     };
   };
   enabled: boolean;
