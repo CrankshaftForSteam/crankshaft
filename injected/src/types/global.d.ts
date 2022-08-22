@@ -48,6 +48,7 @@ declare global {
     smmServerPort: string;
     smmUIMode: 'desktop' | 'deck';
     csVersion: string;
+    csPlatform: 'linux' | 'windows' | 'darwin';
     smmPlugins: Record<
       string,
       {
