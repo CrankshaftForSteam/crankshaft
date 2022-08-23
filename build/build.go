@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"runtime"
 	"text/template"
 
 	"git.sr.ht/~avery/crankshaft/cdp"
@@ -116,7 +117,7 @@ func BundleSharedScripts() (string, error) {
 var evalScriptTemplate string
 
 // BuildEvalScriptFromFile gets a script from a file and builds an eval script with it.
-func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath, steamPath, authToken, pluginsDir string, platform string) (string, error) {
+func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath, steamPath, authToken, pluginsDir string) (string, error) {
 	scriptBytes, err := ioutil.ReadFile(scriptPath)
 	if err != nil {
 		return "", fmt.Errorf(`Failed to read injected script at "%s": %w`, scriptPath, err)
@@ -124,11 +125,11 @@ func BuildEvalScriptFromFile(serverPort string, uiMode cdp.UIMode, scriptPath, s
 
 	script := string(scriptBytes)
 
-	return BuildEvalScript(serverPort, uiMode, script, steamPath, authToken, pluginsDir, platform)
+	return BuildEvalScript(serverPort, uiMode, script, steamPath, authToken, pluginsDir)
 }
 
 // BuildEvalScript builds a script to be evaluated in the Steam target context.
-func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, authToken, pluginsDir string, platform string) (string, error) {
+func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, authToken, pluginsDir string) (string, error) {
 	evalTmpl := template.Must(template.New("eval").Parse(evalScriptTemplate))
 	var evalScript bytes.Buffer
 
@@ -141,7 +142,7 @@ func BuildEvalScript(serverPort string, uiMode cdp.UIMode, script, steamPath, au
 		SteamDir:       steamPath,
 		AuthToken:      authToken,
 		PluginsDir:     pluginsDir,
-		Platform:       platform,
+		Platform:       runtime.GOOS,
 	}
 
 	if err := evalTmpl.Execute(&evalScript, globals); err != nil {

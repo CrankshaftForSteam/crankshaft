@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"runtime"
 	"text/template"
 
 	"git.sr.ht/~avery/crankshaft/build"
@@ -64,7 +63,6 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAp
 			service.steamPath,
 			service.authToken,
 			service.pluginsDir,
-			runtime.GOOS,
 		)
 	} else {
 		appPropertiesEvalScript, err = build.BuildEvalScript(
@@ -74,7 +72,6 @@ func (service *InjectService) InjectAppProperties(r *http.Request, req *InjectAp
 			service.steamPath,
 			service.authToken,
 			service.pluginsDir,
-			runtime.GOOS,
 		)
 	}
 	if err != nil {
