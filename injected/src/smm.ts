@@ -94,7 +94,12 @@ class EventLockScreenClosed extends CustomEvent<void> {
 /**
  * @public
  */
-export type Entry = 'library' | 'menu' | 'quickAccess' | 'appProperties' | 'keyboard';
+export type Entry =
+  | 'library'
+  | 'menu'
+  | 'quickAccess'
+  | 'appProperties'
+  | 'keyboard';
 
 /**
  * @public
