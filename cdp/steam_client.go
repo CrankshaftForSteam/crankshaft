@@ -60,6 +60,7 @@ type SteamTarget string
 
 const (
 	LibraryTarget       SteamTarget = "SP"
+	KeyboardTarget      SteamTarget = "SP_Keyboard"
 	MenuTarget          SteamTarget = "MainMenu"
 	QuickAccessTarget   SteamTarget = "QuickAccess"
 	AppPropertiesTarget SteamTarget = "AppProperties"
@@ -68,7 +69,13 @@ const (
 type targetFilterFunc func(target *target.Info) bool
 
 func IsLibraryTarget(target *target.Info) bool {
-	return target.Title == "SP" || strings.HasPrefix(target.URL, "https://steamloopback.host/index.html")
+	return (target.Title == "SP" || strings.HasPrefix(target.URL, "https://steamloopback.host/index.html")) &&
+		!strings.Contains(target.URL, "IN_STANDALONE_KEYBOARD")
+}
+
+func IsKeyboardTarget(target *target.Info) bool {
+	return (target.Title == "SP" || strings.HasPrefix(target.URL, "https://steamloopback.host/index.html")) &&
+		strings.Contains(target.URL, "IN_STANDALONE_KEYBOARD")
 }
 
 func IsMenuTarget(target *target.Info) bool {
@@ -91,6 +98,8 @@ func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
 	switch steamTarget {
 	case LibraryTarget:
 		isTarget = IsLibraryTarget
+	case KeyboardTarget:
+		isTarget = IsKeyboardTarget
 	case MenuTarget:
 		isTarget = IsMenuTarget
 	case QuickAccessTarget:
@@ -158,6 +167,14 @@ func (sc *SteamClient) runScriptInTarget(isTarget targetFilterFunc, script strin
 
 func (sc *SteamClient) RunScriptInLibrary(script string) error {
 	return sc.runScriptInTarget(IsLibraryTarget, script)
+}
+
+func (sc *SteamClient) RunScriptInKeyboard(script string) error {
+	if sc.UiMode != UIModeDesktop {
+		return fmt.Errorf("Scripts can only be run in keyboard context in desktop mode")
+	}
+
+	return sc.runScriptInTarget(IsKeyboardTarget, script)
 }
 
 func (sc *SteamClient) RunScriptInMenu(script string) error {

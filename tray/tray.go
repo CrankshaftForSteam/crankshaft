@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"log"
 	"os"
+	"runtime"
 
 	"git.sr.ht/~avery/crankshaft/executil"
 	"git.sr.ht/~avery/systray"
@@ -14,17 +15,20 @@ var icon []byte
 
 // StartTray starts the system tray menu if the system has a display available.
 func StartTray(onReload func() error, logsDir string) {
-	log.Println("Starting system tray icon...")
-	reloadChannel := make(chan struct{})
-	go setupTray(reloadChannel, logsDir)
-	go func() {
-		for {
-			<-reloadChannel
-			if err := onReload(); err != nil {
-				log.Printf("Error reloading from system tray: %v", err)
+	// Only enable the systray if there's a DISPLAY env variable on Linux
+	if runtime.GOOS != "linux" || len(os.Getenv("DISPLAY")) != 0 {
+		log.Println("Starting system tray icon...")
+		reloadChannel := make(chan struct{})
+		go setupTray(reloadChannel, logsDir)
+		go func() {
+			for {
+				<-reloadChannel
+				if err := onReload(); err != nil {
+					log.Printf("Error reloading from system tray: %v", err)
+				}
 			}
-		}
-	}()
+		}()
+	}
 }
 
 func setupTray(reloadChannel chan struct{}, logsDir string) {
