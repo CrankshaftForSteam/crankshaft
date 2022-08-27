@@ -49,6 +49,7 @@ func BundleScripts() error {
 	res := api.Build(api.BuildOptions{
 		EntryPoints: []string{
 			"injected/src/entrypoints/library.ts",
+			"injected/src/entrypoints/keyboard.ts",
 			"injected/src/entrypoints/menu.ts",
 			"injected/src/entrypoints/quick-access.ts",
 			"injected/src/entrypoints/app-properties.ts",

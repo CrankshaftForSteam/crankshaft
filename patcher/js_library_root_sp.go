@@ -119,14 +119,22 @@ func patchCoolClass(fileLines []string, origPath, serverPort, authToken string) 
 
 		window.addEventListener('load', () => {
 			console.info('[Crankshaft] Page loading, making request to inject service');
+
+			// Check if we're a standalone keyboard, or the library
+			let injectMethod = 'InjectService.InjectLibrary';
+			if (window.location.href.includes('IN_STANDALONE_KEYBOARD')) {
+				injectMethod = 'InjectService.InjectKeyboard';
+			}
+			console.log('Injecting with ' + injectMethod);
+
 			fetch('http://localhost:%[1]s/rpc', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-    			'X-Cs-Auth': window.csAuthToken,
+    				'X-Cs-Auth': window.csAuthToken,
 				},
 				body: JSON.stringify({
-					method: 'InjectService.InjectLibrary',
+					method: injectMethod,
 					params: [],
 					id: Date.now(),
 				}),

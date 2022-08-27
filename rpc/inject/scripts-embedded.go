@@ -15,6 +15,9 @@ var sharedScript string
 //go:embed scripts/library.js
 var libraryScript string
 
+//go:embed scripts/keyboard.js
+var keyboardScript string
+
 //go:embed scripts/menu.js
 var menuScript string
 

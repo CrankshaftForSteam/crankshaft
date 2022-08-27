@@ -3,12 +3,13 @@ package inject
 import (
 	"errors"
 	"fmt"
+	"log"
+	"net/http"
+
 	"git.sr.ht/~avery/crankshaft/build"
 	"git.sr.ht/~avery/crankshaft/cdp"
 	"git.sr.ht/~avery/crankshaft/plugins"
 	"git.sr.ht/~avery/crankshaft/tags"
-	"log"
-	"net/http"
 )
 
 type InjectService struct {
@@ -92,6 +93,69 @@ func (service *InjectService) InjectLibrary(r *http.Request, req *InjectArgs, re
 	if err := steamClient.RunScriptInLibrary(libraryEvalScript); err != nil {
 		log.Println(err)
 		return fmt.Errorf("Error injecting library script: %w", err)
+	}
+
+	return nil
+}
+
+func (service *InjectService) InjectKeyboard(r *http.Request, req *InjectArgs, res *InjectReply) error {
+	log.Println("Injecting keyboard scripts...")
+
+	steamClient, err := cdp.NewSteamClient(service.debugPort)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer steamClient.Cancel()
+
+	if steamClient.UiMode != cdp.UIModeDesktop {
+		return errors.New("Not running in Desktop mode, but got request to inject keyboard scripts")
+	}
+
+	// Shared scripts
+	if tags.Dev {
+		sharedScript, err = build.BundleSharedScripts()
+		if err != nil {
+			log.Println(err)
+			return fmt.Errorf("Failed to build sahred scripts: %v", err)
+		}
+	}
+
+	err = steamClient.RunScriptInKeyboard(sharedScript)
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Error injecting shared script: %v", err)
+	}
+
+	// Keyboard script
+	var keyboardEvalScript string
+	if tags.Dev {
+		keyboardEvalScript, err = build.BuildEvalScriptFromFile(
+			service.serverPort,
+			steamClient.UiMode,
+			".build/keyboard.js",
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
+	} else {
+		keyboardEvalScript, err = build.BuildEvalScript(
+			service.serverPort,
+			steamClient.UiMode,
+			keyboardScript,
+			service.steamPath,
+			service.authToken,
+			service.pluginsDir,
+		)
+	}
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Failed to build keyboard eval script: %w", err)
+	}
+
+	if err := steamClient.RunScriptInKeyboard(keyboardEvalScript); err != nil {
+		log.Println(err)
+		return fmt.Errorf("Error injecting keyboard script: %w", err)
 	}
 
 	return nil

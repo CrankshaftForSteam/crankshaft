@@ -13,6 +13,7 @@ type entry string
 
 const (
 	LibraryEntry       entry = "library"
+	KeyboardEntry      entry = "keyboard"
 	MenuEntry          entry = "menu"
 	QuickAccessEntry   entry = "quickAccess"
 	AppPropertiesEntry entry = "appProperties"
@@ -24,6 +25,8 @@ func (e entry) target() cdp.SteamTarget {
 	switch e {
 	case LibraryEntry:
 		return cdp.LibraryTarget
+	case KeyboardEntry:
+		return cdp.KeyboardTarget
 	case MenuEntry:
 		return cdp.MenuTarget
 	case QuickAccessEntry:
@@ -68,6 +71,8 @@ func (service *InjectService) InjectPlugins(r *http.Request, req *InjectPluginsA
 	switch req.Entrypoint {
 	case LibraryEntry:
 		steamClient.RunScriptInLibrary("window.csPluginsLoaded()")
+	case KeyboardEntry:
+		steamClient.RunScriptInKeyboard("window.csPluginsLoaded()")
 	case MenuEntry:
 		steamClient.RunScriptInMenu("window.csPluginsLoaded()")
 	case QuickAccessEntry:
@@ -113,6 +118,13 @@ func injectPlugin(steamClient *cdp.SteamClient, plugin plugins.Plugin, entrypoin
 		log.Println("Injecting", plugin.Id, "into library")
 		if err := steamClient.RunScriptInLibrary(plugin.Script); err != nil {
 			return fmt.Errorf(`Error injecting plugin "%s" into library: %v`, plugin.Config.Name, err)
+		}
+	}
+
+	if entrypoint == cdp.KeyboardTarget && pluginEntrypoints.Keyboard {
+		log.Println("Injecting", plugin.Id, "into keyboard")
+		if err := steamClient.RunScriptInKeyboard(plugin.Script); err != nil {
+			return fmt.Errorf(`Error injecting plugin "%s" into keyboard: %v`, plugin.Config.Name, err)
 		}
 	}
 

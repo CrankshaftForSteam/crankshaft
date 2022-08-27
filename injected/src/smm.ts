@@ -94,7 +94,7 @@ class EventLockScreenClosed extends CustomEvent<void> {
 /**
  * @public
  */
-export type Entry = 'library' | 'menu' | 'quickAccess' | 'appProperties';
+export type Entry = 'library' | 'menu' | 'quickAccess' | 'appProperties' | 'keyboard';
 
 /**
  * @public
@@ -308,8 +308,6 @@ export class SMM extends EventTarget {
     info('Loading plugins...');
 
     // Inject plugins
-    // TODO: this will inject plugins into all contexts, but we don't know if
-    // other contexts have loaded yet
     try {
       await new Promise<void>((resolve) => {
         // This will be called once the server has loaded plugins
@@ -346,7 +344,7 @@ export class SMM extends EventTarget {
       return;
     }
 
-    info(`Loading plugin ${name}...`);
+    info(`Loading plugin ${pluginId}...`);
     this.currentPlugin = pluginId;
     await window.smmPlugins[pluginId].load(this);
     this.currentPlugin = undefined;

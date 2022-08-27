@@ -7,6 +7,7 @@ package inject
 
 var sharedScript string
 var libraryScript string
+var keyboardScript string
 var menuScript string
 var quickAccessScript string
 var appPropertiesScript string

@@ -12,4 +12,5 @@ export const MENU_DESKTOP_SELECTORS = {
   collectionsButtonInner: '[class*=gamelisthome_CollectionButton_]',
   libraryContainer: '[class^=library_Container_]',
   homeButton: '[class*=gamelistbar_HomeBox_] [class*=gamelisthome_Bar_]',
+  keyboardContainer: '[class^=virtualkeyboard_Keyboard_]',
 };
