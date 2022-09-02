@@ -52,6 +52,12 @@ func run() error {
 		return err
 	}
 
+	if !tags.Dev && (!found || !crksftConfig.InstalledAutoUpdate) {
+		if err := firstLaunchEnableAutoUpdate(dataDir, crksftConfig); err != nil {
+			return fmt.Errorf("Error installing auto update service on first launch: %v", err)
+		}
+	}
+
 	if !tags.Dev && (!found || !crksftConfig.InstalledAutostart) {
 		if err := firstLaunchEnableAutostart(dataDir, crksftConfig); err != nil {
 			return fmt.Errorf("Error installing autostart service on first launch: %v", err)

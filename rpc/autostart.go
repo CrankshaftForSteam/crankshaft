@@ -8,10 +8,11 @@ import (
 
 type AutostartService struct {
 	dataDir string
+	unitName string
 }
 
-func NewAutostartService(dataDir string) *AutostartService {
-	return &AutostartService{dataDir}
+func NewAutostartService(dataDir string, unitName string) *AutostartService {
+	return &AutostartService{dataDir, unitName}
 }
 
 type HostHasSystemdArgs struct{}
@@ -41,7 +42,7 @@ type InstallServiceArgs struct{}
 type InstallServiceReply struct{}
 
 func (service *AutostartService) InstallService(r *http.Request, req *InstallServiceArgs, res *InstallServiceReply) error {
-	return autostart.InstallService(service.dataDir)
+	return autostart.InstallService(service.dataDir, service.unitName)
 }
 
 type DisableServiceArgs struct{}
@@ -49,5 +50,5 @@ type DisableServiceArgs struct{}
 type DisableServiceReply struct{}
 
 func (service *AutostartService) DisableService(r *http.Request, req *DisableServiceArgs, res *DisableServiceReply) error {
-	return autostart.DisableService()
+	return autostart.DisableService(service.unitName)
 }

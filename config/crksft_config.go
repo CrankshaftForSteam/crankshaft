@@ -18,6 +18,7 @@ type CrksftConfigPlugin struct {
 type CrksftConfig struct {
 	filePath           string
 	InstalledAutostart bool
+	InstalledAutoUpdate bool
 	Plugins            map[string]CrksftConfigPlugin `toml:"plugins"`
 }
 

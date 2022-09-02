@@ -42,7 +42,8 @@ func handleRpc(debugPort, serverPort string, plugins *plugins.Plugins, hub *ws.H
 	server.RegisterService(inject.NewInjectService(debugPort, serverPort, plugins, steamPath, authToken, pluginsDir), "InjectService")
 	server.RegisterService(NewPluginsService(plugins), "PluginsService")
 	server.RegisterService(NewIPCService(hub), "IPCService")
-	server.RegisterService(NewAutostartService(dataDir), "AutostartService")
+	server.RegisterService(NewAutostartService(dataDir, "crankshaft.service"), "AutostartService")
+	server.RegisterService(NewAutostartService(dataDir, "crankshaft-update.service"), "AutostartService")
 	server.RegisterService(NewExecService(), "ExecService")
 	server.RegisterService(NewStoreService(dataDir), "StoreService")
 	return server
