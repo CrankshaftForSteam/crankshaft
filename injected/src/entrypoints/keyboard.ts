@@ -9,7 +9,7 @@ const main = async () => {
     return;
   }
 
-  waitForElement(MENU_DESKTOP_SELECTORS.keyboardContainer);
+  await waitForElement(MENU_DESKTOP_SELECTORS.keyboardContainer);
 
   const smm = new SMM('keyboard');
   if (window.smm) {
