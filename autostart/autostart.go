@@ -22,13 +22,13 @@ func HostHasSystemd() bool {
 // TODO: It would probably be better to use the D-Bus API, but it's a
 // restricted Flathub permission, I have to look into it more.
 
-// ServiceInstalled checks if the autostart service is enabled.
-func ServiceInstalled() bool {
+// ServiceInstalled checks if a given systemd unit service is enabled.
+func ServiceInstalled(unit string) bool {
 	if !HostHasSystemd() {
 		return false
 	}
-
-	cmd := executil.Command("bash", "-c", "systemctl --user list-units --full --all | grep crankshaft.service")
+	args := "systemctl --user list-units --full --all | grep "+ unit
+	cmd := executil.Command("bash", "-c", args)
 	return cmd.Run() == nil
 }
 

@@ -32,8 +32,8 @@ type ServiceInstalledReply struct {
 	ServiceInstalled bool `json:"serviceInstalled"`
 }
 
-func (service *AutostartService) ServiceInstalled(r *http.Request, req *ServiceInstalledArgs, res *ServiceInstalledReply) error {
-	res.ServiceInstalled = autostart.ServiceInstalled()
+func (service *AutostartService) ServiceInstalled(r *http.Request, req *ServiceInstalledArgs, res *ServiceInstalledReply, unit string) error {
+	res.ServiceInstalled = autostart.ServiceInstalled(unit)
 	return nil
 }
 

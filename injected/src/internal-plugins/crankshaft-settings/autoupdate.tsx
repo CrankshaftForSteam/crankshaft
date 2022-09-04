@@ -4,7 +4,7 @@ import { Setting } from '.';
 import { rpcRequest } from '../../rpc';
 import { SMM } from '../../smm';
 
-const useAutoUpdate = (smm: SMM) => {
+const useAutoupdate = (smm: SMM) => {
   const [hasSystemd, setHasSystemd] = useState<boolean | undefined>(undefined);
   const [serviceInstalled, setServiceInstalled] = useState<boolean | undefined>(
     undefined
@@ -13,7 +13,7 @@ const useAutoUpdate = (smm: SMM) => {
   useEffect(() => {
     (async () => {
       const { getRes } = rpcRequest<{}, { hasSystemd: boolean }>(
-        'AutoUpdateService.HostHasSystemd',
+        'AutoupdateService.HostHasSystemd',
         {}
       );
       try {
@@ -35,7 +35,7 @@ const useAutoUpdate = (smm: SMM) => {
       }
 
       const { getRes } = rpcRequest<{}, { serviceInstalled: boolean }>(
-        'AutoUpdateService.ServiceInstalled',
+        'AutoupdateService.ServiceInstalled',
         {}
       );
       try {
@@ -50,12 +50,12 @@ const useAutoUpdate = (smm: SMM) => {
     })();
   }, [hasSystemd, serviceInstalled, setServiceInstalled]);
 
-  const setAutoUpdateEnabled = useCallback(
+  const setAutoupdateEnabled = useCallback(
     async (enabled: boolean) => {
       const { getRes } = rpcRequest<{}, {}>(
         enabled
-          ? 'AutoUpdateService.InstallService'
-          : 'AutoUpdateService.DisableService',
+          ? 'AutoupdateService.InstallService'
+          : 'AutoupdateService.DisableService',
         {}
       );
       try {
@@ -71,29 +71,29 @@ const useAutoUpdate = (smm: SMM) => {
     [hasSystemd, setServiceInstalled]
   );
 
-  return { hasSystemd, serviceInstalled, setAutoUpdateEnabled };
+  return { hasSystemd, serviceInstalled, setAutoupdateEnabled };
 };
 
-export const AutoUpdate: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
-  const { hasSystemd, serviceInstalled, setAutoUpdateEnabled } =
-    useAutoUpdate(smm);
+export const Autoupdate: FunctionComponent<{ smm: SMM }> = ({ smm }) => {
+  const { hasSystemd, serviceInstalled, setAutoupdateEnabled } =
+    useAutoupdate(smm);
 
   return (
     <>
-      <AutoUpdateSection
+      <AutoupdateSection
         hasSystemd={hasSystemd}
         serviceInstalled={serviceInstalled}
-        setAutoUpdateEnabled={setAutoUpdateEnabled}
+        setAutoupdateEnabled={setAutoupdateEnabled}
       />
     </>
   );
 };
 
-const AutoUpdateSection: FunctionComponent<{
+const AutoupdateSection: FunctionComponent<{
   hasSystemd?: boolean;
   serviceInstalled?: boolean;
-  setAutoUpdateEnabled: (enabled: boolean) => Promise<void>;
-}> = ({ hasSystemd, serviceInstalled, setAutoUpdateEnabled }) => {
+  setAutoupdateEnabled: (enabled: boolean) => Promise<void>;
+}> = ({ hasSystemd, serviceInstalled, setAutoupdateEnabled }) => {
   const text = [
     'Crankshaft can be configured to update automatically.',
     <br />,
@@ -115,7 +115,7 @@ const AutoUpdateSection: FunctionComponent<{
       toggleBtn = (
         <button
           className="cs-button"
-          onClick={() => setAutoUpdateEnabled(false)}
+          onClick={() => setAutoupdateEnabled(false)}
           data-cs-gp-in-group="autoupdate"
           data-cs-gp-item="autoupdate__autoupdate-btn"
         >
@@ -131,7 +131,7 @@ const AutoUpdateSection: FunctionComponent<{
       toggleBtn = (
         <button
           className="cs-button"
-          onClick={() => setAutoUpdateEnabled(true)}
+          onClick={() => setAutoupdateEnabled(true)}
           data-cs-gp-in-group="autoupdate"
           data-cs-gp-item="autoupdate__autoupdate-btn"
         >
@@ -142,7 +142,7 @@ const AutoUpdateSection: FunctionComponent<{
   }
 
   return (
-    <Setting name="AutoUpdate" gpGroupName="autoupdate">
+    <Setting name="Autoupdate" gpGroupName="autoupdate">
       <p style={{ margin: '0 0 8px 0' }}>{text}</p>
       {toggleBtn}
     </Setting>
