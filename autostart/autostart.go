@@ -27,8 +27,7 @@ func ServiceInstalled(unit string) bool {
 	if !HostHasSystemd() {
 		return false
 	}
-	args := "systemctl --user list-units --full --all | grep "+ unit
-	cmd := executil.Command("bash", "-c", args)
+	cmd := executil.Command("systemctl", "--user", "status", unit)
 	return cmd.Run() == nil
 }
 

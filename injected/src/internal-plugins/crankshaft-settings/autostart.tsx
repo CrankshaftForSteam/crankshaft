@@ -13,7 +13,7 @@ const useAutostart = (smm: SMM) => {
   useEffect(() => {
     (async () => {
       const { getRes } = rpcRequest<{}, { hasSystemd: boolean }>(
-        'AutostartService.HostHasSystemd',
+        'SystemdService.HostHasSystemd',
         {}
       );
       try {
@@ -35,7 +35,7 @@ const useAutostart = (smm: SMM) => {
       }
 
       const { getRes } = rpcRequest<{}, { serviceInstalled: boolean }>(
-        'AutostartService.ServiceInstalled',
+        'SystemdService.ServiceInstalled',
         {}
       );
       try {
@@ -54,8 +54,8 @@ const useAutostart = (smm: SMM) => {
     async (enabled: boolean) => {
       const { getRes } = rpcRequest<{}, {}>(
         enabled
-          ? 'AutostartService.InstallService'
-          : 'AutostartService.DisableService',
+          ? 'SystemdService.InstallService'
+          : 'SystemdService.DisableService',
         {}
       );
       try {

@@ -13,7 +13,7 @@ const useAutoupdate = (smm: SMM) => {
   useEffect(() => {
     (async () => {
       const { getRes } = rpcRequest<{}, { hasSystemd: boolean }>(
-        'AutoupdateService.HostHasSystemd',
+        'SystemdService.HostHasSystemd',
         {}
       );
       try {
@@ -35,7 +35,7 @@ const useAutoupdate = (smm: SMM) => {
       }
 
       const { getRes } = rpcRequest<{}, { serviceInstalled: boolean }>(
-        'AutoupdateService.ServiceInstalled',
+        'SystemdService.ServiceInstalled',
         {}
       );
       try {
@@ -54,8 +54,8 @@ const useAutoupdate = (smm: SMM) => {
     async (enabled: boolean) => {
       const { getRes } = rpcRequest<{}, {}>(
         enabled
-          ? 'AutoupdateService.InstallService'
-          : 'AutoupdateService.DisableService',
+          ? 'SystemdService.InstallService'
+          : 'SystemdService.DisableService',
         {}
       );
       try {
@@ -95,7 +95,7 @@ const AutoupdateSection: FunctionComponent<{
   setAutoupdateEnabled: (enabled: boolean) => Promise<void>;
 }> = ({ hasSystemd, serviceInstalled, setAutoupdateEnabled }) => {
   const text = [
-    'Crankshaft can be configured to update automatically.',
+    'Crankshaft can be configured to start automatically with your system.',
     <br />,
   ];
   let toggleBtn: JSX.Element | null = null;
