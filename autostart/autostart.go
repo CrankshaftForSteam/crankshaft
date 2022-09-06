@@ -10,8 +10,10 @@ import (
 )
 
 //go:embed crankshaft.service
-var unit string
+var startUnit string
 
+//go:embed crankshaft-update.service
+var updateUnit string
 // HostHasSystemd checks if the host system is using Systemd, which is required
 // for the autostart service.
 func HostHasSystemd() bool {
@@ -32,8 +34,14 @@ func ServiceInstalled(unit string) bool {
 }
 
 // InstallService saves the autostart unit file and enables it with Systemd.
-func InstallService(dataDir string, unit string) error {
-	unitFile := unit
+func InstallService(dataDir string, unitName string) error {
+	var unitFile string
+	switch unitName {
+	case "crankshaft.service":
+		unitFile = startUnit
+	case "crankshaft-update.service":
+		unitFile = updateUnit
+	}
 
 	// If the user is on a handheld, make service restart more aggressively
 	isOnHandheld := false
@@ -60,7 +68,7 @@ func InstallService(dataDir string, unit string) error {
 		unitFile = strings.ReplaceAll(unitFile, "Restart=on-failure", "Restart=always")
 	}
 
-	unitPath := path.Join(dataDir, unit)
+	unitPath := path.Join(dataDir, unitName)
 
 	err := ioutil.WriteFile(unitPath, []byte(unitFile), 0755)
 	if err != nil {
@@ -72,13 +80,13 @@ func InstallService(dataDir string, unit string) error {
 }
 
 // DisableService disables the autostart service.
-func DisableService(unit string) error {
-	cmd := executil.Command("systemctl", "--user", "disable", unit)
+func DisableService(unitName string) error {
+	cmd := executil.Command("systemctl", "--user", "disable", unitName)
 	return cmd.Run()
 }
 
 // StartService starts Crankshaft through the autostart service
-func StartService(unit string) error {
-	cmd := executil.Command("systemctl", "--user", "start", unit)
+func StartService(unitName string) error {
+	cmd := executil.Command("systemctl", "--user", "start", unitName)
 	return cmd.Run()
 }

@@ -13,7 +13,7 @@ const useAutoupdate = (smm: SMM) => {
   useEffect(() => {
     (async () => {
       const { getRes } = rpcRequest<{}, { hasSystemd: boolean }>(
-        'SystemdService.HostHasSystemd',
+        'AutoupdateService.HostHasSystemd',
         {}
       );
       try {
@@ -35,7 +35,7 @@ const useAutoupdate = (smm: SMM) => {
       }
 
       const { getRes } = rpcRequest<{}, { serviceInstalled: boolean }>(
-        'SystemdService.ServiceInstalled',
+        'AutoupdateService.ServiceInstalled',
         {}
       );
       try {
@@ -54,8 +54,8 @@ const useAutoupdate = (smm: SMM) => {
     async (enabled: boolean) => {
       const { getRes } = rpcRequest<{}, {}>(
         enabled
-          ? 'SystemdService.InstallService'
-          : 'SystemdService.DisableService',
+          ? 'AutoupdateService.InstallService'
+          : 'AutoupdateService.DisableService',
         {}
       );
       try {

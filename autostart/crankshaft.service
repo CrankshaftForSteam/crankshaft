@@ -1,5 +1,7 @@
 [Unit]
 Description=Crankshaft Plugin Manager
+StartLimitBurst=10
+StartLimitIntervalSec=10
 
 [Service]
 ExecStart=/usr/bin/flatpak run space.crankshaft.Crankshaft
@@ -7,8 +9,6 @@ ExecStop=-/usr/bin/pkill -x crankshaft
 ExecStopPost=-/usr/bin/flatpak run space.crankshaft.Crankshaft -cleanup
 
 Restart=on-failure
-StartLimitBurst=10
-StartLimitIntervalSec=10
 
 [Install]
 WantedBy=default.target
