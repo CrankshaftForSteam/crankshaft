@@ -9,13 +9,15 @@ import (
 type AutoupdateService struct {
 	dataDir string
 	unitName string
+	timerName string
 }
 
-func NewAutoupdateService(dataDir string, unitName string) *AutoupdateService {
-	return &AutoupdateService{dataDir, unitName}
+func NewAutoupdateService(dataDir string, unitName string, timerName string) *AutoupdateService {
+	return &AutoupdateService{dataDir, unitName, timerName}
 }
 
 func (service *AutoupdateService) DisableService(r *http.Request, req *DisableServiceArgs, res *DisableServiceReply) error {
+	autostart.DisableService(service.timerName)
 	return autostart.DisableService(service.unitName)
 }
 
@@ -25,6 +27,7 @@ func (service *AutoupdateService) HostHasSystemd(r *http.Request, req *HostHasSy
 }
 
 func (service *AutoupdateService) InstallService(r *http.Request, req *InstallServiceArgs, res *InstallServiceReply) error {
+	autostart.InstallService(service.dataDir, service.timerName)
 	return autostart.InstallService(service.dataDir, service.unitName)
 }
 

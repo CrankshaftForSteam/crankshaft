@@ -11,9 +11,11 @@ import (
 
 //go:embed crankshaft.service
 var startUnit string
-
 //go:embed crankshaft-update.service
 var updateUnit string
+//go:embed crankshaft-update.timer
+var updateTimer string
+
 // HostHasSystemd checks if the host system is using Systemd, which is required
 // for the autostart service.
 func HostHasSystemd() bool {
@@ -41,6 +43,8 @@ func InstallService(dataDir string, unitName string) error {
 		unitFile = startUnit
 	case "crankshaft-update.service":
 		unitFile = updateUnit
+	case "crankshaft-update.timer":
+		unitFile = updateTimer
 	}
 
 	// If the user is on a handheld, make service restart more aggressively
