@@ -117,7 +117,7 @@ func patchCoolClass(fileLines []string, origPath, serverPort, authToken string) 
 		window.csAuthToken = '%[2]s';
 		console.info('[Crankshaft] Loading patched libraryroot~sp.js');
 
-		window.addEventListener('load', () => {
+		const loadHandler = () => {
 			console.info('[Crankshaft] Page loading, making request to inject service');
 
 			// Check if we're a standalone keyboard, or the library
@@ -139,7 +139,13 @@ func patchCoolClass(fileLines []string, origPath, serverPort, authToken string) 
 					id: Date.now(),
 				}),
 			})
-		});
+		}
+
+		if (document.readyState === 'complete') {
+			loadHandler();
+		} else {
+			window.addEventListener('load', loadHandler);
+		}
 	`, serverPort, authToken)
 	insertAtPos(&fileLines, 0, script)
 
