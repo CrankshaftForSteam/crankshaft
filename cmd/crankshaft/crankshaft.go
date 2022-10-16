@@ -43,9 +43,11 @@ func run() error {
 		return fmt.Errorf("Error ensuring directories exist: %v", err)
 	}
 
-	if err := setupLogging(logsDir); err != nil {
+	logFile, err := setupLogging(logsDir)
+	if err != nil {
 		return fmt.Errorf("Error setting up logging: %v", err)
 	}
+	defer logFile.Close()
 
 	crksftConfig, found, err := config.NewCrksftConfig(dataDir)
 	if err != nil {
@@ -77,6 +79,7 @@ func run() error {
 	waitAndPatch := func() error {
 		cdp.WaitForConnection(debugPort)
 		cdp.WaitForLibraryEl(debugPort)
+		cdp.WaitForVideoFinish(debugPort)
 		cdp.ShowLoadingIndicator(debugPort, serverPort, authToken)
 		err = patcher.Patch(debugPort, serverPort, steamPath, cacheDir, noCache, authToken)
 		if err != nil {

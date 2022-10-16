@@ -134,7 +134,7 @@ func (sc *SteamClient) runScriptInTarget(isTarget targetFilterFunc, script strin
 	var ctx context.Context = nil
 	retries := 0
 
-	for ctx == nil && retries < 10 {
+	for ctx == nil && retries < getTargetRetryMax {
 		if retries != 0 {
 			time.Sleep(1 * time.Second)
 		}
