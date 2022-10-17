@@ -85,6 +85,15 @@ declare global {
       };
     };
 
+    GamepadNavTree: {
+      m_Controller: {
+        m_rgGamepadInputSources: {
+          m_eNavigationSourceType: number;
+          OnButtonDown: (buttonCode: number, inputType: number) => void;
+        }[];
+      };
+    };
+
     // Custom menu items to load into the main menu
     csMenuItems?: {
       id: string;
