@@ -41,6 +41,19 @@
   <url type="homepage">https://crankshaft.space/</url>
 
   <releases>
+    <release version="0.2.5" date="2022-10-18">
+      <description>
+        <p>Thanks to DrakiaXYZ and Olyve for their contributions!</p>
+        
+        <ul>
+          <li>SteamOS 3.3.2 support (by DrakiaXYZ)</li>
+          <li>Support keyboard plugins in desktop mode (by DrakiaXYZ)</li>
+          <li>Basic Windows support (by DrakiaXYZ)</li>
+          <li>Allow plugins to specify supported platforms (by Olyve)</li>
+        </ul>
+      </description>
+    </release>
+
     <release version="0.2.4" date="2022-08-20">
       <description>
         <p>
