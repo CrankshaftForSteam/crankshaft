@@ -2,6 +2,7 @@ import { FunctionComponent, render } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import { SMM } from '../../smm';
 import { Autostart } from './autostart';
+import { Autoupdate } from './autoupdate';
 
 export const load = (smm: SMM) => {
   smm.MenuManager.addMenuItem({
@@ -29,6 +30,7 @@ const App: FunctionComponent<{ smm: SMM }> = ({ smm }) => (
       }}
     >
       <Info />
+      <Autoupdate smm={smm} />
       <Autostart smm={smm} />
       <Devtools smm={smm} />
       <CefDebugToggle />

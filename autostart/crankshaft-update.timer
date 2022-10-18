@@ -1,0 +1,13 @@
+[Unit]
+Description=Update Crankshaft
+
+[Timer]
+OnBootSec=2m
+OnActiveSec=2m
+OnUnitInactiveSec=24h
+OnUnitActiveSec=24h
+AccuracySec=1h
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

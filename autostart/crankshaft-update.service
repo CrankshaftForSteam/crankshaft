@@ -1,0 +1,11 @@
+[Unit]
+Description=Update Crankshaft
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/flatpak update space.crankshaft.Crankshaft --noninteractive --assumeyes
+
+[Install]
+WantedBy=default.target

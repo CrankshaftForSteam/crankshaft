@@ -9,26 +9,35 @@ import (
 	"git.sr.ht/~avery/crankshaft/config"
 )
 
-// FirstLaunchEnableAutostart enables the autostart service on first launch.
-func firstLaunchEnableAutostart(dataDir string, crksftConfig *config.CrksftConfig) error {
+// FirstLaunchEnableSystemdUnits enables the autostart service on first launch.
+func firstLaunchEnableSystemdUnits(dataDir string, crksftConfig *config.CrksftConfig) error {
 	if autostart.HostHasSystemd() {
-		log.Println("Installing autostart service...")
+		unitArray := []string{"crankshaft.service", "crankshaft-update.service", "crankshaft-update.timer"}
+		log.Println("Installing autostart services...")
 
-		if err := autostart.InstallService(dataDir); err != nil {
-			return fmt.Errorf("Error installing autostart service: %v", err)
+		for _, unit := range unitArray {
+			if err := autostart.InstallService(dataDir, unit); err != nil {
+				return fmt.Errorf("Error installing autostart service: %v", err)
+			}
+			
+			switch unit {
+			case "crankshaft.service":
+				crksftConfig.InstalledAutostart = true
+			case "crankshaft-update.service":
+				crksftConfig.InstalledAutoUpdate = true
+			default:
+				continue
+			}
+			
+			if err := crksftConfig.Write(); err != nil {
+				return fmt.Errorf("Error writing config: %v", err)
+			}
+
+			if err := autostart.StartService(unit); err != nil {
+				return fmt.Errorf("Error starting Crankshaft service: %v", err)
+			}
 		}
-
-		crksftConfig.InstalledAutostart = true
-
-		if err := crksftConfig.Write(); err != nil {
-			return fmt.Errorf("Error writing config: %v", err)
-		}
-
 		log.Println("Starting Crankshaft with Systemd and killing this instance, goodbye!")
-
-		if err := autostart.StartService(); err != nil {
-			return fmt.Errorf("Error starting Crankshaft service: %v", err)
-		}
 		os.Exit(0)
 	} else {
 		log.Println("Not running systemd, skipping autostart service installation")
