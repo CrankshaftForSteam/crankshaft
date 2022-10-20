@@ -1,4 +1,5 @@
 import { Entry, SMM } from '../smm';
+import { INPUT_CODE } from './inputs';
 import { shouldAllowButtonPress } from './overrides';
 
 type buttonInterceptor = Exclude<
@@ -35,6 +36,8 @@ export class ButtonInterceptors {
     window.csButtonInterceptors ||= [];
 
     if (this.smm.entry === 'library') {
+      this.patchOnButtonDown();
+
       this.smm.IPC.on<ipcAddInterceptor>(
         ipcNames.addInterceptor,
         ({ data: { id, buttonFilters, entry } }) => {
@@ -145,6 +148,44 @@ export class ButtonInterceptors {
     }
 
     window.csButtonInterceptors = newInterceptors;
+  }
+
+  patchOnButtonDown() {
+    // Make sure we have a GamepadNavTree, desktop clients won't
+    const inputSources =
+      window?.GamepadNavTree?.m_Controller?.m_rgGamepadInputSources;
+    if (!inputSources) {
+      return;
+    }
+
+    // Patch the first input source flagged as a GamePad
+    for (const inputSource of inputSources) {
+      if (inputSource.m_eNavigationSourceType === INPUT_CODE.GAMEPAD) {
+        // Patch over the original OnButtonDown with one that calls out handler
+        const origOnButtonDown = inputSource.OnButtonDown.bind(inputSource);
+        inputSource.OnButtonDown = function (
+          buttonCode: number,
+          inputType: number
+        ) {
+          // If we have a handler registered, call it, and exit if it returns true
+          if (window.csButtonInterceptors) {
+            for (const { handler } of [
+              ...window.csButtonInterceptors,
+            ].reverse()) {
+              if (handler(buttonCode)) {
+                return;
+              }
+            }
+          }
+
+          // If we didn't return from one of our handlers, call the original function
+          origOnButtonDown(buttonCode, inputType);
+        };
+
+        // Now that we've found a gamepad input source, break out of the loop
+        break;
+      }
+    }
   }
 
   interceptorExists(id: string) {

@@ -57,12 +57,6 @@ func patchLibraryRootSP(scriptPath, serverPort, cacheDir string, noCache bool, a
 		return err
 	}
 
-	fileLines, err = addButtonInterceptor(fileLines)
-	if err != nil {
-		// return err
-		// It's ok if we don't find this in desktop mode
-	}
-
 	fileLines, err = appProperties(fileLines)
 	if err != nil {
 		return err
@@ -175,36 +169,6 @@ func findCoolClassConstructor(fileLines []string) (int, error) {
 	}
 
 	return 0, fmt.Errorf("constructor not found")
-}
-
-func addButtonInterceptor(fileLines []string) ([]string, error) {
-	onButtonDownExp := regexp.MustCompile(`OnButtonDown\((\S+),.+\) {`)
-	found := false
-	for i, line := range fileLines {
-		matches := onButtonDownExp.FindStringSubmatch(line)
-		if len(matches) >= 2 {
-			found = true
-
-			eventCodeArg := matches[1]
-
-			fileLines[i] = line + `
-				if (window.csButtonInterceptors) {
-					for (const { handler } of [...window.csButtonInterceptors].reverse()) {
-						if (handler(` + eventCodeArg + `)) {
-							return;
-						}
-					}
-				}
-			`
-
-			break
-		}
-	}
-	if !found {
-		log.Println("Didn't find OnButtonDown")
-	}
-
-	return fileLines, nil
 }
 
 func appProperties(fileLines []string) ([]string, error) {
