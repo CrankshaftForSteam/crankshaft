@@ -30,31 +30,27 @@ func GetSteamCtx(debugPort string) (ctx context.Context, cancel func(), err erro
 }
 
 func WaitForConnection(debugPort string) {
-	steamCtx, cancel, _ := GetSteamCtx(debugPort)
-
 	log.Println("Waiting to connect to Steam client...")
 
-	connected := false
-	for !connected {
-		cancel()
-		steamCtx, cancel, _ = GetSteamCtx(debugPort)
-
+	for {
+		steamCtx, cancel, _ := GetSteamCtx(debugPort)
 		targets, err := chromedp.Targets(steamCtx)
-		if err != nil {
-			time.Sleep(1 * time.Second)
-			continue
-		}
 
-		foundSp := false
-		for _, target := range targets {
-			if IsLibraryTarget(target) {
-				foundSp = true
+		if err == nil {
+			foundSp := false
+			for _, target := range targets {
+				if IsLibraryTarget(target) {
+					foundSp = true
+					break
+				}
+			}
+
+			if foundSp {
+				break
 			}
 		}
-		if foundSp {
-			connected = true
-		}
 
+		cancel()
 		time.Sleep(1 * time.Second)
 	}
 

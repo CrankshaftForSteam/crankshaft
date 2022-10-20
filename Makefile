@@ -59,17 +59,23 @@ bundle-scripts:
 
 .PHONY: build
 build: bundle-scripts
-	mkdir rpc/inject/scripts
+	mkdir -p rpc/inject/scripts
 	cp .build/* rpc/inject/scripts
 	go run cmd/bundle-scripts/main.go
 	go build -o crankshaft cmd/crankshaft/*.go
 
 .PHONY: flatpak
 flatpak: bundle-scripts
-	mkdir rpc/inject/scripts
+	mkdir -p rpc/inject/scripts
 	cp .build/* rpc/inject/scripts
 	go run cmd/bundle-scripts/main.go
 	go build -tags=flatpak -o crankshaft cmd/crankshaft/*.go
+
+.PHONY: patch-flatpak
+patch-flatpak: flatpak
+	systemctl --user stop crankshaft.service
+	cp crankshaft $(shell flatpak info -l space.crankshaft.Crankshaft)/files/bin/crankshaft
+	systemctl --user start crankshaft.service
 
 .PHONY: api-extractor
 api-extractor:

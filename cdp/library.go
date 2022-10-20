@@ -1,8 +1,12 @@
 package cdp
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 func WaitForLibraryEl(debugPort string) error {
+	log.Println("Waiting for Library...")
 	sc, err := NewSteamClient(debugPort)
 	if err != nil {
 		return err
@@ -11,17 +15,17 @@ func WaitForLibraryEl(debugPort string) error {
 
 	selector := `[class^=library_AppDetailsMain]`
 	if sc.UiMode == UIModeDeck {
-		selector = `[class^=basiclibrary_TopLevelTransitionSwitch]`
+		selector = `[class^=gamepadui_Content]`
 	}
 
 	script := fmt.Sprintf(`
 		new Promise((resolve) => {
-			if (document.querySelector(%s)) {
+			if (document.querySelector('%s')) {
 				resolve();
 			}
 
 			const observer = new MutationObserver(() => {
-				if (document.querySelector(%s)) {
+				if (document.querySelector('%s')) {
 					resolve();
 				}
 			});
@@ -31,6 +35,43 @@ func WaitForLibraryEl(debugPort string) error {
 
 	sc.RunScriptInLibrary(script)
 
+	log.Println("Library found!")
+	return nil
+}
+
+// Wait for the video element to be removed in the event a startup video is enabled
+func WaitForVideoFinish(debugPort string) error {
+	sc, err := NewSteamClient(debugPort)
+	if err != nil {
+		return err
+	}
+	defer sc.Cancel()
+
+	// We don't need to worry about this on desktop mode
+	if sc.UiMode != UIModeDeck {
+		return nil
+	}
+
+	log.Println("Waiting for video to finish...")
+	selector := `[class^=steamdeckbootupthrobber_Container]`
+	script := fmt.Sprintf(`
+		new Promise((resolve) => {
+			if (!document.querySelector('%s')) {
+				resolve();
+			}
+
+			const observer = new MutationObserver(() => {
+				if (!document.querySelector('%s')) {
+					resolve();
+				}
+			});
+			observer.observe(document, { subtree: true, childList: true });
+		});
+	`, selector, selector)
+
+	sc.RunScriptInLibrary(script)
+
+	log.Println("Video finished!")
 	return nil
 }
 
