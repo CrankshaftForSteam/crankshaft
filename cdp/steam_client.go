@@ -59,6 +59,7 @@ func (sc *SteamClient) getTargets() ([]*target.Info, error) {
 type SteamTarget string
 
 const (
+	MainTarget          SteamTarget = "Steam"
 	LibraryTarget       SteamTarget = "SP"
 	KeyboardTarget      SteamTarget = "SP_Keyboard"
 	MenuTarget          SteamTarget = "MainMenu"
@@ -67,6 +68,10 @@ const (
 )
 
 type targetFilterFunc func(target *target.Info) bool
+
+func IsMainTarget(target *target.Info) bool {
+	return target.Title == string(MainTarget)
+}
 
 func IsLibraryTarget(target *target.Info) bool {
 	return (target.Title == "SP" || strings.HasPrefix(target.URL, "https://steamloopback.host/index.html")) &&
@@ -96,6 +101,8 @@ func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
 
 	var isTarget targetFilterFunc
 	switch steamTarget {
+	case MainTarget:
+		isTarget = IsMainTarget
 	case LibraryTarget:
 		isTarget = IsLibraryTarget
 	case KeyboardTarget:
@@ -163,6 +170,10 @@ func (sc *SteamClient) runScriptInTarget(isTarget targetFilterFunc, script strin
 	}
 
 	return nil
+}
+
+func (sc *SteamClient) RunScriptInMain(script string) error {
+	return sc.runScriptInTarget(IsMainTarget, script)
 }
 
 func (sc *SteamClient) RunScriptInLibrary(script string) error {
