@@ -159,7 +159,11 @@ func (sc *SteamClient) GetTarget(steamTarget SteamTarget) (*target.Info, error) 
 }
 
 // WaitForTarget waits for the requested target to be found.
-func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
+//
+// maxRetry specifies the maximum number of times to check for the target (with
+// 1 second between checks). If set to 0, this will wait for the target forever.
+func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget, maxRetry int) error {
+	// TODO: implement maxRetry to replace some stuff in runScriptInSteamTarget
 	log.Println("Waiting for target", steamTarget)
 
 	for {
@@ -182,7 +186,7 @@ func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
 // Will sleep for 1 second between retries
 const getTargetRetryMax = 10
 
-func (sc *SteamClient) runScriptInTarget(isTarget targetFilterFunc, script string) error {
+func (sc *SteamClient) runScriptInSteamTarget(steamTarget SteamTarget, script string) error {
 	var ctx context.Context = nil
 	retries := 0
 
@@ -196,6 +200,8 @@ func (sc *SteamClient) runScriptInTarget(isTarget targetFilterFunc, script strin
 			return err
 		}
 
+		isTarget := steamTarget.FilterFunc()
+
 		for _, target := range targets {
 			if isTarget(target) {
 				ctx, _ = chromedp.NewContext(sc.steamCtx, chromedp.WithTargetID(target.TargetID))
@@ -206,7 +212,7 @@ func (sc *SteamClient) runScriptInTarget(isTarget targetFilterFunc, script strin
 	}
 
 	if ctx == nil {
-		return fmt.Errorf("Couldn't find context for target")
+		return fmt.Errorf(`Couldn't find context for target "%s"`, steamTarget)
 	}
 
 	err := chromedp.Run(ctx, chromedp.Evaluate(script, nil, withAwaitPromise))
@@ -217,12 +223,17 @@ func (sc *SteamClient) runScriptInTarget(isTarget targetFilterFunc, script strin
 	return nil
 }
 
+func (sc *SteamClient) runScriptInCustomTarget(isTarget targetFilterFunc, script string) error {
+	// TODO
+	return nil
+}
+
 func (sc *SteamClient) RunScriptInMain(script string) error {
-	return sc.runScriptInTarget(IsMainTarget, script)
+	return sc.runScriptInSteamTarget(MainTarget, script)
 }
 
 func (sc *SteamClient) RunScriptInLibrary(script string) error {
-	return sc.runScriptInTarget(IsLibraryTarget, script)
+	return sc.runScriptInSteamTarget(LibraryTarget, script)
 }
 
 func (sc *SteamClient) RunScriptInKeyboard(script string) error {
@@ -230,7 +241,7 @@ func (sc *SteamClient) RunScriptInKeyboard(script string) error {
 		return fmt.Errorf("Scripts can only be run in keyboard context in desktop mode")
 	}
 
-	return sc.runScriptInTarget(IsKeyboardTarget, script)
+	return sc.runScriptInSteamTarget(KeyboardTarget, script)
 }
 
 func (sc *SteamClient) RunScriptInMenu(script string) error {
@@ -238,7 +249,7 @@ func (sc *SteamClient) RunScriptInMenu(script string) error {
 		return fmt.Errorf("Running in desktop mode, unable to inject script into Deck menu")
 	}
 
-	return sc.runScriptInTarget(IsMenuTarget, script)
+	return sc.runScriptInSteamTarget(MenuTarget, script)
 }
 
 func (sc *SteamClient) RunScriptInQuickAccess(script string) error {
@@ -246,7 +257,7 @@ func (sc *SteamClient) RunScriptInQuickAccess(script string) error {
 		return fmt.Errorf("Running in desktop mode, unable to inject script into Deck quick access menu")
 	}
 
-	return sc.runScriptInTarget(IsQuickAccessTarget, script)
+	return sc.runScriptInSteamTarget(QuickAccessTarget, script)
 }
 
 func (sc *SteamClient) RunScriptInAppProperties(script string, title string) error {
@@ -254,7 +265,7 @@ func (sc *SteamClient) RunScriptInAppProperties(script string, title string) err
 		return fmt.Errorf("Scripts can only be run in app properties context in desktop mode")
 	}
 
-	return sc.runScriptInTarget(func(target *target.Info) bool {
+	return sc.runScriptInCustomTarget(func(target *target.Info) bool {
 		return target.Title == title
 	}, script)
 }
