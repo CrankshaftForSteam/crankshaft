@@ -2,6 +2,7 @@ package cdp
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -20,7 +21,8 @@ type SteamClient struct {
 	steamCtx context.Context
 	Cancel   func()
 
-	UiMode UIMode
+	HasMainTarget bool
+	UiMode        UIMode
 }
 
 // NewSteamClient creates and initializes a new SteamClient.
@@ -32,14 +34,33 @@ func NewSteamClient(debugPort string) (*SteamClient, error) {
 
 		steamCtx: steamCtx,
 		Cancel:   cancel,
+
+		HasMainTarget: false,
+	}
+
+	mainTarget, err := steamClient.GetTarget(MainTarget)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting main target: %w", err)
+	}
+	if mainTarget != nil {
+		steamClient.HasMainTarget = true
 	}
 
 	// Get UI mode
-	out, _ := steamClient.runScriptInTargetWithOutput(IsLibraryTarget, "SteamClient.UI.GetUIMode()")
+	var out string
+	if steamClient.HasMainTarget {
+		out, err = steamClient.runScriptInTargetWithOutput(IsMainTarget, "SteamClient.UI.GetUIMode()")
+	} else {
+		out, err = steamClient.runScriptInTargetWithOutput(IsLibraryTarget, "SteamClient.UI.GetUIMode()")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("Error getting UI mode with script: %w", err)
+	}
 	uiModeNum, err := strconv.Atoi(out)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(`Error getting UI mode with value "%s": %w`, out, err)
 	}
+
 	switch uiModeNum {
 	case 0:
 		steamClient.UiMode = UIModeDesktop
@@ -95,37 +116,61 @@ func IsAppPropertiesTarget(target *target.Info) bool {
 	return strings.HasPrefix(target.Title, "Properties - ")
 }
 
-// WaitForTarget waits for the given target to be found.
+// FilterFunc gets the filtering function for a SteamTarget.
+func (st SteamTarget) FilterFunc() targetFilterFunc {
+	switch st {
+	case MainTarget:
+		return IsMainTarget
+	case LibraryTarget:
+		return IsLibraryTarget
+	case KeyboardTarget:
+		return IsKeyboardTarget
+	case MenuTarget:
+		return IsMenuTarget
+	case QuickAccessTarget:
+		return IsQuickAccessTarget
+	case AppPropertiesTarget:
+		return IsAppPropertiesTarget
+	}
+
+	// All cases handled, this should never happen
+	return nil
+}
+
+// GetTarget gets the requested target. If the target isn't found, returns nil
+// with no error.
+func (sc *SteamClient) GetTarget(steamTarget SteamTarget) (*target.Info, error) {
+	targets, err := sc.getTargets()
+	if err != nil {
+		return nil, fmt.Errorf("Error getting targets: %w", err)
+	}
+
+	isWantedTarget := steamTarget.FilterFunc()
+
+	for _, target := range targets {
+		if isWantedTarget(target) {
+			return target, nil
+		}
+	}
+
+	// Target not found
+	// Doesn't return an error, caller should check for this
+	return nil, nil
+}
+
+// WaitForTarget waits for the requested target to be found.
 func (sc *SteamClient) WaitForTarget(steamTarget SteamTarget) error {
 	log.Println("Waiting for target", steamTarget)
 
-	var isTarget targetFilterFunc
-	switch steamTarget {
-	case MainTarget:
-		isTarget = IsMainTarget
-	case LibraryTarget:
-		isTarget = IsLibraryTarget
-	case KeyboardTarget:
-		isTarget = IsKeyboardTarget
-	case MenuTarget:
-		isTarget = IsMenuTarget
-	case QuickAccessTarget:
-		isTarget = IsQuickAccessTarget
-	case AppPropertiesTarget:
-		isTarget = IsAppPropertiesTarget
-	}
-
 	for {
-		targets, err := sc.getTargets()
+		target, err := sc.GetTarget(steamTarget)
 		if err != nil {
-			return err
+			return fmt.Errorf(`Error getting target "%s": %w`, steamTarget, err)
 		}
 
-		for _, target := range targets {
-			if isTarget(target) {
-				log.Println("Found target", steamTarget)
-				return nil
-			}
+		if target != nil {
+			log.Println("Found target", steamTarget)
+			return nil
 		}
 
 		time.Sleep(1 * time.Second)
@@ -221,11 +266,17 @@ func (sc *SteamClient) runScriptInTargetWithOutput(isTarget targetFilterFunc, sc
 	}
 
 	var ctx context.Context
+	found := false
 	for _, target := range targets {
 		if isTarget(target) {
 			ctx, _ = chromedp.NewContext(sc.steamCtx, chromedp.WithTargetID(target.TargetID))
+			found = true
 			break
 		}
+	}
+
+	if !found {
+		return "", errors.New("Context not found when trying to run script in target")
 	}
 
 	var output []byte
