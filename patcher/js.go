@@ -217,7 +217,11 @@ func reloadClient(debugPort string) error {
 	}
 	defer steamClient.Cancel()
 
-	err = steamClient.RunScriptInLibrary("window.location.reload()")
+	if steamClient.HasMainTarget {
+		err = steamClient.RunScriptInMain("window.location.reload()")
+	} else {
+		err = steamClient.RunScriptInLibrary("window.location.reload()")
+	}
 	if err != nil {
 		return err
 	}
