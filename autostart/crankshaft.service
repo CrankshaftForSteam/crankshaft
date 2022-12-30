@@ -6,7 +6,7 @@ StartLimitIntervalSec=10
 
 [Service]
 ExecStart=/usr/bin/flatpak run space.crankshaft.Crankshaft
-ExecStop=-/usr/bin/pkill -x crankshaft
+ExecStop=-/usr/bin/flatpak kill space.crankshaft.Crankshaft
 ExecStopPost=-/usr/bin/flatpak run space.crankshaft.Crankshaft -cleanup
 
 Restart=on-failure
